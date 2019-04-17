@@ -1,4 +1,5 @@
-# Fake Streamlines Classification
+# tractogram-cleaning
+Computational methods for filtering out non-plausible streamlines from a tractogram
 ## Project workplan
 https://docs.google.com/document/d/1HaMTnNh56o3Vw-3k3BEzfKY3mrm9wTGbvccZyH0MEHI/edit
 
