@@ -5,10 +5,14 @@ https://docs.google.com/document/d/1HaMTnNh56o3Vw-3k3BEzfKY3mrm9wTGbvccZyH0MEHI/
 
 ## Done
 * [x] Data inspection, report at [link]
+* [x] Train PN with ModelNet40
 
 ## ToDo
-* [ ] Train PN with ModelNet40
 * [ ] Prepare dataset P/NP streamlines for training
+** [ ] Retreive id streamlines P/NP in the original tracogram
+** [ ] Filter out streamlines shorter than 2.0cm
+** [ ] Generate b-splines from streamlines, using degree=3, and n=100 sample points
+** [ ] Add data to annex repository and clone it to Genova 
 * [ ] Train PN with P/NP dataset
 
 ## Usage guide
