@@ -63,6 +63,18 @@ elif opt.dataset_type == 'modelnet40':
         split='test_files',
         npoints=opt.num_points,
         data_augmentation=False)
+
+elif opt.dataset_type == 'bspline':
+    dataset = bsplineDataset(
+        root=opt.dataset,
+        npoints=opt.num_points,
+        split='train_files')
+
+    test_dataset = bsplineDataset(
+        root=opt.dataset,
+        split='test_files',
+        npoints=opt.num_points,
+        data_augmentation=False)
 else:
     exit('wrong dataset type')
 
