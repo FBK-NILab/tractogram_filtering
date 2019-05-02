@@ -140,7 +140,7 @@ class bsplineDataset(data.Dataset):
     
     def __init__(self,
                  root,
-                 npoints=2500,
+                 npoints=100,
                  split='train_files',
                  data_augmentation=True):
         self.npoints = npoints
@@ -148,32 +148,51 @@ class bsplineDataset(data.Dataset):
         self.split = split
         self.data_augmentation = data_augmentation
         self.fns = []
+        self.label_fn = []
         #print(self.root)
         with open(os.path.join(root, '{}.txt'.format(self.split)), 'r') as f:
             for line in f:
-                self.fns.append(line.strip())
+                self.fns.append(os.path.join(root, 'derivatives/bspline_var-n100/sub-%s/bspline-subject-%s.npy' % (line,line) ))
+                self.label_fn.append(os.path.join(root, 'derivatives/labels/sub-%s/labels-sub-%s.txt' % (line,line) ))
         #print(self.fns)
+        #print(self.label_fn)
 
         self.lengths = []
-        # TODO: move the code below into a function: load_subject
+        self.final_data = np.ndarray([])
+        self.final_label = np.ndarray([])
+        load_subject()
+        
+    def load_subject(self):
+            
         for fn in self.fns:
             # TODO: use labels to retreive the size of the dataset;
             # in this case, you can do this operation directly inside the 
             # function __len__ 
-            
+                
             data = np.load(fn)
-            
-            # TODO: maintain the code as clean as possible:
-            # delete useless (commented) code
-            
-            #print(fn)
-            #nome_file = os.path.join(root,fn)
-            #print(nome_file)
-            #f = h5py.File(nome_file)
-            #self.lengths += len(f['label'][:])
-            self.lengths.append(len(data))
+                
+            if not self.final_data.shape:
+                self.final_data = data
+            else:
+                self.final_data = np.concatenate((self.final_data,data))
+
+
+        for fnl in self.label_fn:
+
+            label = np.loadtxt(file_label)
+                
+            self.lengths.append(len(label))
+
+            if not self.final_label.shape:
+                    self.final_label = label
+            else:
+                self.final_label = np.concatenate((self.final_label,label))
+
         self.lengths = np.array(self.lengths)
-        #print(self.lengths[:1].sum())
+
+         
+
+        
 
          
         self.cat = {}
@@ -186,38 +205,6 @@ class bsplineDataset(data.Dataset):
 
         self.classes = list(self.cat.keys())
         print(self.classes)
-
-
-
-
-        self.final_data = np.ndarray([])
-        self.final_label = np.ndarray([])
-        
-        # TODO: change the filenaming by reading the sub_id from train/test_files.txt
-        # and move this insde the function load_subject
-      
-        for fn in self.fns:
-            data = np.load(fn)
-            split_1 = fn.split('/')
-            last = split_1[-1]
-            split_2 = last.split('-')
-            number_subject = split_2[-1].split('.')[0]
-            # WARNING: never use absolute path inside the code!
-            file_label = "/Users/martina/Desktop/uniTrento/deep_learning/progetto_cimec/data_tractogram_cleaning/derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt" % (number_subject,number_subject)
-            with open(file_label) as f:
-                content = f.readlines()
-            label = [x.strip() for x in content]
-            label = np.asmatrix(label).T
-
-            
-            if not self.final_data.shape:
-                self.final_data = data
-                self.final_label = label
-            else:
-                self.final_data = np.concatenate((self.final_data,data))
-                self.final_label = np.concatenate((self.final_label,label))
-
-            
     
     def __getitem__(self, idx):
         
@@ -231,6 +218,8 @@ class bsplineDataset(data.Dataset):
 
 
     def __len__(self):
+        
+
         return self.lengths.sum()
 
 
