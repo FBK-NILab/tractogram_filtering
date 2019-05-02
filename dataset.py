@@ -155,8 +155,17 @@ class bsplineDataset(data.Dataset):
         #print(self.fns)
 
         self.lengths = []
+        # TODO: move the code below into a function: load_subject
         for fn in self.fns:
+            # TODO: use labels to retreive the size of the dataset;
+            # in this case, you can do this operation directly inside the 
+            # function __len__ 
+            
             data = np.load(fn)
+            
+            # TODO: maintain the code as clean as possible:
+            # delete useless (commented) code
+            
             #print(fn)
             #nome_file = os.path.join(root,fn)
             #print(nome_file)
@@ -166,7 +175,7 @@ class bsplineDataset(data.Dataset):
         self.lengths = np.array(self.lengths)
         #print(self.lengths[:1].sum())
 
-
+         
         self.cat = {}
         with open(os.path.join(root, 'bspline_id.txt'), 'r') as f:
             for line in f:
@@ -184,12 +193,16 @@ class bsplineDataset(data.Dataset):
         self.final_data = np.ndarray([])
         self.final_label = np.ndarray([])
         
+        # TODO: change the filenaming by reading the sub_id from train/test_files.txt
+        # and move this insde the function load_subject
+      
         for fn in self.fns:
             data = np.load(fn)
             split_1 = fn.split('/')
             last = split_1[-1]
             split_2 = last.split('-')
             number_subject = split_2[-1].split('.')[0]
+            # WARNING: never use absolute path inside the code!
             file_label = "/Users/martina/Desktop/uniTrento/deep_learning/progetto_cimec/data_tractogram_cleaning/derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt" % (number_subject,number_subject)
             with open(file_label) as f:
                 content = f.readlines()
