@@ -152,15 +152,16 @@ class bsplineDataset(data.Dataset):
         #print(self.root)
         with open(os.path.join(root, '{}.txt'.format(self.split)), 'r') as f:
             for line in f:
+                line = line.strip()
                 self.fns.append(os.path.join(root, 'derivatives/bspline_var-n100/sub-%s/bspline-subject-%s.npy' % (line,line) ))
-                self.label_fn.append(os.path.join(root, 'derivatives/labels/sub-%s/labels-sub-%s.txt' % (line,line) ))
+                self.label_fn.append(os.path.join(root, 'derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt' % (line,line) ))
         #print(self.fns)
         #print(self.label_fn)
 
         self.lengths = []
         self.final_data = np.ndarray([])
         self.final_label = np.ndarray([])
-        load_subject()
+        self.load_subject()
         
     def load_subject(self):
             
@@ -179,7 +180,7 @@ class bsplineDataset(data.Dataset):
 
         for fnl in self.label_fn:
 
-            label = np.loadtxt(file_label)
+            label = np.loadtxt(fnl)
                 
             self.lengths.append(len(label))
 
@@ -196,7 +197,94 @@ class bsplineDataset(data.Dataset):
 
          
         self.cat = {}
-        with open(os.path.join(root, 'bspline_id.txt'), 'r') as f:
+        with open(os.path.join(self.root, 'bspline_id.txt'), 'r') as f:
+            for line in f:
+                ls = line.strip().split()
+                self.cat[ls[0]] = int(ls[1])
+
+
+
+        self.classes = list(self.cat.keys())
+        print(self.classes)
+    
+    def __getitem__(self, idx):
+        
+        pts = self.final_data[idx]
+        cls = self.final_label[idx]    
+
+        pts = torch.from_numpy(pts.astype(np.float32))
+        cls = torch.from_numpy(np.array([cls]).astype(np.int64))
+
+        return pts,cls
+
+
+    def __len__(self):
+        
+
+        return self.lengths.sum()
+
+class sl_paddingzeroDataset(data.Dataset):
+    
+    def __init__(self,
+                 root,
+                 npoints=100,
+                 split='train_files',
+                 data_augmentation=True):
+        self.npoints = npoints
+        self.root = root
+        self.split = split
+        self.data_augmentation = data_augmentation
+        self.fns = []
+        self.label_fn = []
+        #print(self.root)
+        with open(os.path.join(root, '{}.txt'.format(self.split)), 'r') as f:
+            for line in f:
+                line = line.strip()
+                self.fns.append(os.path.join(root, 'derivatives/sl_padding_zero/sub-%s/sl-padding-zero-subject-%s.npy' % (line.strip(),line.strip()) ))
+                self.label_fn.append(os.path.join(root, 'derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt' % (line.strip(),line.strip()) ))
+        #print(self.fns)
+        #print(self.label_fn)
+
+        self.lengths = []
+        self.final_data = np.ndarray([])
+        self.final_label = np.ndarray([])
+        self.load_subject()
+        
+    def load_subject(self):
+            
+        for fn in self.fns:
+            # TODO: use labels to retreive the size of the dataset;
+            # in this case, you can do this operation directly inside the 
+            # function __len__ 
+                
+            data = np.load(fn)
+                
+            if not self.final_data.shape:
+                self.final_data = data
+            else:
+                self.final_data = np.concatenate((self.final_data,data))
+
+
+        for fnl in self.label_fn:
+
+            label = np.loadtxt(fnl)
+                
+            self.lengths.append(len(label))
+
+            if not self.final_label.shape:
+                    self.final_label = label
+            else:
+                self.final_label = np.concatenate((self.final_label,label))
+
+        self.lengths = np.array(self.lengths)
+
+         
+
+        
+
+         
+        self.cat = {}
+        with open(os.path.join(self.root, 'sl_id.txt'), 'r') as f:
             for line in f:
                 ls = line.strip().split()
                 self.cat[ls[0]] = int(ls[1])
@@ -223,6 +311,179 @@ class bsplineDataset(data.Dataset):
         return self.lengths.sum()
 
 
+class sl_paddingrandomDataset(data.Dataset):
+    
+    def __init__(self,
+                 root,
+                 npoints=100,
+                 split='train_files',
+                 data_augmentation=True):
+        self.npoints = npoints
+        self.root = root
+        self.split = split
+        self.data_augmentation = data_augmentation
+        self.fns = []
+        self.label_fn = []
+        #print(self.root)
+        with open(os.path.join(root, '{}.txt'.format(self.split)), 'r') as f:
+            for line in f:
+                line = line.strip()
+                self.fns.append(os.path.join(root, 'derivatives/sl_padding_random/sub-%s/sl-padding-random-subject-%s.npy' % (line.strip(),line.strip()) ))
+                self.label_fn.append(os.path.join(root, 'derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt' % (line.strip(),line.strip()) ))
+        #print(self.fns)
+        #print(self.label_fn)
+
+        self.lengths = []
+        self.final_data = np.ndarray([])
+        self.final_label = np.ndarray([])
+        self.load_subject()
+        
+    def load_subject(self):
+            
+        for fn in self.fns:
+            # TODO: use labels to retreive the size of the dataset;
+            # in this case, you can do this operation directly inside the 
+            # function __len__ 
+                
+            data = np.load(fn)
+                
+            if not self.final_data.shape:
+                self.final_data = data
+            else:
+                self.final_data = np.concatenate((self.final_data,data))
+
+
+        for fnl in self.label_fn:
+
+            label = np.loadtxt(fnl)
+                
+            self.lengths.append(len(label))
+
+            if not self.final_label.shape:
+                    self.final_label = label
+            else:
+                self.final_label = np.concatenate((self.final_label,label))
+
+        self.lengths = np.array(self.lengths)
+
+         
+
+        
+
+         
+        self.cat = {}
+        with open(os.path.join(self.root, 'sl_id.txt'), 'r') as f:
+            for line in f:
+                ls = line.strip().split()
+                self.cat[ls[0]] = int(ls[1])
+
+
+
+        self.classes = list(self.cat.keys())
+        print(self.classes)
+    
+    def __getitem__(self, idx):
+        
+        pts = self.final_data[idx]
+        cls = self.final_label[idx]    
+
+        pts = torch.from_numpy(pts.astype(np.float32))
+        cls = torch.from_numpy(np.array([cls]).astype(np.int64))
+
+        return pts,cls
+
+
+    def __len__(self):
+        
+
+        return self.lengths.sum()
+
+class sl_paddingfrenetDataset(data.Dataset):
+    
+    def __init__(self,
+                 root,
+                 npoints=100,
+                 split='train_files',
+                 data_augmentation=True):
+        self.npoints = npoints
+        self.root = root
+        self.split = split
+        self.data_augmentation = data_augmentation
+        self.fns = []
+        self.label_fn = []
+        #print(self.root)
+        with open(os.path.join(root, '{}.txt'.format(self.split)), 'r') as f:
+            for line in f:
+                line = line.strip()
+                self.fns.append(os.path.join(root, 'derivatives/sl_padding_frenet/sub-%s/sl-padding-frenet-subject-%s.npy' % (line.strip(),line.strip()) ))
+                self.label_fn.append(os.path.join(root, 'derivatives/reduced_tract_labels/sub-%s/labels_%s_reduced.txt' % (line.strip(),line.strip()) ))
+        #print(self.fns)
+        #print(self.label_fn)
+
+        self.lengths = []
+        self.final_data = np.ndarray([])
+        self.final_label = np.ndarray([])
+        self.load_subject()
+        
+    def load_subject(self):
+            
+        for fn in self.fns:
+            # TODO: use labels to retreive the size of the dataset;
+            # in this case, you can do this operation directly inside the 
+            # function __len__ 
+                
+            data = np.load(fn)
+                
+            if not self.final_data.shape:
+                self.final_data = data
+            else:
+                self.final_data = np.concatenate((self.final_data,data))
+
+
+        for fnl in self.label_fn:
+
+            label = np.loadtxt(fnl)
+                
+            self.lengths.append(len(label))
+
+            if not self.final_label.shape:
+                    self.final_label = label
+            else:
+                self.final_label = np.concatenate((self.final_label,label))
+
+        self.lengths = np.array(self.lengths)
+
+         
+
+        
+
+         
+        self.cat = {}
+        with open(os.path.join(self.root, 'sl_id.txt'), 'r') as f:
+            for line in f:
+                ls = line.strip().split()
+                self.cat[ls[0]] = int(ls[1])
+
+
+
+        self.classes = list(self.cat.keys())
+        print(self.classes)
+    
+    def __getitem__(self, idx):
+        
+        pts = self.final_data[idx]
+        cls = self.final_label[idx]    
+
+        pts = torch.from_numpy(pts.astype(np.float32))
+        cls = torch.from_numpy(np.array([cls]).astype(np.int64))
+
+        return pts,cls
+
+
+    def __len__(self):
+        
+
+        return self.lengths.sum()
 
 
 if __name__ == '__main__':
