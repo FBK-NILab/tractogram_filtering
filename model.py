@@ -103,6 +103,7 @@ class PointNetfeat(nn.Module):
 
     def forward(self, x):
         n_pts = x.size()[2]
+        #trans = None
         trans = self.stn(x)
         x = x.transpose(2, 1)
         x = torch.bmm(x, trans)
