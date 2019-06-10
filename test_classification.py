@@ -114,9 +114,9 @@ except OSError:
 
 classifier = PointNetCls(k=num_classes, input_size = 12, feature_transform=opt.feature_transform)
 
-print('loading model %s' % args.model)
+print('loading model %s' % opt.model)
 classifier.cuda()
-classifier.load_state_dict(torch.load(args.model))
+classifier.load_state_dict(torch.load(opt.model))
 classifier.eval()
 
 num_batch = len(test_dataset) / opt.batchSize
@@ -127,7 +127,7 @@ with torch.no_grad():
     total_correct = 0
     total_testset = 0
     predictions = [torch.tensor([])]
-    for j, data in enumerate(testdataloader, 0):
+    for j, data in enumerate(test_dataloader, 0):
         points, target = data
         target = target[:, 0]
         points = points.transpose(2, 1)
@@ -149,6 +149,5 @@ with torch.no_grad():
     test_acc = total_correct/float(total_testset)
     print('TEST - loss: %f accuracy: %f' % (test_loss.mean(), test_acc))
 
-    np.save(outf + '/prediction.npy', 
+    np.save(opt.outf + '/prediction.npy', 
             predictions.cpu().numpy().astype(np.uint8))
-            
