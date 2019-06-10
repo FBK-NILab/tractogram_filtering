@@ -33,7 +33,7 @@ parser.add_argument('--feature_transform', action='store_true', help="use featur
 opt = parser.parse_args()
 print(opt)
 
-writer = SummaryWriter('runs/exp18-tractogram_paddingfrenet-100epoch-2.1-ss20-gamma0.5-ft-dp_0.3')
+writer = SummaryWriter('runs/exp21-tractogram_paddingfrenet-100epoch-2.1-ss20-gamma0.5-ft-dp_0.3-bs_10000')
 blue = lambda x: '\033[94m' + x + '\033[0m'
 
 opt.manualSeed = random.randint(1, 10000)  # fix seed
@@ -151,7 +151,7 @@ try:
 except OSError:
     pass
 
-classifier = PointNetCls(k=num_classes, feature_transform=opt.feature_transform)
+classifier = PointNetCls(k=num_classes, input_size = 12, feature_transform=opt.feature_transform)
 
 #print('test')
 
