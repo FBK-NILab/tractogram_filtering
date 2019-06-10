@@ -41,19 +41,7 @@ print("Random Seed: ", opt.manualSeed)
 random.seed(opt.manualSeed)
 torch.manual_seed(opt.manualSeed)
 
-if opt.dataset_type == 'shapenet':
-    dataset = ShapeNetDataset(
-        root=opt.dataset,
-        classification=True,
-        npoints=opt.num_points)
-
-    test_dataset = ShapeNetDataset(
-        root=opt.dataset,
-        classification=True,
-        split='test',
-        npoints=opt.num_points,
-        data_augmentation=False)
-elif opt.dataset_type == 'modelnet40':
+if opt.dataset_type == 'modelnet40':
     dataset = ModelNetDataset(
         root=opt.dataset,
         npoints=opt.num_points,
