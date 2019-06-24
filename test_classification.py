@@ -115,7 +115,8 @@ except OSError:
 classifier = PointNetCls(k=num_classes, input_size = 12, feature_transform=opt.feature_transform)
 
 print('loading model %s' % opt.model)
-classifier.cuda()
+if torch.cuda.is_available():
+    classifier.cuda()
 classifier.load_state_dict(torch.load(opt.model))
 classifier.eval()
 
@@ -131,7 +132,8 @@ with torch.no_grad():
         points, target = data
         target = target[:, 0]
         points = points.transpose(2, 1)
-        points, target = points.cuda(), target.cuda()
+        if torch.cuda.is_available():
+            points, target = points.cuda(), target.cuda()
         pred, _, _ = classifier(points)
         target = target.squeeze()
         loss = F.nll_loss(pred, target)
