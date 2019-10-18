@@ -9,7 +9,7 @@ import torch.utils.data
 import numpy as np
 import glob
 from dataset import ModelNetDataset, bsplineDataset, sl_paddingzeroDataset, sl_paddingrandomDataset, sl_paddingfrenetDataset
-from model import PointNetCls, feature_transform_reguliarzer
+from model import Net
 import torch.nn.functional as F
 from tqdm import tqdm
 from tensorboardX import SummaryWriter
@@ -28,7 +28,7 @@ parser.add_argument('--outf', type=str, default='cls', help='output folder')
 parser.add_argument('--model', type=str, required=True, help='model path')
 parser.add_argument('--dataset', type=str, required=True, help="dataset path")
 parser.add_argument('--dataset_type', type=str, default='shapenet', help="dataset type shapenet|modelnet40")
-parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
+#parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
 
 opt = parser.parse_args()
 print(opt)
@@ -112,7 +112,7 @@ try:
 except OSError:
     pass
 
-classifier = PointNetCls(k=num_classes, input_size = 12, feature_transform=opt.feature_transform)
+classifier = Net()
 
 print('loading model %s' % opt.model)
 if torch.cuda.is_available():
@@ -134,7 +134,7 @@ with torch.no_grad():
         points = points.transpose(2, 1)
         if torch.cuda.is_available():
             points, target = points.cuda(), target.cuda()
-        pred, _, _ = classifier(points)
+        pred = classifier(points)
         target = target.squeeze()
         loss = F.nll_loss(pred, target)
         test_loss = torch.cat((test_loss, torch.tensor([loss])),0)
