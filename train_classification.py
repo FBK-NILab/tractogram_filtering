@@ -9,7 +9,7 @@ import torch.utils.data
 import numpy as np
 import glob
 from dataset import ModelNetDataset, bsplineDataset, sl_paddingzeroDataset, sl_paddingrandomDataset, sl_paddingfrenetDataset
-from model import PointNetCls, feature_transform_reguliarzer
+from model import Net
 import torch.nn.functional as F
 from tqdm import tqdm
 from tensorboardX import SummaryWriter
@@ -28,7 +28,7 @@ parser.add_argument('--outf', type=str, default='cls', help='output folder')
 parser.add_argument('--model', type=str, default='', help='model path')
 parser.add_argument('--dataset', type=str, required=True, help="dataset path")
 parser.add_argument('--dataset_type', type=str, default='shapenet', help="dataset type shapenet|modelnet40")
-parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
+#parser.add_argument('--feature_transform', action='store_true', help="use feature transform")
 
 opt = parser.parse_args()
 print(opt)
@@ -139,7 +139,7 @@ try:
 except OSError:
     pass
 
-classifier = PointNetCls(k=num_classes, input_size = 12, feature_transform=opt.feature_transform)
+classifier = Net()
 
 #print('test')
 
@@ -167,13 +167,13 @@ for epoch in range(opt.nepoch):
         points, target = points.cuda(), target.cuda()
         optimizer.zero_grad()
         classifier = classifier.train()
-        pred, trans, trans_feat = classifier(points)
+        pred = classifier(points)
         target = target.squeeze()
         loss = F.nll_loss(pred, target)
         #writer.add_scalar('train/loss', loss.item(), i)
         epoch_loss = torch.cat((epoch_loss, torch.tensor([loss])), 0)
-        if opt.feature_transform:
-            loss += feature_transform_reguliarzer(trans_feat) * 0.001
+        #if opt.feature_transform:
+            #loss += feature_transform_reguliarzer(trans_feat) * 0.001
         loss.backward()
         optimizer.step()
         pred_choice = pred.data.max(1)[1]
@@ -194,7 +194,7 @@ for epoch in range(opt.nepoch):
             points = points.transpose(2, 1)
             points, target = points.cuda(), target.cuda()
             classifier = classifier.eval()
-            pred, _, _ = classifier(points)
+            pred = classifier(points)
             target = target.squeeze()
             loss = F.nll_loss(pred, target)
             val_loss = torch.cat((val_loss, torch.tensor([loss])),0)
