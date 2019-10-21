@@ -1,121 +1,399 @@
-import os.path as osp
+from __future__ import print_function
 
+import numpy as np
+#import pointnet_trials as pnt
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
-from torch_geometric.datasets import ModelNet
+import torch.nn.parallel
+import torch.utils.data
+from torch.autograd import Variable
 import torch_geometric.transforms as T
-from torch_geometric.data import DataLoader
-from torch_geometric.nn import PointConv, fps, radius, global_max_pool
+from torch_geometric.nn import global_max_pool
+from torch_geometric.nn import global_mean_pool
+from torch_geometric.utils import normalized_cut
+from torch_geometric.nn import GCNConv, NNConv, graclus
+from pointnet_mgf import max_mod
 
 
-class SAModule(torch.nn.Module):
-    def __init__(self, ratio, r, nn):
-        super(SAModule, self).__init__()
-        self.ratio = ratio
-        self.r = r
-        self.conv = PointConv(nn)
+class Identity(nn.Module):
 
-    def forward(self, x, pos, batch):
-        idx = fps(pos, batch, ratio=self.ratio)
-        row, col = radius(pos, pos[idx], self.r, batch, batch[idx],
-                          max_num_neighbors=64)
-        edge_index = torch.stack([col, row], dim=0)
-        x = self.conv(x, (pos, pos[idx]), edge_index)
-        pos, batch = pos[idx], batch[idx]
-        return x, pos, batch
-
-
-class GlobalSAModule(torch.nn.Module):
-    def __init__(self, nn):
-        super(GlobalSAModule, self).__init__()
-        self.nn = nn
-
-    def forward(self, x, pos, batch):
-        x = self.nn(torch.cat([x, pos], dim=1))
-        x = global_max_pool(x, batch)
-        pos = pos.new_zeros((x.size(0), 3))
-        batch = torch.arange(x.size(0), device=batch.device)
-        return x, pos, batch
-
-
-def MLP(channels, batch_norm=True):
-    return Seq(*[
-        Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
-        for i in range(1, len(channels))
-    ])
-
-
-class Net(torch.nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(Identity, self).__init__()
 
-        self.sa1_module = SAModule(0.5, 0.2, MLP([3, 64, 64, 128]))
-        self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
-        self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
-
-        self.lin1 = Lin(1024, 512)
-        self.lin2 = Lin(512, 256)
-        self.lin3 = Lin(256, 10)
-
-    def forward(self, data):
-        sa0_out = (data.x, data.pos, data.batch)
-        sa1_out = self.sa1_module(*sa0_out)
-        sa2_out = self.sa2_module(*sa1_out)
-        sa3_out = self.sa3_module(*sa2_out)
-        x, pos, batch = sa3_out
-
-        x = F.relu(self.lin1(x))
-        x = F.dropout(x, p=0.5, training=self.training)
-        x = F.relu(self.lin2(x))
-        x = F.dropout(x, p=0.5, training=self.training)
-        x = self.lin3(x)
-        return F.log_softmax(x, dim=-1)
-
-'''
-
-def train(epoch):
-    model.train()
-
-    for data in train_loader:
-        data = data.to(device)
-        optimizer.zero_grad()
-        loss = F.nll_loss(model(data), data.y)
-        loss.backward()
-        optimizer.step()
+    def forward(self, x):
+        return x
 
 
-def test(loader):
-    model.eval()
+class PNbatch(torch.nn.Module):
 
-    correct = 0
-    for data in loader:
-        data = data.to(device)
-        with torch.no_grad():
-            pred = model(data).max(1)[1]
-        correct += pred.eq(data.y).sum().item()
-    return correct / len(loader.dataset)
+    def __init__(self,
+                 input_size,
+                 embedding_size,
+                 n_classes,
+                 pool_op=torch.max,
+                 batch_size=1,
+                 same_size=False):
+        super(PNbatch, self).__init__()
+        self.pn = PNemb(input_size, embedding_size)
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+
+    def forward(self, gdata):
+        x = gdata.x
+        edges = gdata.edge_index
+        lengths = gdata.lengths
+        #t0 = time.time()
+        x = self.pn(x)
+        #print('t gcn: %f' % (time.time()-t0))
+        #t0 = time.time()
+        if not self.same_size:
+            emb = torch.empty((len(lengths), self.emb_size)).cuda()
+            for i, g in enumerate(torch.split(x, lengths.tolist(), dim=0)):
+                desc = self.pool(g, 0, keepdim=True)
+                if len(desc) == 2:
+                    desc = desc[0]
+                #emb = torch.cat((x, desc), 0)
+                emb[i, :] = desc
+        else:
+            emb = self.pool(x.view(-1, lengths, self.emb_size), 1, keepdim=True)
+            if len(emb) == 2:
+                emb = emb[0]
+        x = emb.view(self.bs, -1, self.emb_size)
+        self.embedding = x.data
+        #print('t batch reshaping: %f' % (time.time()-t0))
+        x = self.fc(F.relu(x))
+        return x
 
 
-if __name__ == '__main__':
-    path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/ModelNet10')
-    pre_transform, transform = T.NormalizeScale(), T.SamplePoints(1024)
-    train_dataset = ModelNet(path, '10', True, transform, pre_transform)
-    test_dataset = ModelNet(path, '10', False, transform, pre_transform)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True,
-                              num_workers=6)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False,
-                             num_workers=6)
+class PNemb(torch.nn.Module):
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = Net().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    def __init__(self, input_size, n_classes):
+        super(PNemb, self).__init__()
+        self.conv1_0 = nn.Linear(input_size, 64)
+        self.conv1_1 = nn.Linear(64, 64)
+        self.conv2_0 = nn.Linear(64, 64)
+        self.conv2_1 = nn.Linear(64, 128)
+        self.conv2_2 = nn.Linear(128, 1024)
+        self.conv2_3 = nn.Linear(1024, 512)
+        self.conv2_4 = nn.Linear(512, 256)
+        self.conv3 = nn.Linear(256, n_classes)
 
-    for epoch in range(1, 201):
-        train(epoch)
-        test_acc = test(test_loader)
-        print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
+    def forward(self, x):
+        x = F.relu(self.conv1_1(x))
+        x = F.relu(self.conv1_2(x))
+        x = F.relu(self.conv2_0(x))
+        x = F.relu(self.conv2_1(x))
+        x = F.relu(self.conv2_2(x))
+        x = F.relu(self.conv2_3(x))
+        x = F.relu(self.conv2_4(x))
+        x = self.conv3(x)
+        return x
+
+
+class PointNetPyg(torch.nn.Module):
+
+    def __init__(self,
+                 input_size,
+                 task='seg',
+                 n_classes=2,
+                 pool_op='max',
+                 batch_size=1,
+                 same_size=False):
+        super(PointNetPyg, self).__init__()
+        self.pn = PNemb(input_size, embedding_size)
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+
+    def forward(self, gdata):
+        x = gdata.x
+        edges = gdata.edge_index
+        lengths = gdata.lengths
+        #t0 = time.time()
+        x = self.pn(x)
+        #print('t gcn: %f' % (time.time()-t0))
+        #t0 = time.time()
+        if not self.same_size:
+            emb = torch.empty((len(lengths), self.emb_size)).cuda()
+            for i, g in enumerate(torch.split(x, lengths.tolist(), dim=0)):
+                desc = self.pool(g, 0, keepdim=True)
+                if len(desc) == 2:
+                    desc = desc[0]
+                #emb = torch.cat((x, desc), 0)
+                emb[i, :] = desc
+        else:
+            emb = self.pool(x.view(-1, lengths, self.emb_size), 1, keepdim=True)
+            if len(emb) == 2:
+                emb = emb[0]
+        x = emb.view(self.bs, -1, self.emb_size)
+        self.embedding = x.data
+        #print('t batch reshaping: %f' % (time.time()-t0))
+        x = self.fc(F.relu(x))
+        return x
+
+
+class STN3d(nn.Module):
+
+    def __init__(self):
+        super(STN3d, self).__init__()
+        self.conv1 = torch.nn.Conv1d(3, 64, 1)
+        self.conv2 = torch.nn.Conv1d(64, 128, 1)
+        self.conv3 = torch.nn.Conv1d(128, 1024, 1)
+        self.fc1 = nn.Linear(1024, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, 9)
+        self.relu = nn.ReLU()
+
+        self.bn1 = nn.BatchNorm1d(64)
+        self.bn2 = nn.BatchNorm1d(128)
+        self.bn3 = nn.BatchNorm1d(1024)
+        self.bn4 = nn.BatchNorm1d(512)
+        self.bn5 = nn.BatchNorm1d(256)
+
+    def forward(self, x):
+        batchsize = x.size()[0]
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
+        x = torch.max(x, 2, keepdim=True)[0]
+        x = x.view(-1, 1024)
+
+        x = F.relu(self.bn4(self.fc1(x)))
+        x = F.relu(self.bn5(self.fc2(x)))
+        x = self.fc3(x)
+
+        iden = Variable(
+            torch.from_numpy(
+                np.array([1, 0, 0, 0, 1, 0, 0, 0,
+                          1]).astype(np.float32))).view(1,
+                                                        9).repeat(batchsize, 1)
+        if x.is_cuda:
+            iden = iden.cuda()
+        x = x + iden
+        x = x.view(-1, 3, 3)
+        return x
+
+
+class STNkd(nn.Module):
+
+    def __init__(self, k=64):
+        super(STNkd, self).__init__()
+        self.conv1 = torch.nn.Conv1d(k, 64, 1)
+        self.conv2 = torch.nn.Conv1d(64, 128, 1)
+        self.conv3 = torch.nn.Conv1d(128, 1024, 1)
+        self.fc1 = nn.Linear(1024, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, k * k)
+        self.relu = nn.ReLU()
+
+        self.bn1 = nn.BatchNorm1d(64)
+        self.bn2 = nn.BatchNorm1d(128)
+        self.bn3 = nn.BatchNorm1d(1024)
+        self.bn4 = nn.BatchNorm1d(512)
+        self.bn5 = nn.BatchNorm1d(256)
+
+        self.k = k
+
+    def forward(self, x):
+        batchsize = x.size()[0]
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
+        x = torch.max(x, 2, keepdim=True)[0]
+        x = x.view(-1, 1024)
+
+        x = F.relu(self.bn4(self.fc1(x)))
+        x = F.relu(self.bn5(self.fc2(x)))
+        x = self.fc3(x)
+
+        iden = Variable(
+            torch.from_numpy(np.eye(self.k).flatten().astype(np.float32))).view(
+                1, self.k * self.k).repeat(batchsize, 1)
+        if x.is_cuda:
+            iden = iden.cuda()
+        x = x + iden
+        x = x.view(-1, self.k, self.k)
+        return x
+
+
+class PointNetfeat(nn.Module):
+
+    def __init__(
+            self,
+            input_size,
+            task='cls',
+            spatial_tn=True,
+            gf_size=1024,
+            gf_op='max',
+            bn=True,
+            simple=False,
+    ):
+
+        super(PointNetfeat, self).__init__()
+
+        if gf_op == 'max':
+            self.gf_op = max_mod
+
+        self.conv1 = torch.nn.Conv1d(input_size, 64, 1)
+        self.bn1 = nn.BatchNorm1d(64) if bn else Identity()
+        self.conv2 = torch.nn.Conv1d(64, 64, 1)
+        self.bn2 = nn.BatchNorm1d(64) if bn else Identity()
+        self.conv3 = torch.nn.Conv1d(64, 64, 1)
+        self.bn3 = nn.BatchNorm1d(64) if bn else Identity()
+
+        if spatial_tn > 0:
+            self.stn = STN3d()
+            if spatial_tn == 2:
+                self.fstn = STNkd(k=64)
+
+        if not simple:
+            self.conv4 = torch.nn.Conv1d(64, 128, 1)
+            self.conv5 = torch.nn.Conv1d(128, 1024, 1)
+            self.bn4 = nn.BatchNorm1d(128) if bn else Identity()
+            self.bn5 = nn.BatchNorm1d(1024) if bn else Identity()
+
+        self.task = task
+        self.spatial_tn = spatial_tn
+
+        self.gf = None
+        self.gf_size = gf_size
+        self.simple = simple
+
+    def forward(self, x):
+        n_pts = x.size()[2]
+
+        if self.spatial_tn > 0:
+            trans = self.stn(x)
+            x = x.transpose(2, 1)
+            x = torch.bmm(x, trans)
+            x = x.transpose(2, 1)
+        else:
+            trans = None
+
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
+
+        if self.spatial_tn == 2:
+            trans = self.fstn(x)
+            x = x.transpose(2, 1)
+            x = torch.bmm(x, trans)
+            x = x.transpose(2, 1)
+
+        pointfeat = x
+
+        if not self.simple:
+            x = F.relu(self.bn4(self.conv4(x)))
+            x = F.relu(self.bn5(self.conv5(x)))
+
+        x = self.gf_op(x, 2, keepdim=True)
+        x = x.view(-1, self.gf_size)
+        if self.task == 'cls':
+            return x, trans
+        else:
+            self.gf = x.view(-1).data.tolist()
+            x = x.view(-1, self.gf_size, 1).repeat(1, 1, n_pts)
+            return torch.cat([x, pointfeat], 1), trans
+
+
+class PointNetCls(nn.Module):
+
+    def __init__(self,
+                 input_size,
+                 cl=2,
+                 gf_type='max',
+                 bn=True,
+                 simple=False,
+                 st=False,
+                 dropout=True):
+        super(PointNetCls, self).__init__()
+
+        self.feat = PointNetfeat(input_size,
+                                 task='cls',
+                                 spatial_tn=st,
+                                 gf_op=gf_type,
+                                 bn=bn,
+                                 simple=simple)
+        self.fc1 = nn.Linear(1024, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, cl)
+        self.bn1 = nn.BatchNorm1d(512)
+        self.bn2 = nn.BatchNorm1d(256)
+        self.dp = dropout
+        self.trans = None
+
+    def forward(self, x):
+        x = x.permute(0, 2, 1).contiguous()
+        x, trans = self.feat(x)
+        x = F.relu(self.bn1(self.fc1(x)))
+        if self.dp: x = F.dropout(x, p=0.3)
+        x = F.relu(self.bn2(self.fc2(x)))
+        if self.dp: x = F.dropout(x, p=0.3)
+        x = self.fc3(x)
+        self.trans = trans
+        return x
+
+class GCNConvNet(torch.nn.Module):
+    def __init__(self,
+                input_size,
+                n_classes=2):
+        super(GCNConvNet, self).__init__()
+        self.conv1_0 = GCNConv(input_size, 64)
+        self.conv1_1 = GCNConv(64, 64)
+        self.conv2_0 = GCNConv(64, 64)
+        self.conv2_1 = GCNConv(64, 128)
+        self.conv2_2 = GCNConv(128, 1024)
+        self.conv2_3 = GCNConv(1024, 512)
+        self.conv2_4 = GCNConv(512, 256)
+        self.conv3 = GCNConv(256, n_classes)
     
-
-'''
+    def forward(self, gdata):
+        x, edge_index = gdata.x, gdata.edge_index
+        x = F.relu(self.conv1_0(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv1_1(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv2_0(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv2_1(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv2_2(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv2_3(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = F.relu(self.conv2_4(x, edge_index))
+        x = F.dropout(x, training=self.training)
+        x = self.conv3(x, edge_index)
+        return F.log_softmax(x, dim=1)
+        
+        
+class NNConvNet(torch.nn.Module):
+    def __init__(self,
+                 input_size,
+                 n_classes=2)
+        super(NNConvNet, self).__init__()
+        nn1 = nn.Sequential(nn.Linear(input_size, 64), nn.ReLU(), nn.Linear(64, 64))
+        self.conv1 = NNConv(input_size, 64, nn1, aggr='mean')
+        
+        nn2 = nn.Sequential(nn.Linear(input_size, 64), nn.ReLU(), nn.Linear(64, 10124))
+        self.conv2 = NNConv(32, 64, nn2, aggr='mean')
+        
+        self.fc1 = torch.nn.Linear(64, 128)
+        self.fc2 = torch.nn.Linear(128, n_classes)
+        
+    def forward(self, gdata)
+        x, edge_index, edge_attr = gdata.x, gdata.edge_index, gdata.edge_attr
+        x = F.elu(self.conv1(x, edge_index, edge_attr))
+        x = F.elu(self.conv2(x, edge_index, edge_attr))
+        x = F.elu(self.fc1(x))
+        x = F.dropout(x, training=self.training)
+        return F.log_softmax(self.fc2(x), dim=1)
+        
