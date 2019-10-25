@@ -397,3 +397,9 @@ class NNConvNet(torch.nn.Module):
         x = F.dropout(x, training=self.training)
         return F.log_softmax(self.fc2(x), dim=1)
         
+def ST_loss(pn_model, gamma=0.001):
+    A = pn_model.trans  # BxKxK
+    A_t = A.transpose(2, 1).contiguous()
+    AA_t = torch.bmm(A, A_t)
+    I = torch.eye(A.shape[1]).cuda()  # KxK
+    return gamma * (torch.norm(AA_t - I)**2)
