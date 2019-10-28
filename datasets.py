@@ -85,15 +85,12 @@ class HCP20Dataset(gDataset):
         print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        if self.act:
-            tract_type = '500000'
-        else:
-            tract_type = '500000_noACT'
-
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
-        label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
+        #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
