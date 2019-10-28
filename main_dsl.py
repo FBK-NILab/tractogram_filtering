@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-import ConfigParser
+import configparser
 import warnings
 import ipdb
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # Reading configuration file with specific setting for a run.
     # Mandatory variables for this script:
 
-    cfg_parser = ConfigParser.ConfigParser()
+    cfg_parser = configparser.ConfigParser()
     if not args.config and args.exp:
         cfg_parser.read(args.exp + '/config.txt')
     elif args.config:
