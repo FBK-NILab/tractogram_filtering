@@ -857,6 +857,10 @@ def train(cfg):
                                 cfg['dataset_dir'],
                                 transform=transforms.Compose(trans_train),
                                 uniform_size=True)
+    elif cfg['dataset'] == 'hcp_20':
+      dataset = ds.HCP20Dataset(cfg['sub_list_train'],
+                                cfg['dataset_dir'],
+                                act=cfg['act'])    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
@@ -923,6 +927,10 @@ def train(cfg):
     if cfg['val_in_train']:
         if cfg['dataset'] == 'psb_airplane':
             val_dataset = ds.PsbAirplaneDataset(cfg['dataset_dir'], train=False)
+        elif cfg['dataset'] == 'hcp_20':
+          ds.HCP20Dataset(cfg['sub_list_val'], 
+                          cfg['val_dataset_dir'], 
+                          act=cfg['act'])
         elif cfg['dataset'] == 'shapes':
             val_dataset = ds.ShapesDataset(cfg['dataset_dir'],
                                             train=False,
