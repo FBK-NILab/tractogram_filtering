@@ -13,7 +13,7 @@ from torch_geometric.nn import global_max_pool
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.utils import normalized_cut
 from torch_geometric.nn import GCNConv, NNConv, graclus
-from pointnet_mgf import max_mod
+#from pointnet_mgf import max_mod
 
 
 class Identity(nn.Module):
