@@ -129,8 +129,8 @@ class HCP20Dataset(gDataset):
         for i, sl in enumerate(sample['points']):
             l_sl = len(sl)
             sl = torch.from_numpy(sl)
-            edges = torch.tensor([range(0, l_sl-1) + range(1,l_sl),
-                                range(1,l_sl) + range(0, l_sl-1)],
+            edges = torch.tensor([list(range(0, l_sl-1)) + list(range(1,l_sl)),
+                                list(range(1,l_sl)) + list(range(0, l_sl-1))],
                                 dtype=torch.long)
             data.append(gData(x=sl, edge_index=edges, y=sample['gt'][i]))
         #gt = torch.from_numpy(sample['gt'])
