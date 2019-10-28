@@ -235,6 +235,7 @@ fixed_size = 3740
 val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
+sub_list_test = data/sub_list_HCP_test.txt
 act = y
 data_dim = 3
 embedding_size = 40
