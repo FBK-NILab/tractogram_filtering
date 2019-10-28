@@ -248,6 +248,7 @@ standardization = n
 n_classes = 2
 multi_category = n
 ignore_class = 0
+same_size = y
 
 experiment_name = pointnet-loss_nll-data_hcp20
 
