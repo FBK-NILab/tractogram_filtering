@@ -389,7 +389,7 @@ class NNConvNet(torch.nn.Module):
         self.fc1 = torch.nn.Linear(64, 128)
         self.fc2 = torch.nn.Linear(128, n_classes)
         
-    def forward(self, gdata)
+    def forward(self, gdata):
         x, edge_index, edge_attr = gdata.x, gdata.edge_index, gdata.edge_attr
         x = F.elu(self.conv1(x, edge_index, edge_attr))
         x = F.elu(self.conv2(x, edge_index, edge_attr))
