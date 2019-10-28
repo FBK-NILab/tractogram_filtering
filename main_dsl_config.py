@@ -227,6 +227,33 @@ multi_category = n
 ####### ************************************************************************
 ####### ************************************************************************
 
+[HCP20]
+########### data ###########
+dataset = hcp_20
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+fixed_size = 3740
+val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+sub_list_train = data/sub_list_HCP_train.txt
+sub_list_val = data/sub_list_HCP_val.txt
+act = y
+data_dim = 3
+embedding_size = 40
+fold_size = 2
+
+batch_size = 5
+shuffling = y
+rnd_sampling = y
+standardization = n
+n_classes = 2
+multi_category = n
+ignore_class = 0
+
+experiment_name = pointnet-loss_nll-data_hcp20
+
+####### ************************************************************************
+####### ************************************************************************
+####### ************************************************************************
+
 [TRACTSEG]
 ########### data ###########
 dataset = tractseg_500k
