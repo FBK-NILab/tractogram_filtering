@@ -378,7 +378,7 @@ class GCNConvNet(torch.nn.Module):
 class NNConvNet(torch.nn.Module):
     def __init__(self,
                  input_size,
-                 n_classes=2)
+                 n_classes=2):
         super(NNConvNet, self).__init__()
         nn1 = nn.Sequential(nn.Linear(input_size, 64), nn.ReLU(), nn.Linear(64, 64))
         self.conv1 = NNConv(input_size, 64, nn1, aggr='mean')
