@@ -243,7 +243,7 @@ fold_size = 2
 
 batch_size = 5
 shuffling = y
-rnd_sampling = y
+rnd_sampling = n
 standardization = n
 n_classes = 2
 multi_category = n
