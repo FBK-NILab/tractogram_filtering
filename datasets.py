@@ -23,21 +23,6 @@ from torch_geometric.nn import knn_graph
 
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 
-
-#def load_h5_item(h5_filename, idx):
-   # f = h5py.File(h5_filename)
-   # data = f['data'][idx]
-   # label = f['label'][idx]
-   # return data, label
-
-
-# Read numpy array data and label from h5_filename
-def load_h5(h5_filename):
-    f = h5py.File(h5_filename)
-    data = f['data'][:]
-    label = f['label'][:]
-    return (data, label)
-
 class HCP20Dataset(gDataset):
     def __init__(self,
                  sub_file,
