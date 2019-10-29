@@ -69,7 +69,8 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     mean_prec = torch.tensor([])
     mean_recall = torch.tensor([])
  
-    for i_batch, sample_batched in enumerate(dataloader):
+    for i_batch, sample_batched in enumerate(dataloader): 
+        print(i_batch,sample_batched)
 
         ### get batch
         if 'graph' not in cfg['dataset']:
