@@ -328,9 +328,9 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
 
         if epoch_iou > best_pred:
             best_pred = epoch_iou
-            best_epoch = epoch
-
-          if cfg['save_model']:
+            best_epoch = epoch 
+            
+            if cfg['save_model']: 
                 modeldir = os.path.join(logdir, cfg['model_dir'])
                 if not os.path.exists(modeldir):
                     os.makedirs(modeldir)
