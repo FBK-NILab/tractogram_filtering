@@ -103,92 +103,8 @@ def get_model(cfg):
     num_classes = int(cfg['n_classes'])
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
-
-    if cfg['model'] == 'pointnet_cls':
-        classifier = PointNetCls(input_size,
-                                      cl=num_classes,
-                                      gf_type=cfg['gf_operation'],
-                                      bn=cfg['batch_norm'],
-                                      simple=cfg['simple'],
-                                      st=int(cfg['spatial_tn']),
-                                      dropout=cfg['dropout'])
-    elif cfg['model'] == 'pointnet':
-        classifier = PointNetDenseCls(input_size,
-                                      cl=num_classes,
-                                      gf_type=cfg['gf_operation'],
-                                      bn=cfg['batch_norm'],
-                                      simple=cfg['simple'],
-                                      st=int(cfg['spatial_tn']),
-                                      multi_category=cfg['multi_category'])
-    elif cfg['model'] == 'pointnet_local':
-        classifier = PointNetDenseClsLocal(input_size,
-                                            k=num_classes,
-                                            bn=cfg['batch_norm'],
-                                            simple=cfg['simple'])
-    elif cfg['model'] == 'pointnet_mgf':
-        classifier = PointNetDenseClsMultiFeat(input_size,
-                                    k=num_classes,
-                                    bn=cfg['batch_norm'],
-                                    gf_type=cfg['gf_operation'],
-                                    n_feat=n_gf,
-                                    soft=cfg['soft_gf'],
-                                    dist_gf=cfg['centroids_gf'],
-                                    scaling=cfg['feat_scaling'],
-                                    simple=cfg['simple'],
-                                    simple_size = int(cfg['simple_size']),
-                                    direct_clustering=cfg['direct_clustering'],
-                                    multi_loss=cfg['multi_loss'],
-                                    split_backprop=cfg['split_backprop'],
-                                    bary=cfg['barycenter'],
-                                    multi_category=cfg['multi_category'])
-    elif cfg['model'] == 'pointnet_mgfml':
-        classifier = PointNetDenseClsMultiFeatMultiLayer(input_size,
-                                    k=num_classes,
-                                    bn=cfg['batch_norm'],
-                                    dropout=cfg['dropout'],
-                                    gf_type=cfg['gf_operation'],
-                                    n_feat=n_gf,
-                                    dyn_k=cfg['dyn_k'],
-                                    soft=cfg['soft_gf'],
-                                    dist_gf=cfg['centroids_gf'],
-                                    scaling=cfg['feat_scaling'],
-                                    simple=cfg['simple'],
-                                    simple_size = int(cfg['simple_size']),
-                                    bary=cfg['barycenter'],
-                                    direct_clustering=cfg['direct_clustering'],
-                                    full_cat=cfg['full_concat'],
-                                    multi_loss=cfg['multi_loss'],
-                                    split_backprop=cfg['split_backprop'],
-                                    num_layers=int(cfg['n_layers']),
-                                    residual=cfg['residual'],
-                                    multi_category=cfg['multi_category'],
-                                    direct_pool=cfg['direct_pooling'])
-    elif cfg['model'] == 'onlyFC':
-        classifier = OnlyFC(k=num_classes)
-    elif cfg['model'] == 'pointnet_mgf_cls':
-        classifier = PointNetClsMultiFeat(input_size,
-                                    k=num_classes,
-                                    bn=cfg['batch_norm'],
-                                    gf_type=cfg['gf_operation'],
-                                    n_feat=n_gf,
-                                    soft=cfg['soft_gf'],
-                                    dist_gf=cfg['centroids_gf'],
-                                    scaling=cfg['feat_scaling'],
-                                    simple=cfg['simple'],
-                                    simple_size = int(cfg['simple_size']),
-                                    direct_clustering=cfg['direct_clustering'],
-                                    multi_loss=cfg['multi_loss'],
-                                    split_backprop=cfg['split_backprop'],
-                                    bary=cfg['barycenter'],
-                                    multi_category=cfg['multi_category'])
-    elif cfg['model'] == 'gcn':
-        classifier = GCNemb(input_size,
-                                int(cfg['embedding_size']),
-                                num_classes,
-                                pool_op=torch.max,
-                                batch_size=int(cfg['batch_size']),
-                                same_size=cfg['same_size'])
-    elif cfg['model'] == 'gcn_ori':
+    
+    if cfg['model'] == 'gcn_ori':
         classifier = GCN(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
@@ -198,16 +114,6 @@ def get_model(cfg):
                                 pool_op=torch.max,
                                 batch_size=int(cfg['batch_size']),
                                 same_size=cfg['same_size'])
-    elif cfg['model'] == 'gcn_seg':
-        classifier = GCNseg(input_size,
-                                num_classes,
-                                k=int(cfg['knngraph']),
-                                batch_size=int(cfg['batch_size']))
-    elif cfg['model'] == '2unit':
-        classifier = TwoUnitNet(cfg,
-                                input_size,
-                                int(cfg['embedding_size']),
-                                num_classes)
     return classifier
 
 def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cluster_loss_fn):
@@ -235,7 +141,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     for i_batch, sample_batched in enumerate(dataloader):
 
         ### get batch
-        if 'graph' not in cfg['dataset']:
+        if 'graph' in cfg['dataset']:
             points = sample_batched['points']
             target = sample_batched['gt']
             #if cfg['model'] == 'pointnet_cls':
