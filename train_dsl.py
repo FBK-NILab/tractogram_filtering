@@ -73,7 +73,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
         print(i_batch,sample_batched)
 
         ### get batch
-        if 'graph' not in cfg['dataset']:
+        if 'graph' in cfg['dataset']:
             points = sample_batched['points']
             target = sample_batched['gt']
             points, target = Variable(points), Variable(target)
@@ -211,7 +211,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
         mean_val_iou_c = torch.tensor([])
         
         for j, data in enumerate(val_dataloader):
-            if 'graph' not in cfg['dataset']:
+            if 'graph' in cfg['dataset']:
                 points = data['points']
                 target = data['gt']
                 points, target = Variable(points), Variable(target)
