@@ -82,7 +82,7 @@ def test(cfg):
                                 train=False,
                                 split_obj=True,
                                 with_gt=cfg['with_gt'])
-    elif cfg['dataset'] == 'hcp_20':
+    elif cfg['dataset'] == 'hcp20_graph':
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
                                   act=cfg['act'])    
