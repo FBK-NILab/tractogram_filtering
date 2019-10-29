@@ -72,7 +72,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     for i_batch, sample_batched in enumerate(dataloader):
 
         ### get batch
-        if 'graph' in cfg['dataset']:
+        if 'graph' not in cfg['dataset']:
             points = sample_batched['points']
             target = sample_batched['gt']
             points, target = Variable(points), Variable(target)
