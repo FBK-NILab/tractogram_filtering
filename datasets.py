@@ -136,6 +136,6 @@ class HCP20Dataset(gDataset):
         #gt = torch.from_numpy(sample['gt'])
         #graph_sample = gData(x=sample_flat, edge_index=edges, y=gt)
         sample['points'] = gBatch().from_data_list(data)
-        sample['name'] = 'sub-%s_var-%s_tract' % (sub, tract_type)
+        sample['name'] = 'sub-%s_var-HCP_full_tract' %(sub)
         #print('time building graph %f' % (time.time()-t0))
         return sample
