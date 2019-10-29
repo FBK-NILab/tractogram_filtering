@@ -229,7 +229,7 @@ multi_category = n
 
 [HCP20]
 ########### data ###########
-dataset = hcp_20
+dataset = hcp20_graph
 dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 fixed_size = 3740
 val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
