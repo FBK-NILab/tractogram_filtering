@@ -287,8 +287,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
             prec = torch.tensor([float(tp)/(tp+fp)])
             recall = torch.tensor([float(tp)/(tp+fn)])
 
-            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f iou: %f' \ 
-                  % (epoch, j, len(val_dataloader), loss, acc, iou))
+            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f iou: %f' % (epoch, j, len(val_dataloader), loss, acc, iou))
 
             mean_val_prec = torch.cat((mean_val_prec, prec), 0)
             mean_val_recall = torch.cat((mean_val_recall, recall), 0)
