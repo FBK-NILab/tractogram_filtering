@@ -73,7 +73,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
         #print(i_batch[:2],sample_batched[:2])
 
         ### get batch
-        if 'graph' in cfg['dataset']:
+        if 'graph' not in cfg['dataset']:
             data_list = []
             name_list = []
             target_list = []
@@ -93,6 +93,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             for d in sample_batched:
                 data_list.append(d['points'])
                 name_list.append(d['name'])
+            print(data_list)
             points = gBatch().from_data_list(data_list)
             target = points['y']
             if cfg['same_size']:
