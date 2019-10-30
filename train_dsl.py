@@ -88,17 +88,17 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             points, target = points.cuda(), target.cuda()
 
         else:
-            data_list = []
-            name_list = []
-            for d in sample_batched:
-                data_list.append(d['points'])
-                name_list.append(d['name'])
-            print(data_list)
-            points = gBatch().from_data_list(data_list)
+            #data_list = []
+            #name_list = []
+            #for d in sample_batched:
+                #data_list.append(d['points'])
+                #name_list.append(d['name'])
+            #print(data_list)
+            points = gBatch().from_data_list(sample_bacthed['points'])
             target = points['y']
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
-            sample_batched = {'points': points, 'gt': target, 'name': name_list}
+            sample_batched = {'points': points, 'gt': target, 'name': sample_batched['name']}
             points, target = points.to('cuda'), target.to('cuda')
 
         ### visualize embedding of the input
