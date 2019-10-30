@@ -404,7 +404,7 @@ def train(cfg):
     else:
         DL = DataLoader
 
-    dataloader = DL(dataset['points'], batch_size=batch_size,
+    dataloader = DL(dataset, batch_size=batch_size,
                                     shuffle=cfg['shuffling'],
                                     num_workers=int(cfg['n_workers']),
                                     pin_memory=True)
