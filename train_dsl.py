@@ -78,24 +78,18 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     #name = dataset['name']
     #points, target = points.to('cuda'), target.to('cuda')
     
-    
-    for i_batch, sample_batched in enumerate(dataloader): 
-        #print(i_batch[:2],sample_batched[:2])
+    for i_batch, sample_batched in enumerate(dataloader):
 
         ### get batch
         if 'graph' in cfg['dataset']:
-            data_list = []
-            name_list = []
-            target_list = []
-            for d in sample_batched:
-              data_list.append(d)
-              #name_list.append(d['name'])
-              #target_list.append(d['gt'])
-              #points = sample_batched['points']
-              #target = sample_batched['gt']
-            points = gBatch().from_data_list(data_list)
-            target = points['y']
-            #points, target = Variable(data_list), Variable(target_list)
+            points = sample_batched['points']
+            target = sample_batched['gt']
+            #if cfg['model'] == 'pointnet_cls':
+            #points = points.view(batch_size*sample_size, -1, input_size)
+            #target = target.view(batch_size*sample_size, -1)
+
+            #batch_size = batch_size*sample_size
+            #sample_size = points.shape[1]
             points, target = Variable(points), Variable(target)
             points, target = points.cuda(), target.cuda()
 
@@ -105,13 +99,22 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             for d in sample_batched:
                 data_list.append(d['points'])
                 name_list.append(d['name'])
-            #print(data_list)
-            points = gBatch().from_data_list(sample_batched['points'])
+            points = gBatch().from_data_list(data_list)
             target = points['y']
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
-            sample_batched = {'points': points, 'gt': target, 'name': sample_batched['name']}
+            sample_batched = {'points': points, 'gt': target, 'name': name_list}
+
+
+            #if (epoch != 0) and (epoch % 20 == 0):
+            #    assert(len(dataloader.dataset) % int(cfg['fold_size']) == 0)
+            #    folds = len(dataloader.dataset)/int(cfg['fold_size'])
+            #    n_fold = (dataloader.dataset.n_fold + 1) % folds
+            #    if n_fold != dataloader.dataset.n_fold:
+            #        dataloader.dataset.n_fold = n_fold
+            #        dataloader.dataset.load_fold()
             points, target = points.to('cuda'), target.to('cuda')
+    
 
         ### visualize embedding of the input
         if cfg['viz_emb_input'] and n_iter == 0:
@@ -399,7 +402,7 @@ def train(cfg):
                                 act=cfg['act'],
                                 #fold_size=int(cfg['fold_size']),
                                 transform=transforms.Compose(trans_train))
-    if 'graph' in cfg['dataset']:
+    if 'graph' not in cfg['dataset']:
         DL = gDataLoader
     else:
         DL = DataLoader
