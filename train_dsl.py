@@ -94,7 +94,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
                 #data_list.append(d['points'])
                 #name_list.append(d['name'])
             #print(data_list)
-            points = gBatch().from_data_list(sample_bacthed['points'])
+            points = gBatch().from_data_list(sample_batched['points'])
             target = points['y']
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
