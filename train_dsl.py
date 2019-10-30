@@ -69,11 +69,20 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     mean_prec = torch.tensor([])
     mean_recall = torch.tensor([])
  
-    for i_batch, sample_batched in enumerate(dataloader): 
+    d_list=[]
+    for dat in dataloader:
+      for d in dat:
+        d_list.append(d)
+    points = gBatch().from_data_list(d_list)
+    target = points['y']
+    name = dataset['name']
+    
+    
+    #for i_batch, sample_batched in enumerate(dataloader): 
         #print(i_batch[:2],sample_batched[:2])
 
         ### get batch
-        if 'graph' not in cfg['dataset']:
+        if 'graph' in cfg['dataset']:
             data_list = []
             name_list = []
             target_list = []
@@ -392,7 +401,7 @@ def train(cfg):
     else:
         DL = DataLoader
 
-    dataloader = DL(dataset, batch_size=batch_size,
+    dataloader = DL(dataset['points'], batch_size=batch_size,
                                     shuffle=cfg['shuffling'],
                                     num_workers=int(cfg['n_workers']),
                                     pin_memory=True)
