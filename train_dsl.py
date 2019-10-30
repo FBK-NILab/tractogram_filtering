@@ -76,39 +76,40 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     points = gBatch().from_data_list(d_list)
     target = points['y']
     name = dataset['name']
+    points, target = points.to('cuda'), target.to('cuda')
     
     
     #for i_batch, sample_batched in enumerate(dataloader): 
         #print(i_batch[:2],sample_batched[:2])
 
         ### get batch
-        if 'graph' in cfg['dataset']:
-            data_list = []
-            name_list = []
-            target_list = []
-            for d in sample_batched:
-              data_list.append(d['points'])
-              name_list.append(d['name'])
-              target_list.append(d['gt'])
+        #if 'graph' in cfg['dataset']:
+         #   data_list = []
+          #  name_list = []
+           # target_list = []
+            #for d in sample_batched:
+             # data_list.append(d['points'])
+              #name_list.append(d['name'])
+              #target_list.append(d['gt'])
               #points = sample_batched['points']
               #target = sample_batched['gt']
-            points, target = Variable(data_list), Variable(target_list)
+            #points, target = Variable(data_list), Variable(target_list)
             #points, target = Variable(points), Variable(target)
-            points, target = points.cuda(), target.cuda()
+            #points, target = points.cuda(), target.cuda()
 
-        else:
+        #else:
             #data_list = []
             #name_list = []
             #for d in sample_batched:
                 #data_list.append(d['points'])
                 #name_list.append(d['name'])
             #print(data_list)
-            points = gBatch().from_data_list(sample_batched['points'])
-            target = points['y']
-            if cfg['same_size']:
-                points['lengths'] = points['lengths'][0].item()
-            sample_batched = {'points': points, 'gt': target, 'name': sample_batched['name']}
-            points, target = points.to('cuda'), target.to('cuda')
+         #   points = gBatch().from_data_list(sample_batched['points'])
+          #  target = points['y']
+           # if cfg['same_size']:
+            #    points['lengths'] = points['lengths'][0].item()
+            #sample_batched = {'points': points, 'gt': target, 'name': sample_batched['name']}
+            #points, target = points.to('cuda'), target.to('cuda')
 
         ### visualize embedding of the input
         if cfg['viz_emb_input'] and n_iter == 0:
