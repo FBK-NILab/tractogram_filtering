@@ -85,6 +85,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
         ### get batch
         if 'graph' in cfg['dataset']:
             points = sample_batched
+            print(points)
             target = points['y']
             points, target = points.to('cuda'), target.to('cuda')
             #points = sample_batched['points']
