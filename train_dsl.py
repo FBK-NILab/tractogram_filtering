@@ -403,12 +403,13 @@ def train(cfg):
         DL = gDataLoader
     else:
         DL = DataLoader
-
+    
+    print(dataset)
     dataloader = DL(dataset, batch_size=batch_size,
                                     shuffle=cfg['shuffling'],
                                     num_workers=int(cfg['n_workers']),
                                     pin_memory=True)
-
+    print(dataloader)
     print("Dataset %s loaded, found %d samples" % (cfg['dataset'], len(dataset)))
     if cfg['val_in_train']:
         if cfg['dataset'] == 'hcp20_graph':
