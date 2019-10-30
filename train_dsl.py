@@ -79,19 +79,24 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     #points, target = points.to('cuda'), target.to('cuda')
     
     for i_batch, sample_batched in enumerate(dataloader):
+        
+        
 
         ### get batch
         if 'graph' in cfg['dataset']:
-            points = sample_batched['points']
-            target = sample_batched['gt']
+            points = sample_batched
+            target = points['y']
+            points, target = points.to('cuda'), target.to('cuda')
+            #points = sample_batched['points']
+            #target = sample_batched['gt']
             #if cfg['model'] == 'pointnet_cls':
             #points = points.view(batch_size*sample_size, -1, input_size)
             #target = target.view(batch_size*sample_size, -1)
 
             #batch_size = batch_size*sample_size
             #sample_size = points.shape[1]
-            points, target = Variable(points), Variable(target)
-            points, target = points.cuda(), target.cuda()
+            #points, target = Variable(points), Variable(target)
+            #points, target = points.cuda(), target.cuda()
 
         else:
             data_list = []
@@ -402,7 +407,7 @@ def train(cfg):
                                 act=cfg['act'],
                                 #fold_size=int(cfg['fold_size']),
                                 transform=transforms.Compose(trans_train))
-    if 'graph' not in cfg['dataset']:
+    if 'graph' in cfg['dataset']:
         DL = gDataLoader
     else:
         DL = DataLoader
