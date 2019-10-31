@@ -26,7 +26,7 @@ from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from pointnet_mgf import (OnlyFC, PointNetClsMultiFeat, PointNetDenseClsLocal,
                           #PointNetDenseClsMultiFeat,
                           #PointNetDenseClsMultiFeatMultiLayer, mean_mod)
-from models import PNemb, PNbatch, PointNetPyg, GCNConvNet, NNConvNet, ST_loss
+from models import PNemb, PNbatch, PNbatch_new, PointNetPyg, GCNConvNet, NNConvNet, ST_loss
 from tensorboardX import SummaryWriter
 #from twounit_net import TwoUnitNet
 from utils import get_spaced_colors
@@ -42,7 +42,7 @@ def get_model(cfg):
         classifier = GCNConvNet(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
-        classifier = PNbatch(input_size,
+        classifier = PNbatch_new(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 pool_op=torch.max,
