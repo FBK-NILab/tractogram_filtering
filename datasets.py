@@ -48,6 +48,7 @@ class HCP20Dataset(gDataset):
         self.n_fold = 0
         if fold_size is not None:
             self.load_fold()
+        self.with_gt = with_gt
 
     def __len__(self):
         return len(self.subjects)
