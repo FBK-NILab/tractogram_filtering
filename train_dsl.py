@@ -143,7 +143,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             loss_type = cfg['loss'][0]
 
         if loss_type == 'nll':
-            pred = F.log_softmax(logits, dim=1)
+            pred = F.log_softmax(logits, dim=-1)
             pred_choice = pred.data.max(1)[1].int()
 
             if cfg['nll_w']:
@@ -157,7 +157,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
                                 target.view(batch_size, sample_size, 1),
                                 per_image=False)
         elif loss_type == 'LLm':
-            pred = F.softmax(logits, dim=1)
+            pred = F.softmax(logits, dim=-1)
             pred_choice = pred.data.max(1)[1].int()
             loss = L.lovasz_softmax_flat(pred, target, op=cfg['llm_op'],
                                         only_present=cfg['multi_category'])
@@ -270,7 +270,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
                 loss_type = cfg['loss'][0]
 
             if loss_type == 'nll':
-                pred = F.log_softmax(logits, dim=1)
+                pred = F.log_softmax(logits, dim=-1)
                 probas = torch.exp(pred.data)
                 pred_choice = pred.data.max(1)[1].int()
                 if cfg['nll_w']:
@@ -284,7 +284,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
                                     target.view(batch_size, sample_size, 1),
                                     per_image=False)
             elif loss_type == 'LLm':
-                pred = F.softmax(logits, dim=1)
+                pred = F.softmax(logits, dim=-1)
                 probas = pred.data
                 pred_choice = pred.data.max(1)[1].int()
                 loss_seg = L.lovasz_softmax_flat(pred, target,
