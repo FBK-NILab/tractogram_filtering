@@ -74,8 +74,8 @@ class PNemb(torch.nn.Module):
         self.conv3 = nn.Linear(256, n_classes)
 
     def forward(self, x):
+        x = F.relu(self.conv1_0(x))
         x = F.relu(self.conv1_1(x))
-        x = F.relu(self.conv1_2(x))
         x = F.relu(self.conv2_0(x))
         x = F.relu(self.conv2_1(x))
         x = F.relu(self.conv2_2(x))
