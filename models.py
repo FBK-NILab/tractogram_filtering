@@ -24,7 +24,7 @@ class PNbatch_new(torch.nn.Module):
                  pool_op=global_max_pool,
                  batch_size=1,
                  same_size=False):
-        super(PNbatch, self).__init__()
+        super(PNbatch_new, self).__init__()
         self.pn = PNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
