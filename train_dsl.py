@@ -402,7 +402,7 @@ def train(cfg):
                                 act=cfg['act'],
                                 #fold_size=int(cfg['fold_size']),
                                 transform=transforms.Compose(trans_train))
-    if 'graph' not in cfg['dataset']:
+    if 'graph' in cfg['dataset']:
         DL = gDataLoader
     else:
         DL = DataLoader
