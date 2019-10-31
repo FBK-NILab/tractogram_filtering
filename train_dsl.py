@@ -17,6 +17,7 @@ from torch.utils.data import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
 from torchvision import transforms
+from torch_geometric.nn import global_max_pool
 
 import datasets as ds
 #import lovasz_losses as L
@@ -45,7 +46,7 @@ def get_model(cfg):
         classifier = PNbatch_new(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
-                                pool_op=torch.max,
+                                pool_op=global_max_pool,
                                 batch_size=int(cfg['batch_size']),
                                 same_size=cfg['same_size'])
     return classifier
