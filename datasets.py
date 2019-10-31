@@ -29,7 +29,8 @@ class HCP20Dataset(gDataset):
                  root_dir,
                  act=True,
                  fold_size=None,
-                 transform=None):
+                 transform=None,
+                 with_gt=True):
         """
         Args:
             root_dir (string): root directory of the dataset.
@@ -88,41 +89,36 @@ class HCP20Dataset(gDataset):
         #print('time sampling %f' % (time.time()-t0))
 
         #t0 = time.time()
-        streams, slices = load_selected_streamlines(T_file,
+        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+
+        n = len(sample['points'])
+        #t0 = time.time()
+        uniform_size = False
+        if uniform_size:
+            streams, l_max = load_selected_streamlines_uniform_size(T_file,
+                                                    sample['points'].tolist())
+            streams.reshape(n, l_max, -1)
+            sample['points'] = torch.from_numpy(streams)
+        else:
+            streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
-        sample['points'] = np.split(streams, slices[:-1], axis=0)
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
-        # n = len(sample['points'])
-        #sample_flat = torch.from_numpy(np.concatenate(sample['points']))
-        #l = sample_flat.shape[0]
+        slices = lengths.cumsum()[:-1]
+        streams = torch.from_numpy(streams)
+        l = streams.shape[0]
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
-        #start = 0
-        #i0 = 0
-        #for sl in sample['points']:
-        #    l_sl = len(sl)
-        #    end = start + 2*l_sl - 2
-        #    edges[:, start:end] = torch.tensor(
-        #                        [range(i0, i0+l_sl-1) + range(i0+1,i0+l_sl),
-        #                        range(i0+1,i0+l_sl) + range(i0, i0+l_sl-1)])
-        #    start = end
-        #    i0 += l_sl
-        #t0 = time.time()
-        data = []
-        for i, sl in enumerate(sample['points']):
-            l_sl = len(sl)
-            sl = torch.from_numpy(sl)
-            edges = torch.tensor([list(range(0, l_sl-1)) + list(range(1,l_sl)),
-                                list(range(1,l_sl)) + list(range(0, l_sl-1))],
-                                dtype=torch.long)
-            data.append(gData(x=sl, edge_index=edges, y=sample['gt'][i]))
-        #gt = torch.from_numpy(sample['gt'])
-        #graph_sample = gData(x=sample_flat, edge_index=edges, y=gt)
-        sample['points'] = gBatch().from_data_list(data)
-        #sample['points'] = data
-        sample['name'] = 'sub-%s_var-HCP_full_tract' %(sub)
+        e1 = set(np.arange(0,l-1)) - set(slices-1)
+        e2 = set(np.arange(1,l)) - set(slices)
+        edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
+                            dtype=torch.long)
+        graph_sample = gData(x=streams, edge_index=edges, lengths=torch.from_numpy(lengths))
+        if self.with_gt:
+            graph_sample['y'] = torch.from_numpy(sample['gt'])
+        sample['points'] = graph_sample
+
         #print('time building graph %f' % (time.time()-t0))
         return sample
     
