@@ -53,7 +53,7 @@ class PNbatch(torch.nn.Module):
             emb = self.pool(x.view(-1, lengths, self.emb_size), 1, keepdim=True)
             if len(emb) == 2:
                 emb = emb[0]
-        x = emb.view(self.bs, -1, self.emb_size)
+        x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         #print('t batch reshaping: %f' % (time.time()-t0))
         x = self.fc(F.relu(x))
