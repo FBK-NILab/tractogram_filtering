@@ -273,6 +273,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
 
             if loss_type == 'nll':
                 pred = F.log_softmax(logits, dim=-1)
+                pred = pred.view(-1,num_classes)
                 probas = torch.exp(pred.data)
                 pred_choice = pred.data.max(1)[1].int()
                 if cfg['nll_w']:
