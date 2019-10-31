@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = gcn_ori
+model = pn_geom
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -248,7 +248,7 @@ standardization = n
 n_classes = 2
 multi_category = n
 ignore_class = 0
-same_size = y
+same_size = n
 
 experiment_name = pointnet-loss_nll-data_hcp20
 
