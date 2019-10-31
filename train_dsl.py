@@ -114,7 +114,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             #        dataloader.dataset.n_fold = n_fold
             #        dataloader.dataset.load_fold()
             points, target = points.to('cuda'), target.to('cuda')
-    
+        print(len(points.lengths),target.shape) 
 
         ### visualize embedding of the input
         if cfg['viz_emb_input'] and n_iter == 0:
