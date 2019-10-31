@@ -235,7 +235,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
         mean_val_iou_c = torch.tensor([])
         
         for j, data in enumerate(val_dataloader):
-            if 'graph' in cfg['dataset']:
+            if 'graph' not in cfg['dataset']:
                 points = data['points']
                 target = data['gt']
                 points, target = Variable(points), Variable(target)
