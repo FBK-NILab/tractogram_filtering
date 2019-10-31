@@ -125,3 +125,108 @@ class HCP20Dataset(gDataset):
         sample['name'] = 'sub-%s_var-HCP_full_tract' %(sub)
         #print('time building graph %f' % (time.time()-t0))
         return sample
+    
+    class RndSampling(object):
+    """Random sampling from input object to return a fixed size input object
+    Args:
+        output_size (int): Desired output size.
+        maintain_prop (bool): Default True. Indicates if the random sampling
+            must be proportional to the number of examples of each class
+    """
+
+    def __init__(self, output_size, maintain_prop=True, prop_vector=[]):
+        assert isinstance(output_size, (int))
+        assert isinstance(maintain_prop, (bool))
+        self.output_size = output_size
+        self.maintain_prop = maintain_prop
+        self.prop_vector = prop_vector
+
+    def __call__(self, sample):
+        pts, gt = sample['points'], sample['gt']
+
+        n = pts.shape[0]
+        if self.maintain_prop:
+            n_classes = gt.max() + 1
+            remaining = self.output_size
+            chosen_idx = []
+            for cl in reversed(range(n_classes)):
+                if (gt == cl).sum() == 0:
+                    continue
+                if cl == gt.min():
+                    chosen_idx += np.random.choice(
+                        np.argwhere(gt == cl).reshape(-1),
+                        int(remaining)).reshape(-1).tolist()
+                    break
+                prop = float(np.sum(gt == cl)) / n
+                k = np.round(self.output_size * prop)
+                remaining -= k
+                chosen_idx += np.random.choice(
+                    np.argwhere(gt == cl).reshape(-1),
+                    int(k)).reshape(-1).tolist()
+
+            assert (self.output_size == len(chosen_idx))
+            chosen_idx = np.array(chosen_idx)
+        elif len(self.prop_vector) != 0:
+            n_classes = gt.max() + 1
+            while len(self.prop_vector) < n_classes:
+                self.prop_vector.append(1)
+            remaining = self.output_size
+            out_size = self.output_size
+            chosen_idx = []
+            excluded = 0
+            for cl in range(n_classes):
+                if (gt == cl).sum() == 0:
+                    continue
+                if cl == gt.max():
+                    chosen_idx += np.random.choice(
+                        np.argwhere(gt == cl).reshape(-1),
+                        int(remaining)).reshape(-1).tolist()
+                    break
+                if self.prop_vector[cl] != 1:
+                    prop = self.prop_vector[cl]
+                    excluded += np.sum(gt == cl)
+                    #excluded -= (n-excluded)*prop
+                    k = np.round(self.output_size * prop)
+                    out_size = remaining - k
+                else:
+                    prop = float(np.sum(gt == cl)) / (n - excluded)
+                    k = np.round(out_size * prop)
+
+                remaining -= k
+                chosen_idx += np.random.choice(
+                    np.argwhere(gt == cl).reshape(-1),
+                    int(k)).reshape(-1).tolist()
+
+            assert (self.output_size == len(chosen_idx))
+            chosen_idx = np.array(chosen_idx)
+        else:
+            chosen_idx = np.random.choice(range(n), self.output_size)
+
+        out_gt = gt[chosen_idx] if type(gt) == int else gt
+        return {'points': pts[chosen_idx], 'gt': out_gt}
+
+
+class TestSampling(object):
+    """Random sampling from input object until the object is all sampled
+    Args:
+        output_size (int): Desired output size.
+    """
+
+    def __init__(self, output_size):
+        assert isinstance(output_size, (int))
+        self.output_size = output_size
+
+    def __call__(self, sample):
+        sl = sample['points']
+
+        n = sl.shape[0]
+        if self.output_size > len(range(n)):
+            chosen_idx = range(n)
+        else:
+            chosen_idx = np.random.choice(range(n), self.output_size).tolist()
+        out_sample = {'points': sl[chosen_idx]}
+
+        if 'gt' in sample.keys():
+            out_sample['gt'] = sample['gt'][chosen_idx]
+        return out_sample
+
