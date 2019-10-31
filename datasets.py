@@ -81,7 +81,7 @@ class HCP20Dataset(gDataset):
         T = nib.streamlines.load(T_file, lazy_load=True)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
-
+        gt = np.array(gt) if type(gt) == list else gt
         sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
