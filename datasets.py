@@ -199,7 +199,7 @@ class RndSampling(object):
         else:
             chosen_idx = np.random.choice(range(n), self.output_size)
 
-        out_gt = gt[chosen_idx] if type(gt) == int else gt
+        out_gt = gt[chosen_idx] if len(gt) > 1 else gt
         return {'points': pts[chosen_idx], 'gt': out_gt}
 
 
