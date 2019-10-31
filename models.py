@@ -35,9 +35,9 @@ class PNbatch_new(torch.nn.Module):
 
     def forward(self, gdata):
         x, batch = gdata.x, gdata.batch
-        #x = self.pn(x,batch)
+        x = self.pn(x)
         x = global_max_pool(x,batch)
-        x = x.view(-1, self.emb_size)
+        #x = x.view(-1, self.emb_size)
         x = self.fc(F.relu(x))
         return x
         
