@@ -35,11 +35,17 @@ class PNbatch_new(torch.nn.Module):
 
     def forward(self, gdata):
         x, batch = gdata.x, gdata.batch
+        print(x.shape, batch.shape)
         x = self.pn(x)
+        print(x.shape)
         emb = self.pool(x,batch)
+        print(emb.shape)
         x = emb.view(-1, self.emb_size)
+        print(x.shape)
         self.embedding = x.data
+        print(x.shape)
         x = self.fc(F.relu(x))
+        print(x.shape)
         return x
         
 class PNbatch(torch.nn.Module):
@@ -66,6 +72,7 @@ class PNbatch(torch.nn.Module):
         lengths = gdata.lengths
         #t0 = time.time()
         x = self.pn(x)
+        print(x.shape)
         #print('t gcn: %f' % (time.time()-t0))
         #t0 = time.time()
         if not self.same_size:
@@ -78,12 +85,15 @@ class PNbatch(torch.nn.Module):
                 emb[i, :] = desc
         else:
             emb = self.pool(x.view(-1, lengths, self.emb_size), 1, keepdim=True)
+            print(emb.shape)
             if len(emb) == 2:
                 emb = emb[0]
         x = emb.view(-1, self.emb_size)
+        print(x.shape)
         self.embedding = x.data
         #print('t batch reshaping: %f' % (time.time()-t0))
         x = self.fc(F.relu(x))
+        print(x.shape)
         return x
 
 
