@@ -144,7 +144,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             loss_type = cfg['loss'][0]
 
         if loss_type == 'nll':
-            pred = F.log_softmax(logits, dim=-1)
+            pred = F.log_softmax(logits, dim=1)
             #pred = pred.view(-1,num_classes)
             pred_choice = pred.data.max(1)[1].int()
 
