@@ -37,7 +37,7 @@ class PNbatch_new(torch.nn.Module):
         x, batch = gdata.x, gdata.batch
         x = self.pn(x)
         x = self.pool(x,batch)
-        x = x.view(-1, self.emb_size)
+        #x = x.view(-1, self.emb_size)
         x = self.fc(F.relu(x))
         return x
         
