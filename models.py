@@ -36,7 +36,7 @@ class PNbatch_new(torch.nn.Module):
     def forward(self, gdata):
         x, lengths, batch = gdata.x, gdata.lengths, gdata.batch
         x = self.pn(x)
-        emb = self.pool(x.view(-1,lengths,self.emb_size),batch)
+        emb = self.pool(x.view(-1,self.emb_size),batch)
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         x = self.fc(F.relu(x))
