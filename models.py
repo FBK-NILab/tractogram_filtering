@@ -38,7 +38,7 @@ class PNbatch_new(torch.nn.Module):
         print(x.shape, batch.shape)
         x = self.pn(x)
         print(x.shape)
-        emb = self.pool(x,batch)
+        emb = self.pool(x.view,batch,size=30000)
         print(emb.shape)
         x = emb.view(-1, self.emb_size)
         print(x.shape)
