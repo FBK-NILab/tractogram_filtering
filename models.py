@@ -171,7 +171,6 @@ class GCNConvNet(torch.nn.Module):
     def forward(self, gdata):
         x, edge_index = gdata.x, gdata.edge_index
         x = F.relu(self.conv1_0(x, edge_index))
-        x = F.relu(self.conv2_0(x, edge_index))
         x = F.relu(self.conv2_1(x, edge_index))
         x = F.relu(self.conv2_2(x, edge_index))
         x = F.relu(self.conv2_3(x, edge_index))
