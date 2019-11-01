@@ -159,11 +159,9 @@ class PointNetPyg(torch.nn.Module):
 class GCNConvNet(torch.nn.Module):
     def __init__(self,
                 input_size,
-                n_classes=2):
+                n_classes):
         super(GCNConvNet, self).__init__()
         self.conv1_0 = GCNConv(input_size, 64)
-        self.conv1_1 = GCNConv(64, 64)
-        self.conv2_0 = GCNConv(64, 64)
         self.conv2_1 = GCNConv(64, 128)
         self.conv2_2 = GCNConv(128, 1024)
         self.conv2_3 = GCNConv(1024, 512)
@@ -173,17 +171,10 @@ class GCNConvNet(torch.nn.Module):
     def forward(self, gdata):
         x, edge_index = gdata.x, gdata.edge_index
         x = F.relu(self.conv1_0(x, edge_index))
-        x = F.dropout(x, training=self.training)
-        x = F.relu(self.conv1_1(x, edge_index))
-        x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_0(x, edge_index))
-        x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_1(x, edge_index))
-        x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_2(x, edge_index))
-        x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_3(x, edge_index))
-        x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_4(x, edge_index))
         x = F.dropout(x, training=self.training)
         x = self.conv3(x, edge_index)
