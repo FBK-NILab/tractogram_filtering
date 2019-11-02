@@ -254,15 +254,15 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
             else:
                 data_list = []
                 name_list = []
-                for i,d in enumerate(sample_batched):
-                    if 'bvec' in points.keys():
+                for i,d in enumerate(data):
+                    if 'bvec' in d.keys():
                         d.bvec += sample_size * i
                     data_list.append(d['points'])
                     name_list.append(d['name'])
                 points = gBatch().from_data_list(data_list)
-                if 'bvec' in points.keys():
-                    points.batch = points.b_vec.copy()
-                    del points.b_vec
+                if 'bvec' in points.keys:
+                    points.batch = points.bvec.clone()
+                    del points.bvec
                 target = points['y']
                 if cfg['same_size']:
                     points['lengths'] = points['lengths'][0].item()
