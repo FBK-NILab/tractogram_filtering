@@ -250,7 +250,7 @@ multi_category = n
 ignore_class = 0
 same_size = n
 
-experiment_name = pointnet-loss_nll-data_hcp20
+experiment_name = pnbatch-loss_nll-data_hcp20
 
 ####### ************************************************************************
 ####### ************************************************************************
