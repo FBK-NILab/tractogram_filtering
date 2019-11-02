@@ -97,10 +97,17 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
         else:
             data_list = []
             name_list = []
-            for d in sample_batched:
+            for i,d in enumerate(sample_batched):
+                if 'bvec' in points.keys():
+                    d.bvec += sample_size * i
                 data_list.append(d['points'])
                 name_list.append(d['name'])
             points = gBatch().from_data_list(data_list)
+            if 'bvec' in points.keys():
+                points.batch = points.b_vec.copy()
+                del points.b_vec
+            #if 'bslices' in points.keys():
+            #    points.__slices__ = torch.cum(
             target = points['y']
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
