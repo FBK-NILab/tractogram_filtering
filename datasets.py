@@ -111,7 +111,7 @@ class HCP20Dataset(gDataset):
         ### create graph structure
         lengths = torch.from_numpy(lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
-        batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum()])
+        batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
         slices = batch_slices[1:-1]
         streams = torch.from_numpy(streams)
         l = streams.shape[0]
