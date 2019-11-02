@@ -46,7 +46,7 @@ def get_model(cfg):
         classifier = PNbatch(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
-                                pool_op=global_max_pool,
+                                pool_op=torch.max,
                                 batch_size=int(cfg['batch_size']),
                                 same_size=cfg['same_size'])
     return classifier
