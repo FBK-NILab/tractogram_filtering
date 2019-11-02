@@ -72,7 +72,7 @@ class PNbatch(torch.nn.Module):
         lengths = gdata.lengths
         #t0 = time.time()
         x = self.pn(x)
-        print(x.shape)
+        #print(x.shape)
         #print('t gcn: %f' % (time.time()-t0))
         #t0 = time.time()
         if not self.same_size:
@@ -89,11 +89,11 @@ class PNbatch(torch.nn.Module):
             if len(emb) == 2:
                 emb = emb[0]
         x = emb.view(-1, self.emb_size)
-        print(x.shape)
+        #print(x.shape)
         self.embedding = x.data
         #print('t batch reshaping: %f' % (time.time()-t0))
         x = self.fc(F.relu(x))
-        print(x.shape)
+        #print(x.shape)
         return x
 
 
