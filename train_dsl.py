@@ -43,7 +43,7 @@ def get_model(cfg):
         classifier = GCNConvNet(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
-        classifier = PNbatch_new(input_size,
+        classifier = PNbatch(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 pool_op=global_max_pool,
