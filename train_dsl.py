@@ -104,7 +104,8 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
                 name_list.append(d['name'])
             points = gBatch().from_data_list(data_list)
             if 'bvec' in points.keys:
-                points.batch = points.bvec.copy()
+                #points.batch = points.bvec.copy()
+                points.batch = points.bvec.clone()
                 del points.bvec
             #if 'bslices' in points.keys():
             #    points.__slices__ = torch.cum(
