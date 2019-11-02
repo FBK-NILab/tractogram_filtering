@@ -30,7 +30,8 @@ class HCP20Dataset(gDataset):
                  act=True,
                  fold_size=None,
                  transform=None,
-                 with_gt=True):
+                 with_gt=True,
+                 return_edges=False):
         """
         Args:
             root_dir (string): root directory of the dataset.
@@ -44,11 +45,12 @@ class HCP20Dataset(gDataset):
         self.transform = transform
         self.fold_size = fold_size
         self.act = act
+        self.with_gt = with_gt
+        self.return_edges = return_edges
         self.fold = []
         self.n_fold = 0
         if fold_size is not None:
             self.load_fold()
-        self.with_gt = with_gt
 
     def __len__(self):
         return len(self.subjects)
@@ -107,15 +109,23 @@ class HCP20Dataset(gDataset):
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
-        slices = lengths.cumsum()[:-1]
+        lengths = torch.from_numpy(lengths)
+        batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
+        batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum()])
+        slices = batch_slices[1:-1]
         streams = torch.from_numpy(streams)
         l = streams.shape[0]
+        graph_sample = gData(x=streams, 
+                             lengths=lengths,
+                             bvec=batch_vec,
+                             bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
-        e1 = set(np.arange(0,l-1)) - set(slices-1)
-        e2 = set(np.arange(1,l)) - set(slices)
-        edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
+        if self.return_edges:
+            e1 = set(np.arange(0,l-1)) - set(slices-1)
+            e2 = set(np.arange(1,l)) - set(slices)
+            edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
-        graph_sample = gData(x=streams, edge_index=edges, lengths=torch.from_numpy(lengths))
+            graph_sample['edge_index'] = edges
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
