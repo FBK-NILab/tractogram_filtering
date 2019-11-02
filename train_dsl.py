@@ -103,7 +103,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
                 data_list.append(d['points'])
                 name_list.append(d['name'])
             points = gBatch().from_data_list(data_list)
-            if 'bvec' in points.keys():
+            if 'bvec' in points.keys:
                 points.batch = points.b_vec.copy()
                 del points.b_vec
             #if 'bslices' in points.keys():
