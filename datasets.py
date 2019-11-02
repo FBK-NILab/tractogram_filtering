@@ -117,8 +117,8 @@ class HCP20Dataset(gDataset):
         l = streams.shape[0]
         graph_sample = gData(x=streams, 
                              lengths=lengths,
-                             bvec=batch_vec,
-                             bslices=batch_slices)
+                             bvec=batch_vec)
+        #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
             e1 = set(np.arange(0,l-1)) - set(slices-1)
