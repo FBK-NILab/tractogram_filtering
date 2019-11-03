@@ -186,6 +186,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             ep_cluster_loss += loss_cluster
 
         ep_loss += loss
+        loss.backward()
         
         if int(cfg['accumulation_interval']) % (i_batch+1) == 0:
             optimizer.step()
