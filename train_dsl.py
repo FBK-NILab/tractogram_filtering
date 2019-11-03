@@ -160,7 +160,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
                 ce_w = torch.tensor([1.5e-2] + [1.]*(num_classes-1)).cuda()
             else:
                 ce_w = torch.tensor([1.]*num_classes).cuda()
-            print(pred.shape)
+            #print(pred.shape)
             loss = F.nll_loss(pred, target.long(), weight=ce_w)
         elif loss_type == 'LLh':
             pred_choice = (logits.data>0).int()
@@ -295,7 +295,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
                     ce_w = torch.tensor([1.5e-2] + [1.]*(num_classes-1)).cuda()
                 else:
                     ce_w = torch.tensor([1.]*num_classes).cuda()
-                print(pred.shape, target.shape)
+                #print(pred.shape, target.shape)
                 loss_seg = F.nll_loss(pred, target.long(), weight=ce_w)
             elif loss_type == 'LLh':
                 pred_choice = (logits.data>0).int()
