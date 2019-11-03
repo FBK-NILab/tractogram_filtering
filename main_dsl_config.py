@@ -67,7 +67,7 @@ val_freq = 20
 
 ########### general ###########
 load_all_once = y
-n_workers = 0
+n_workers = 8
 model_dir = models
 save_model = y
 seed = 10
