@@ -21,7 +21,7 @@ class PNptg(torch.nn.Module):
                  input_size,
                  embedding_size,
                  n_classes,
-                 batch_size,
+                 batch_size=1,
                  pool_op=global_max_pool,
                  same_size=False):
         super(PNptg, self).__init__()
