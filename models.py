@@ -15,7 +15,7 @@ from torch_geometric.utils import normalized_cut
 from torch_geometric.nn import GCNConv, NNConv, graclus
 #from pointnet_mgf import max_mod
 
-class PNbatch_new(torch.nn.Module):
+class PNptg(torch.nn.Module):
 
     def __init__(self,
                  input_size,
@@ -24,7 +24,7 @@ class PNbatch_new(torch.nn.Module):
                  pool_op=global_max_pool,
                  batch_size=1,
                  same_size=False):
-        super(PNbatch_new, self).__init__()
+        super(PNptg, self).__init__()
         self.pn = PNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
@@ -35,17 +35,11 @@ class PNbatch_new(torch.nn.Module):
 
     def forward(self, gdata):
         x, batch = gdata.x, gdata.batch
-        print(x.shape, batch.shape)
         x = self.pn(x)
-        print(x.shape)
-        emb = self.pool(x,batch,size=30000)
-        print(emb.shape)
+        emb = self.pool(x,batch)
         x = emb.view(-1, self.emb_size)
-        print(x.shape)
         self.embedding = x.data
-        print(x.shape)
         x = self.fc(F.relu(x))
-        print(x.shape)
         return x
         
 class PNbatch(torch.nn.Module):
