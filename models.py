@@ -40,7 +40,7 @@ class PNptg(torch.nn.Module):
         print(x.shape,batch.shape)
         x = self.pn(x)
         print(x.shape)
-        emb = self.pool(x,batch,size=self.fixed_size*self.bs)
+        emb = self.pool(x,batch)
         print(emb.shape)
         x = emb.view(-1, self.emb_size)
         print(x.shape)
