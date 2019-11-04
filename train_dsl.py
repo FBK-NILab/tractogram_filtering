@@ -388,6 +388,7 @@ def train(cfg):
 
     num_classes = int(cfg['n_classes'])
     batch_size = int(cfg['batch_size'])
+    print(batch_size)
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
     cfg['loss'] = cfg['loss'].split(' ')
@@ -427,6 +428,7 @@ def train(cfg):
         DL = DataLoader
     
     print(dataset)
+    print(batch_size)
     dataloader = DL(dataset, batch_size=batch_size,
                                     shuffle=cfg['shuffling'],
                                     num_workers=int(cfg['n_workers']),
