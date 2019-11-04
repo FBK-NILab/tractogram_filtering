@@ -388,7 +388,6 @@ def train(cfg):
 
     num_classes = int(cfg['n_classes'])
     batch_size = int(cfg['batch_size'])
-    print(batch_size)
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
     cfg['loss'] = cfg['loss'].split(' ')
@@ -427,13 +426,12 @@ def train(cfg):
     else:
         DL = DataLoader
     
-    print(dataset)
-    print(batch_size)
+
     dataloader = DL(dataset, batch_size=batch_size,
                                     shuffle=cfg['shuffling'],
                                     num_workers=int(cfg['n_workers']),
                                     pin_memory=True)
-    print(dataloader)
+
     print("Dataset %s loaded, found %d samples" % (cfg['dataset'], len(dataset)))
     if cfg['val_in_train']:
         if cfg['dataset'] == 'hcp20_graph':
