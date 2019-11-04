@@ -468,7 +468,7 @@ def test(cfg):
         scores_file = writer.logdir + '/scores_test_%d.txt' % epoch
         if not cfg['multi_category']:
             print('saving scores')
-            with open(scores_file, 'wb') as f:
+            with open(scores_file, 'w') as f:
                 f.write('acc\n')
                 f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
                 f.write('prec\n')
@@ -479,7 +479,7 @@ def test(cfg):
                 f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
                 f.write('iou\n')
                 f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
-            with open(final_scores_file, 'wb') as f:
+            with open(final_scores_file, 'w') as f:
                 f.write('acc\n')
                 f.write('%f\n' % mean_val_acc.mean())
                 f.write('%f\n' % mean_val_acc.std())
