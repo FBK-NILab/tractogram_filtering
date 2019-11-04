@@ -98,7 +98,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             data_list = []
             name_list = []
             for i,d in enumerate(sample_batched):
-                if 'bvec' in d['points'].keys():
+                if 'bvec' in d['points'].keys:
                     d['points'].bvec += sample_size * i
                 data_list.append(d['points'])
                 name_list.append(d['name'])
@@ -257,7 +257,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
                 data_list = []
                 name_list = []
                 for i,d in enumerate(data):
-                    if 'bvec' in d['points'].keys():
+                    if 'bvec' in d['points'].keys:
                         d['points'].bvec += sample_size * i
                     data_list.append(d['points'])
                     name_list.append(d['name'])
