@@ -38,7 +38,6 @@ def get_model(cfg):
     num_classes = int(cfg['n_classes'])
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
-    fixed_size = int(cfg['fixed_size'])
     
     if cfg['model'] == 'gcn_ori':
         classifier = GCNConvNet(input_size,
@@ -47,7 +46,6 @@ def get_model(cfg):
         classifier = PNptg(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
-                                fixed_size,
                                 batch_size=int(cfg['batch_size']),
                                 pool_op=global_max_pool,
                                 same_size=cfg['same_size'])
