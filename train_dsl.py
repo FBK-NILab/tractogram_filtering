@@ -43,7 +43,7 @@ def get_model(cfg):
         classifier = GCNConvNet(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
-        classifier = PNbatch(input_size,
+        classifier = PNptg(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 pool_op=torch.max,
@@ -225,7 +225,8 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
 def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_loss_fn, best_epoch, best_pred, logdir):
 
     num_classes = int(cfg['n_classes'])
-    batch_size = int(cfg['batch_size'])
+    #batch_size = int(cfg['batch_size'])
+    batch_size = 1
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
     n_gf = int(cfg['num_gf'])
