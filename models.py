@@ -36,6 +36,7 @@ class PNptg(torch.nn.Module):
     def forward(self, gdata):
         x, batch = gdata.x, gdata.batch
         print(x.shape,batch.shape)
+        print("max:",batch.max())
         x = self.pn(x)
         print(x.shape)
         emb = self.pool(x,batch)
