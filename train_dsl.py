@@ -225,8 +225,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
 def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_loss_fn, best_epoch, best_pred, logdir):
 
     num_classes = int(cfg['n_classes'])
-    #batch_size = int(cfg['batch_size'])
-    batch_size = 1
+    batch_size = int(cfg['batch_size'])
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
     n_gf = int(cfg['num_gf'])
