@@ -85,7 +85,8 @@ def test(cfg):
     elif cfg['dataset'] == 'hcp20_graph':
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
-                                  act=cfg['act'])    
+                                  act=cfg['act'],
+                                  transform=transforms.Compose(trans_val)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_test'],
                                 cfg['dataset_dir'],
@@ -238,6 +239,7 @@ def test(cfg):
 
                 if loss_type == 'nll':
                     pred = F.log_softmax(logits, dim=-1)
+                    pred = pred.view(-1,num_classes)
                     probas = torch.exp(pred.data)
                     pred_choice = pred.data.max(1)[1].int()
                     if cfg['with_gt']:
