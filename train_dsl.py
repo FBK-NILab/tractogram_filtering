@@ -257,8 +257,8 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
                 data_list = []
                 name_list = []
                 for i,d in enumerate(data):
-                    if 'bvec' in d.keys():
-                        d.bvec += sample_size * i
+                    if 'bvec' in d['points'].keys():
+                        d['points'].bvec += sample_size * i
                     data_list.append(d['points'])
                     name_list.append(d['name'])
                 points = gBatch().from_data_list(data_list)
