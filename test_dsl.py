@@ -203,9 +203,9 @@ def test(cfg):
 
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
             points = data['points']
-            print(points)
-            if len(points.shape()) == 2:
-                points = points.unsqueeze(0)
+            #print(points)
+            #if len(points.shape()) == 2:
+                #points = points.unsqueeze(0)
             if cfg['with_gt']:
                 if 'graph' not in cfg['dataset']:
                     target = data['gt']
