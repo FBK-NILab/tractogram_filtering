@@ -141,7 +141,6 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             logits, gf = classifier(points)
         else:
             logits = classifier(points)
-        print("logits shape:",logits.shape)
         ### minimize the loss
         if len(cfg['loss']) == 2:
             if epoch <= int(cfg['switch_loss_epoch']):
