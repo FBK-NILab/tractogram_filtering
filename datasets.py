@@ -31,7 +31,9 @@ class HCP20Dataset(gDataset):
                  fold_size=None,
                  transform=None,
                  with_gt=True,
-                 return_edges=False):
+                 return_edges=False,
+                 split_obj=False,
+                 train=True):
         """
         Args:
             root_dir (string): root directory of the dataset.
@@ -49,8 +51,14 @@ class HCP20Dataset(gDataset):
         self.return_edges = return_edges
         self.fold = []
         self.n_fold = 0
+        self.train = train
         if fold_size is not None:
             self.load_fold()
+        if train:
+            split_obj=False
+        if split_obj:
+            self.remaining = [[] for _ in range(len(subjects))]
+        self.split_obj = split_obj
 
     def __len__(self):
         return len(self.subjects)
@@ -90,6 +98,11 @@ class HCP20Dataset(gDataset):
         if self.transform:
             sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
+        
+        if self.split_obj:
+            self.remaining[idx] -= set(sample['points'])
+            sample['obj_idxs'] = sample['points'].copy()
+            sample['obj_full_size'] = T.header['nb_streamlines']
 
         #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
