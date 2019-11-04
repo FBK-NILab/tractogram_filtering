@@ -92,7 +92,17 @@ class HCP20Dataset(gDataset):
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
-        sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+        if self.split_obj:
+            if len(self.remaining[idx]) == 0:
+                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
+            sample = {'points': np.array(list(self.remaining[idx]))}
+            if self.with_gt:
+                sample['gt'] = gt[list(self.remaining[idx])]
+        else:
+            #sample = {'points': np.arange(T.header['nb_streamlines'])}
+            #if self.with_gt:
+                #sample['gt'] = gt
+            sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
         if self.transform:
