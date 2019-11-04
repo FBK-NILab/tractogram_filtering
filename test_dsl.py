@@ -86,7 +86,10 @@ def test(cfg):
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
                                   act=cfg['act'],
-                                  transform=transforms.Compose(trans_val)    
+                                  transform=transforms.Compose(trans_val),
+                                  with_gt=cfg['with_gt'],
+                                  split_obj=True,
+                                  train=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_test'],
                                 cfg['dataset_dir'],
