@@ -21,6 +21,7 @@ class PNptg(torch.nn.Module):
                  input_size,
                  embedding_size,
                  n_classes,
+                 fixed_size,
                  batch_size=1,
                  pool_op=global_max_pool,
                  same_size=False):
@@ -31,6 +32,7 @@ class PNptg(torch.nn.Module):
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
+        self.fixed_size = fixed_size
         self.embedding = None
 
     def forward(self, gdata):
@@ -38,7 +40,7 @@ class PNptg(torch.nn.Module):
         print(x.shape,batch.shape)
         x = self.pn(x)
         print(x.shape)
-        emb = self.pool(x,batch)
+        emb = self.pool(x,batch,size=self.fixed_size*self.bs)
         print(emb.shape)
         x = emb.view(-1, self.emb_size)
         print(x.shape)
