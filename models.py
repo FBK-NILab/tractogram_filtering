@@ -35,11 +35,16 @@ class PNptg(torch.nn.Module):
 
     def forward(self, gdata):
         x, batch = gdata.x, gdata.batch
+        print(x.shape,batch.shape)
         x = self.pn(x)
+        print(x.shape)
         emb = self.pool(x,batch)
+        print(emb.shape)
         x = emb.view(-1, self.emb_size)
+        print(x.shape)
         self.embedding = x.data
         x = self.fc(F.relu(x))
+        print(x.shape)
         return x
         
 class PNbatch(torch.nn.Module):
