@@ -27,7 +27,7 @@ from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from pointnet_mgf import (OnlyFC, PointNetClsMultiFeat, PointNetDenseClsLocal,
                           #PointNetDenseClsMultiFeat,
                           #PointNetDenseClsMultiFeatMultiLayer, mean_mod)
-from models import PNemb, PNbatch, PNbatch_new, PointNetPyg, GCNConvNet, NNConvNet, ST_loss
+from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNConvNet, NNConvNet, ST_loss
 from tensorboardX import SummaryWriter
 #from twounit_net import TwoUnitNet
 from utils import get_spaced_colors
