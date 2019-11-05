@@ -290,8 +290,6 @@ class HCP20DatasetNew(gDataset):
         self.fold = []
         self.n_fold = 0
         self.train = train
-        if fold_size is not None:
-            self.load_fold()
         if train:
             split_obj=False
         if split_obj:
