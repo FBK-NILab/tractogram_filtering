@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+from torch_geometric.data import Batch as gBatch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from visdom import Visdom
@@ -210,9 +211,21 @@ def test(cfg):
                 if 'graph' not in cfg['dataset']:
                     target = data['gt']
                 else:
+                    data_list = []
+                    name_list = []
+                    for i,d in enumerate(data):
+                        if 'bvec' in d['points'].keys:
+                            d['points'].bvec += sample_size * i
+                        data_list.append(d['points'])
+                        name_list.append(d['name'])
+                    points = gBatch().from_data_list(data_list)
+                    if 'bvec' in points.keys:
+                        points.batch = points.bvec.clone()
+                        del points.bvec
                     target = points['y']
                     if cfg['same_size']:
                         points['lengths'] = points['lengths'][0].item()
+                    sample_batched = {'points': points, 'gt': target, 'name': name_list}
                 target = target.to('cuda')
                 target = target.view(-1, 1)[:, 0]
                 #if cfg['model'] == 'pointnet_cls':
