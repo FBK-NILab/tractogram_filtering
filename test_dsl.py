@@ -213,22 +213,21 @@ def test(cfg):
                 else:
                     data_list = []
                     name_list = []
-                    for i,d in enumerate(data):
-                        print(d)
-                        if 'bvec' in d['points'].keys:
-                            d['points'].bvec += sample_size * i
-                        data_list.append(d['points'])
-                        name_list.append(d['name'])
-                    points = gBatch().from_data_list(data_list)
-                    if 'bvec' in points.keys:
-                        points.batch = points.bvec.clone()
-                        del points.bvec
-                    target = points['y']
-                    if cfg['same_size']:
-                        points['lengths'] = points['lengths'][0].item()
-                    sample_batched = {'points': points, 'gt': target, 'name': name_list}
-                target = target.to('cuda')
-                target = target.view(-1, 1)[:, 0]
+                    
+                    if 'bvec' in data['points'].keys:
+                        data['points'].bvec += sample_size * j
+                    data_list.append(data['points'])
+                    name_list.append(data['name'])
+                 points = gBatch().from_data_list(data_list)
+                 if 'bvec' in points.keys:
+                    points.batch = points.bvec.clone()
+                    del points.bvec
+                 target = points['y']
+                 if cfg['same_size']:
+                    points['lengths'] = points['lengths'][0].item()
+            sample_batched = {'points': points, 'gt': target, 'name': name_list}
+            target = target.to('cuda')
+            target = target.view(-1, 1)[:, 0]
                 #if cfg['model'] == 'pointnet_cls':
                     #target = target.view(len(data['obj_idxs']), -1)[:,0]
 
