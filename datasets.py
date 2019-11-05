@@ -104,21 +104,21 @@ class HCP20Dataset(gDataset):
                 #sample['gt'] = gt
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
-        #t0 = time.time()
+        t0 = time.time()
         if self.transform:
             sample = self.transform(sample)
-        #print('time sampling %f' % (time.time()-t0))
+        print('time sampling %f' % (time.time()-t0))
         
         if self.split_obj:
             self.remaining[idx] -= set(sample['points'])
             sample['obj_idxs'] = sample['points'].copy()
             sample['obj_full_size'] = T.header['nb_streamlines']
 
-        #t0 = time.time()
+        t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
 
         n = len(sample['points'])
-        #t0 = time.time()
+        t0 = time.time()
         uniform_size = False
         if uniform_size:
             streams, l_max = load_selected_streamlines_uniform_size(T_file,
@@ -128,9 +128,9 @@ class HCP20Dataset(gDataset):
         else:
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-        #print('time loading selected streamlines %f' % (time.time()-t0))
-        #t0 = time.time()
-        #print('time numpy split %f' % (time.time()-t0))
+        print('time loading selected streamlines %f' % (time.time()-t0))
+        t0 = time.time()
+        print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
         lengths = torch.from_numpy(lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
@@ -153,7 +153,7 @@ class HCP20Dataset(gDataset):
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
 
-        #print('time building graph %f' % (time.time()-t0))
+        print('time building graph %f' % (time.time()-t0))
         #print(sample)
         return sample
     
