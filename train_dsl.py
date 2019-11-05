@@ -406,8 +406,9 @@ def train(cfg):
         trans_val.append(ds.SampleStandardization())
 
     if cfg['dataset'] == 'hcp20_graph':
-      dataset = ds.HCP20Dataset(cfg['sub_list_train'],
+      dataset = ds.HCP20DatasetNew(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
+                                fold_size=cfg['fold_size'],
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train))    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
@@ -435,8 +436,9 @@ def train(cfg):
     print("Dataset %s loaded, found %d samples" % (cfg['dataset'], len(dataset)))
     if cfg['val_in_train']:
         if cfg['dataset'] == 'hcp20_graph':
-            val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
-                                          cfg['val_dataset_dir'], 
+            val_dataset = ds.HCP20DatasetNew(cfg['sub_list_val'], 
+                                          cfg['val_dataset_dir'],
+                                          fold_size=cfg['fold_size'],
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val))
         elif cfg['dataset'] == 'tractseg_500k':
