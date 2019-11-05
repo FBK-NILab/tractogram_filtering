@@ -301,24 +301,6 @@ class HCP20DatasetNew(gDataset):
     def __len__(self):
         return len(self.subjects)
 
-    def __getitem__(self, idx):
-        fs = self.fold_size
-        if fs is None:
-            return self.getitem(idx)
-
-        fs_0 = (self.n_fold * fs)
-        idx = fs_0 + (idx % fs)
-
-        return self.data_fold[idx]
-
-    def load_fold(self):
-        fs = self.fold_size
-        fs_0 = self.n_fold * fs
-        t0 = time.time()
-        print('Loading fold')
-        self.data_fold = [self.getitem(i) for i in range(fs_0, fs_0 + fs)]
-        print('time needed: %f' % (time.time()-t0))
-
     def getitem(self, idx):
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
