@@ -214,6 +214,7 @@ def test(cfg):
                     data_list = []
                     name_list = []
                     for i,d in enumerate(data):
+                        print(d)
                         if 'bvec' in d['points'].keys:
                             d['points'].bvec += sample_size * i
                         data_list.append(d['points'])
