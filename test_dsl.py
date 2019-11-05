@@ -219,21 +219,21 @@ def test(cfg):
                     data_list.append(data['points'])
                     name_list.append(data['name'])
                     points = gBatch().from_data_list(data_list)
-                 if 'bvec' in points.keys:
-                    points.batch = points.bvec.clone()
-                    del points.bvec
-                 target = points['y']
-                 if cfg['same_size']:
-                    points['lengths'] = points['lengths'][0].item()
-            sample_batched = {'points': points, 'gt': target, 'name': name_list}
-            target = target.to('cuda')
-            target = target.view(-1, 1)[:, 0]
+                    if 'bvec' in points.keys:
+                        points.batch = points.bvec.clone()
+                        del points.bvec
+                    target = points['y']
+                    if cfg['same_size']:
+                        points['lengths'] = points['lengths'][0].item()
+                    sample_batched = {'points': points, 'gt': target, 'name': name_list}
+                    target = target.to('cuda')
+                    target = target.view(-1, 1)[:, 0]
                 #if cfg['model'] == 'pointnet_cls':
                     #target = target.view(len(data['obj_idxs']), -1)[:,0]
 
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
-            points = points.to('cuda')
+                    points = points.to('cuda')
 
             ### add one-hot labels if multi-category task
             if cfg['multi_category']:
