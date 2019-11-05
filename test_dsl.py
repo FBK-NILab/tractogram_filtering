@@ -218,7 +218,7 @@ def test(cfg):
                         data['points'].bvec += sample_size * j
                     data_list.append(data['points'])
                     name_list.append(data['name'])
-                 points = gBatch().from_data_list(data_list)
+                    points = gBatch().from_data_list(data_list)
                  if 'bvec' in points.keys:
                     points.batch = points.bvec.clone()
                     del points.bvec
