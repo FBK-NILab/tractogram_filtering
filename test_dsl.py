@@ -233,7 +233,7 @@ def test(cfg):
 
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
-                    points = points.to('cuda')
+            points = points.to('cuda')
 
             ### add one-hot labels if multi-category task
             if cfg['multi_category']:
