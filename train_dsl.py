@@ -225,7 +225,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
 
     num_classes = int(cfg['n_classes'])
     #batch_size = int(cfg['batch_size'])
-    batch_size = 1
+    batch_size = 4
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
     n_gf = int(cfg['num_gf'])
@@ -452,7 +452,7 @@ def train(cfg):
                                 transform=transforms.Compose(trans_val),
                                 same_size=cfg['same_size'])
         
-        val_dataloader = DL(val_dataset, batch_size=1,
+        val_dataloader = DL(val_dataset, batch_size=4,
                                     shuffle=False,
                                     num_workers=0,
                                     pin_memory=True)
