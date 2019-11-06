@@ -214,8 +214,8 @@ def test(cfg):
                     data_list = []
                     name_list = []
                     
-                    if 'bvec' in data['points'].keys:
-                        data['points'].bvec += sample_size
+                    #if 'bvec' in data['points'].keys:
+                        #data['points'].bvec += sample_size
                     data_list.append(data['points'])
                     name_list.append(data['name'])
                     points = gBatch().from_data_list(data_list)
