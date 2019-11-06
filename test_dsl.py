@@ -215,7 +215,7 @@ def test(cfg):
                     name_list = []
                     
                     if 'bvec' in data['points'].keys:
-                        data['points'].bvec += sample_size * j
+                        data['points'].bvec += sample_size * batch_size
                     data_list.append(data['points'])
                     name_list.append(data['name'])
                     points = gBatch().from_data_list(data_list)
@@ -226,8 +226,8 @@ def test(cfg):
                     if cfg['same_size']:
                         points['lengths'] = points['lengths'][0].item()
                     sample_batched = {'points': points, 'gt': target, 'name': name_list}
-                    target = target.to('cuda')
-                    target = target.view(-1, 1)[:, 0]
+                target = target.to('cuda')
+                target = target.view(-1, 1)[:, 0]
                 #if cfg['model'] == 'pointnet_cls':
                     #target = target.view(len(data['obj_idxs']), -1)[:,0]
 
