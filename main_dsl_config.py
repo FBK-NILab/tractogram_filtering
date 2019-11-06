@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 3
+batch_size = 10
 shuffling = y
 rnd_sampling = y
 standardization = n
@@ -250,7 +250,7 @@ multi_category = n
 ignore_class = 0
 same_size = n
 
-experiment_name = pngeom-loss_nll-data_hcp20
+experiment_name = pngeom-loss_nll-data_hcp20_full
 
 ####### ************************************************************************
 ####### ************************************************************************
