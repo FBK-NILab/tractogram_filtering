@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 10
+batch_size = 3
 shuffling = y
 rnd_sampling = y
 standardization = n
