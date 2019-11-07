@@ -201,35 +201,29 @@ def test(cfg):
 
                 if len(dataset.remaining[j]) == 0:
                     consumed = True
-
+                    
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
-            points = data['points']
+             
             #print(points)
             #if len(points.shape()) == 2:
                 #points = points.unsqueeze(0)
-            if cfg['with_gt']:
-                if 'graph' not in cfg['dataset']:
+            if 'graph' not in cfg['dataset']:
+                points = data['points']
+                if cfg['with_gt']:
                     target = data['gt']
-                else:
-                    data_list = []
-                    name_list = []
-                    
-                    #if 'bvec' in data['points'].keys:
-                        #data['points'].bvec += sample_size
-                    data_list.append(data['points'])
-                    name_list.append(data['name'])
-                    points = gBatch().from_data_list(data_list)
-                    if 'bvec' in points.keys:
-                        points.batch = points.bvec.clone()
-                        del points.bvec
+                    target = target.to('cuda')
+                    target = target.view(-1, 1)[:, 0]
+            else:
+                points = gBatch().from_data_list([data['points']])
+                if 'bvec' in points.keys:
+                    points.batch = points.bvec.clone()
+                    del points.bvec
+                if cfg['with_gt']:
                     target = points['y']
-                    if cfg['same_size']:
-                        points['lengths'] = points['lengths'][0].item()
-                    sample_batched = {'points': points, 'gt': target, 'name': name_list}
-                target = target.to('cuda')
-                target = target.view(-1, 1)[:, 0]
-                #if cfg['model'] == 'pointnet_cls':
-                    #target = target.view(len(data['obj_idxs']), -1)[:,0]
+                    target = target.to('cuda')
+                    target = target.view(-1, 1)[:, 0]
+                if cfg['same_size']:
+                    points['lengths'] = points['lengths'][0].item()
 
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
