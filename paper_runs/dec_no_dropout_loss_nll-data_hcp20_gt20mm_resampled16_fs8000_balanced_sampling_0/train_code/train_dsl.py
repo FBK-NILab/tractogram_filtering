@@ -144,11 +144,11 @@ def get_model(cfg):
                                 pool_op=global_max_pool,
                                 same_size=cfg['same_size'])
     elif cfg['model'] == 'pn_geom':
-        classifier = PNptg(input_size,
+        classifier = PNbatch(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 batch_size=int(cfg['batch_size']),
-                                pool_op=global_max_pool,
+                                pool_op=torch.max,
                                 same_size=cfg['same_size'])
     return classifier
 
