@@ -43,11 +43,11 @@ def get_model(cfg):
         classifier = GCNConvNet(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
-        classifier = PNbatch(input_size,
+        classifier = PNptg(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 batch_size=int(cfg['batch_size']),
-                                pool_op=torch.max,
+                                pool_op=global_max_pool,
                                 same_size=cfg['same_size'])
     return classifier
 
