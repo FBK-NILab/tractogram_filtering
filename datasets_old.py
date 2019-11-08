@@ -86,7 +86,10 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        
+        #for i in range(repeat_sampling):
+        sampled = 0
+        while sampled < repeat_sampling:
+            
             
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
