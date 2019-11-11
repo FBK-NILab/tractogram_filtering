@@ -412,7 +412,7 @@ def train(cfg):
     if cfg['dataset'] == 'hcp20_graph':
       dataset = ds.HCP20Dataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
-                                cfg['repeat_sampling'],
+                                int(cfg['repeat_sampling']),
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train),
                                 return_edges=True)    
@@ -443,7 +443,7 @@ def train(cfg):
         if cfg['dataset'] == 'hcp20_graph':
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
-                                          cfg['repeat_sampling'],
+                                          int(cfg['repeat_sampling']),
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val),
                                           return_edges=True)
