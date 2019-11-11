@@ -86,9 +86,8 @@ class HCP20Dataset(gDataset):
     def getitem(self, idx):
         sampled = 0
         while sampled < self.repeat_sampling:
-            print(sampled)
             sub = self.subjects[idx]
-            print(sub)
+            print('sub:' ,sub, 'sample:',sampled)
             sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
             T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
             label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
@@ -159,10 +158,9 @@ class HCP20Dataset(gDataset):
             if self.with_gt:
                 graph_sample['y'] = torch.from_numpy(sample['gt'])
             sample['points'] = graph_sample
-            sampled+=1
+        sampled+=1
 
         #print('time building graph %f' % (time.time()-t0))
-        print(len(sample['points']))
         return sample    
     
 class RndSampling(object):
