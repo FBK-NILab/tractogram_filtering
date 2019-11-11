@@ -59,7 +59,7 @@ class HCP20Dataset(gDataset):
         if train:
             split_obj=False
         if split_obj or repeat_sampling is not None:
-            self.remaining = [[] for _ in range(len(subjects))]
+            self.remaining = [[] for _ in range(len(subjects)*self.repeat_sampling)]
         self.split_obj = split_obj
 
     def __len__(self):
