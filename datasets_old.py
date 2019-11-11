@@ -54,8 +54,6 @@ class HCP20Dataset(gDataset):
         self.fold = []
         self.n_fold = 0
         self.train = train
-        if repeat_sampling is not None:
-            self.remain = [[] for _ in range(len(subjects))]
         if fold_size is not None:
             self.load_fold()
         if train:
@@ -65,7 +63,10 @@ class HCP20Dataset(gDataset):
         self.split_obj = split_obj
 
     def __len__(self):
-        return len(self.subjects)
+        if self.repeat_sampling is not None:
+            return len(self.subjects)*self.repeat_sampling
+        else:
+            return len(self.subjects)
 
     def __getitem__(self, idx):
         fs = self.fold_size
@@ -86,12 +87,8 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        #for i in range(repeat_sampling):
-        sampled = 0
-        while sampled < repeat_sampling:
-            
-            
         sub = self.subjects[idx]
+        print(sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
@@ -101,7 +98,8 @@ class HCP20Dataset(gDataset):
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
-        if self.split_obj:
+        
+        if self.split_obj or self.repeat_sampling is not None:
             if len(self.remaining[idx]) == 0:
                 self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
             sample = {'points': np.array(list(self.remaining[idx]))}
@@ -163,8 +161,9 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
 
         #print('time building graph %f' % (time.time()-t0))
-        #print(sample)
+        print(len(sample['points']))
         return sample    
+    
 class RndSampling(object):
     """Random sampling from input object to return a fixed size input object
     Args:
