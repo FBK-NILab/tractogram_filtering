@@ -443,7 +443,8 @@ def train(cfg):
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
                                           act=cfg['act'],
-                                          transform=transforms.Compose(trans_val))
+                                          transform=transforms.Compose(trans_val),
+                                          return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
                                     cfg['sub_list_val'],
