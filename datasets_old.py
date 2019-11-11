@@ -55,7 +55,7 @@ class HCP20Dataset(gDataset):
         self.n_fold = 0
         self.train = train
         if repeat_sampling is not None:
-            self.remaining = [[] for _ in range(len(subjects)*self.repeat_sampling))]
+            self.remaining = [[] for _ in range(len(subjects)*self.repeat_sampling)]
         if fold_size is not None:
             self.load_fold()
         if train:
