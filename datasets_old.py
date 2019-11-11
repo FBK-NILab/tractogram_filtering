@@ -58,7 +58,7 @@ class HCP20Dataset(gDataset):
             self.load_fold()
         if train:
             split_obj=False
-        if split_obj:
+        if split_obj or repeat_sampling is not None:
             self.remaining = [[] for _ in range(len(subjects))]
         self.split_obj = split_obj
 
