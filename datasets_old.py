@@ -65,7 +65,7 @@ class HCP20Dataset(gDataset):
         self.split_obj = split_obj
 
     def __len__(self):
-        if repeat_sampling is not None:
+        if self.repeat_sampling is not None:
             return len(self.subjects)*self.repeat_sampling
         else:
             return len(self.subjects)
