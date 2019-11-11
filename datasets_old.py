@@ -161,7 +161,7 @@ class HCP20Dataset(gDataset):
             sampled+=1
 
         #print('time building graph %f' % (time.time()-t0))
-        return sample    
+            return sample    
     
 class RndSampling(object):
     """Random sampling from input object to return a fixed size input object
