@@ -158,7 +158,7 @@ class HCP20Dataset(gDataset):
             if self.with_gt:
                 graph_sample['y'] = torch.from_numpy(sample['gt'])
             sample['points'] = graph_sample
-        sampled+=1
+            sampled+=1
 
         #print('time building graph %f' % (time.time()-t0))
         return sample    
