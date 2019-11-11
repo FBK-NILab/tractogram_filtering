@@ -179,7 +179,7 @@ class GCNConvNet(torch.nn.Module):
         x = F.relu(self.conv2_2(x, edge_index))
         x = F.relu(self.conv2_3(x, edge_index))
         x = F.relu(self.conv2_4(x, edge_index))
-        #x = F.dropout(x, training=self.training)
+        x = F.dropout(x, training=self.training)
         x = self.conv3(x, edge_index)
         return x
         
