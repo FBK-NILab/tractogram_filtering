@@ -19,7 +19,7 @@ from torch_geometric.data import DataListLoader as gDataLoader
 from torchvision import transforms
 from torch_geometric.nn import global_max_pool
 
-import datasets as ds
+import datasets_old as ds
 #import lovasz_losses as L
 from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from gcn import GCN, GCNbatch, GCNemb, GCNseg
@@ -412,6 +412,7 @@ def train(cfg):
     if cfg['dataset'] == 'hcp20_graph':
       dataset = ds.HCP20Dataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
+                                cfg['repeat_sampling'],
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train),
                                 return_edges=True)    
@@ -442,6 +443,7 @@ def train(cfg):
         if cfg['dataset'] == 'hcp20_graph':
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
+                                          cfg['repeat_sampling'],
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val),
                                           return_edges=True)
