@@ -39,7 +39,7 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
-    if cfg['model'] == 'gcn_ori':
+    if cfg['model'] == 'gcn':
         classifier = GCNConvNet(input_size,
                                 num_classes)
     elif cfg['model'] == 'pn_geom':
