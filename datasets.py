@@ -154,7 +154,6 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
 
         #print('time building graph %f' % (time.time()-t0))
-        print(len(sample['points']))
         return sample
     
 class RndSampling(object):
