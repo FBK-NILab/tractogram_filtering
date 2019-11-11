@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = pn_geom
+model = gcn
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -250,7 +250,7 @@ multi_category = n
 ignore_class = 0
 same_size = n
 
-experiment_name = pnbatch-loss_nll-data_hcp20_small_nogradacc
+experiment_name = gcn-loss_nll-data_hcp20_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
