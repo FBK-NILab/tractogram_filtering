@@ -181,7 +181,7 @@ class GCNemb(torch.nn.Module):
         x = F.relu(self.conv2_3(x, edge_index))
         x = F.relu(self.conv2_4(x, edge_index))
         x = self.conv3(x, edge_index)
-        
+        return x        
 
 class GCNConvNet(torch.nn.Module):
     def __init__(self,
