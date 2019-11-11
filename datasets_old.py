@@ -58,15 +58,12 @@ class HCP20Dataset(gDataset):
             self.load_fold()
         if train:
             split_obj=False
-        if split_obj or repeat_sampling is not None:
-            self.remaining = [[] for _ in range(len(subjects)*self.repeat_sampling)]
+        if split_obj:
+            self.remaining = [[] for _ in range(len(subjects))]
         self.split_obj = split_obj
 
     def __len__(self):
-        if self.repeat_sampling is not None:
-            return len(self.subjects)*self.repeat_sampling
-        else:
-            return len(self.subjects)
+        return len(self.subjects)
 
     def __getitem__(self, idx):
         fs = self.fold_size
@@ -87,78 +84,82 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        sub = self.subjects[idx]
-        print(sub)
-        sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        sampled = 0
+        while sampled < self.repeat_sampling:
+            print(sampled,repeat_sampling)
+            sub = self.subjects[idx]
+            print(sub)
+            sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+            T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+            label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
-        T = nib.streamlines.load(T_file, lazy_load=True)
-        with open(label_file, 'rb') as f:
-            gt = pickle.load(f)
-        gt = np.array(gt) if type(gt) == list else gt
+            T = nib.streamlines.load(T_file, lazy_load=True)
+            with open(label_file, 'rb') as f:
+                gt = pickle.load(f)
+            gt = np.array(gt) if type(gt) == list else gt
         
-        if self.split_obj or self.repeat_sampling is not None:
-            if len(self.remaining[idx]) == 0:
-                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
-            sample = {'points': np.array(list(self.remaining[idx]))}
-            if self.with_gt:
-                sample['gt'] = gt[list(self.remaining[idx])]
-        else:
+            if self.split_obj:
+                if len(self.remaining[idx]) == 0:
+                    self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
+                sample = {'points': np.array(list(self.remaining[idx]))}
+                if self.with_gt:
+                    sample['gt'] = gt[list(self.remaining[idx])]
+            else:
             #sample = {'points': np.arange(T.header['nb_streamlines'])}
             #if self.with_gt:
                 #sample['gt'] = gt
-            sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+                sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
-        if self.transform:
-            sample = self.transform(sample)
+            if self.transform:
+                sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
         
-        if self.split_obj:
-            self.remaining[idx] -= set(sample['points'])
-            sample['obj_idxs'] = sample['points'].copy()
-            sample['obj_full_size'] = T.header['nb_streamlines']
+            if self.split_obj:
+                self.remaining[idx] -= set(sample['points'])
+                sample['obj_idxs'] = sample['points'].copy()
+                sample['obj_full_size'] = T.header['nb_streamlines']
 
         #t0 = time.time()
-        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+            sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
 
-        n = len(sample['points'])
+            n = len(sample['points'])
         #t0 = time.time()
-        uniform_size = False
-        if uniform_size:
-            streams, l_max = load_selected_streamlines_uniform_size(T_file,
-                                                    sample['points'].tolist())
-            streams.reshape(n, l_max, -1)
-            sample['points'] = torch.from_numpy(streams)
-        else:
-            streams, lengths = load_selected_streamlines(T_file,
-                                                    sample['points'].tolist())
+            uniform_size = False
+            if uniform_size:
+                streams, l_max = load_selected_streamlines_uniform_size(T_file,
+                                                        sample['points'].tolist())
+                streams.reshape(n, l_max, -1)
+                sample['points'] = torch.from_numpy(streams)
+            else:
+                streams, lengths = load_selected_streamlines(T_file,
+                                                        sample['points'].tolist())
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
-        lengths = torch.from_numpy(lengths)
-        batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
-        batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
-        slices = batch_slices[1:-1]
-        streams = torch.from_numpy(streams)
-        l = streams.shape[0]
-        graph_sample = gData(x=streams, 
-                             lengths=lengths,
-                             bvec=batch_vec)
+            lengths = torch.from_numpy(lengths)
+            batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
+            batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
+            slices = batch_slices[1:-1]
+            streams = torch.from_numpy(streams)
+            l = streams.shape[0]
+            graph_sample = gData(x=streams, 
+                                lengths=lengths,
+                                bvec=batch_vec)
         #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
-        if self.return_edges:
-            e1 = set(np.arange(0,l-1)) - set(slices-1)
-            e2 = set(np.arange(1,l)) - set(slices)
-            edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
-                            dtype=torch.long)
-            graph_sample['edge_index'] = edges
-        if self.with_gt:
-            graph_sample['y'] = torch.from_numpy(sample['gt'])
-        sample['points'] = graph_sample
+            if self.return_edges:
+                e1 = set(np.arange(0,l-1)) - set(slices-1)
+                e2 = set(np.arange(1,l)) - set(slices)
+                edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
+                                dtype=torch.long)
+                graph_sample['edge_index'] = edges
+            if self.with_gt:
+                graph_sample['y'] = torch.from_numpy(sample['gt'])
+            sample['points'] = graph_sample
+            sampled+=1
 
         #print('time building graph %f' % (time.time()-t0))
         print(len(sample['points']))
