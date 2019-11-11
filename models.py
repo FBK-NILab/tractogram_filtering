@@ -159,32 +159,56 @@ class PointNetPyg(torch.nn.Module):
         #print('t batch reshaping: %f' % (time.time()-t0))
         x = self.fc(F.relu(x))
         return x
+    
+class GCNemb(torch.nn.Module):
+    def __init__(self, input_size, n_classes):
+        super(GCNemb, self).__init__()
+        self.conv1_0 = GCNConv(input_size, 64)
+        self.conv1_1 = GCNConv(64, 64)
+        self.conv2_0 = GCNConv(64, 64)
+        self.conv2_1 = GCNConv(64, 128)
+        self.conv2_2 = GCNConv(128,1024)
+        self.conv2_3 = GCNConv(1024, 512)
+        self.conv2_4 = GCNConv(512, 256)
+        self.conv3 = GCNConv(256, n_classes)
+        
+    def forward(self, x, edge_index):
+        x = F.relu(self.conv1_0(x, edge_index))
+        x = F.relu(self.conv1_1(x, edge_index))
+        x = F.relu(self.conv2_0(x, edge_index))
+        x = F.relu(self.conv2_1(x, edge_index))
+        x = F.relu(self.conv2_2(x, edge_index))
+        x = F.relu(self.conv2_3(x, edge_index))
+        x = F.relu(self.conv2_4(x, edge_index))
+        x = self.conv3(x, edge_index)
+        
 
 class GCNConvNet(torch.nn.Module):
     def __init__(self,
                 input_size,
-                n_classes):
+                embedding_size,
+                n_classes,
+                batch_size=1,
+                pool_op=global_max_pool,
+                same_size=False):
         super(GCNConvNet, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64)
-        self.conv2_1 = GCNConv(64, 128)
-        self.conv2_2 = GCNConv(128, 1024)
-        self.conv2_3 = GCNConv(1024, 512)
-        self.conv2_4 = GCNConv(512, 256)
-        self.conv3 = GCNConv(256, n_classes)
-    
+        self.gcn = GCNemb(input_size, embedding_size)
+        self.fc - torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bas = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+        
     def forward(self, gdata):
-        x, edge_index = gdata.x, gdata.edge_index
-        print(x.shape,edge_index.shape)
-        x = F.relu(self.conv1_0(x, edge_index))
+        x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
+        x = self.gcn(x,edge_index)
         print(x.shape)
-        x = F.relu(self.conv2_1(x, edge_index))
-        x = F.relu(self.conv2_2(x, edge_index))
-        x = F.relu(self.conv2_3(x, edge_index))
+        emb = self.pool(x, batch)
         print(x.shape)
-        x = F.relu(self.conv2_4(x, edge_index))
-        x = F.dropout(x, training=self.training)
-        print(x.shape)
-        x = self.conv3(x, edge_index)
+        x = emb.view(-1, self.emb_size)
+        self.embedding = x.data
+        x = self.fc(F.relu(x))
         print(x.shape)
         return x
         
