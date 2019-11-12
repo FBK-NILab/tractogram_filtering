@@ -195,7 +195,7 @@ class GCNConvNet(torch.nn.Module):
         self.gcn = GCNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
-        self.bas = batch_size
+        self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
         self.embedding = None
