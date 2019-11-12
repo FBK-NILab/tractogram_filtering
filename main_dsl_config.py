@@ -33,7 +33,7 @@ direct_pooling = n
 knngraph = 5
 
 ########## training ###########
-n_epochs = 1000
+n_epochs = 10
 optimizer = adam
 accumulation_interval = n
 # optimizer alternatives:
