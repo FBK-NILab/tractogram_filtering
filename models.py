@@ -163,24 +163,24 @@ class PointNetPyg(torch.nn.Module):
 class GCNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(GCNemb, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64, cached=False)
-        self.conv1_1 = GCNConv(64, 64, cached=False)
-        self.conv2_0 = GCNConv(64, 64, cached=False)
-        self.conv2_1 = GCNConv(64, 128, cached=False)
-        self.conv2_2 = GCNConv(128,1024, cached=False)
-        self.conv2_3 = GCNConv(1024, 512, cached=False)
-        self.conv2_4 = GCNConv(512, 256, cached=False)
-        self.conv3 = GCNConv(256, n_classes, cached=False)
+        self.conv1_0 = GCNConv(input_size, 64)
+        self.conv1_1 = GCNConv(64, 64)
+        self.conv2_0 = GCNConv(64, 64)
+        self.conv2_1 = GCNConv(64, 128)
+        self.conv2_2 = GCNConv(128,1024)
+        self.conv2_3 = GCNConv(1024, 512)
+        self.conv2_4 = GCNConv(512, 256)
+        self.conv3 = GCNConv(256, n_classes)
         
-    def forward(self, x, edge_index,edge_weight=None):
-        x = F.relu(self.conv1_0(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv1_1(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv2_0(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv2_1(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv2_2(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv2_3(x, edge_index, edge_weight=edge_weight))
-        x = F.relu(self.conv2_4(x, edge_index, edge_weight=edge_weight))
-        x = self.conv3(x, edge_index, edge_weight=edge_weight)
+    def forward(self, x, edge_index):
+        x = F.relu(self.conv1_0(x, edge_index))
+        x = F.relu(self.conv1_1(x, edge_index))
+        x = F.relu(self.conv2_0(x, edge_index))
+        x = F.relu(self.conv2_1(x, edge_index))
+        x = F.relu(self.conv2_2(x, edge_index))
+        x = F.relu(self.conv2_3(x, edge_index))
+        x = F.relu(self.conv2_4(x, edge_index))
+        x = self.conv3(x, edge_index)
         return x        
 
 class GCNConvNet(torch.nn.Module):
