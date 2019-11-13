@@ -217,7 +217,7 @@ class NNemb(torch.nn.Module):
         nn1 = nn.Sequential(nn.Linear(input_size,64), nn.ReLU(), nn.Linear(64,128))
         self.conv1 = NNConv(input_size,64,nn1)
         nn2 = nn.Sequential(nn.Linear(input_size,64), nn.ReLU(), nn.Linear(64,256))
-        self.conv2 = NNConv(64,n_classes)
+        self.conv2 = NNConv(64,n_classes,nn2)
         
     def forward(self,x,edge_index,edge_attr):
         x = F.relu(self.conv1(x, edge_index, edge_attr))
