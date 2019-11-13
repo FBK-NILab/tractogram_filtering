@@ -210,28 +210,43 @@ class GCNConvNet(torch.nn.Module):
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x
+    
+class NNemb(torch.nn.Module):
+    def __init__(self, input_size, n_classes):
+        super(NNemb, self).__init__()
+        nn1 = nn.Sequential(nn.Linear(input_size),64), nn.ReLU(), nn.Linear(64,128))
+        self.conv1 = NNConv(input_size,64,nn1)
+        nn2 = nn.Sequential(nn.Linear(input_size),64), nn.ReLU(), nn.Linear(64,256))
+        self.conv2 = NNConv(64,n_classes)
         
-        
+    def forward(self,x,edge_index,edge_attr):
+        x = F.relu(self.conv1(x, edge_index, edge_attr))
+        x = self.conv2(x, edge_index, edge_attr)
+        return x
+    
 class NNConvNet(torch.nn.Module):
-    def __init__(self,
-                 input_size,
-                 n_classes=2):
+    def __init__(self, 
+                 input_size, 
+                 n_classes,
+                 batch_size=1,
+                 pool_op=global_max_pool,
+                 same_size=False):
         super(NNConvNet, self).__init__()
-        nn1 = nn.Sequential(nn.Linear(input_size, 64), nn.ReLU(), nn.Linear(64, 64))
-        self.conv1 = NNConv(input_size, 64, nn1, aggr='mean')
-        
-        nn2 = nn.Sequential(nn.Linear(input_size, 64), nn.ReLU(), nn.Linear(64, 10124))
-        self.conv2 = NNConv(32, 64, nn2, aggr='mean')
-        
-        self.fc1 = torch.nn.Linear(64, 128)
-        self.fc2 = torch.nn.Linear(128, n_classes)
+        self.nnc = NNemb(input_size, embedding_size)
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
         
     def forward(self, gdata):
-        x, edge_index, edge_attr = gdata.x, gdata.edge_index, gdata.edge_attr
-        x = F.elu(self.conv1(x, edge_index, edge_attr))
-        x = F.elu(self.conv2(x, edge_index, edge_attr))
-        x = F.elu(self.fc1(x))
-        x = F.dropout(x, training=self.training)
+        x, edge_index, edge_attr, batch = gdata.x, gdata.edge_index, gdata.edge_attr, gdata.batch
+        x = self.nnc(x,edge_index,edge_attr)
+        emb = self.pool(x, batch)
+        x = emb.view(-1, self.emb_size)
+        self.embedding = x.data
+        x = self.fc(F.relu(x))
         return x
         
 def ST_loss(pn_model, gamma=0.001):
