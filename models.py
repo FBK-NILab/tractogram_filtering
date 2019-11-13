@@ -202,8 +202,8 @@ class GCNConvNet(torch.nn.Module):
         
     def forward(self, gdata):
         x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
-        print(edge_index)
-        print(edge_index.shape)
+        print('edges:', edge_index)
+        print('edges shape:',edge_index.shape)
         x = self.gcn(x,edge_index)
         emb = self.pool(x, batch)
         x = emb.view(-1, self.emb_size)
