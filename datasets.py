@@ -145,16 +145,14 @@ class HCP20Dataset(gDataset):
         #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
-            edge_attr = None
             e1 = set(np.arange(0,l-1)) - set(slices-1)
             e2 = set(np.arange(1,l)) - set(slices)
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
-            edges, edge_attr = remove_self_loops(edges, edge_attr)
-            graph_sample['edge_index'] = edges
+            row, col = edge_index
+            edge_attr = torch.tensor([row-col])
             graph_sample['edge_attr'] = edge_attr
-            
-        
+            graph_sample['edge_index'] = edges        
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
