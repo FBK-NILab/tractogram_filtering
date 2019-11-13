@@ -227,6 +227,7 @@ class NNemb(torch.nn.Module):
 class NNConvNet(torch.nn.Module):
     def __init__(self, 
                  input_size, 
+                 embedding_size,
                  n_classes,
                  batch_size=1,
                  pool_op=global_max_pool,
