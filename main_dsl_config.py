@@ -249,7 +249,7 @@ standardization = n
 n_classes = 2
 multi_category = n
 ignore_class = 0
-same_size = n
+same_size = y
 
 experiment_name = pngeom-loss_nll-data_hcp20bspline_full_nogradacc
 
