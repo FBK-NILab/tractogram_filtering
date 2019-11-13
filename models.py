@@ -214,9 +214,9 @@ class GCNConvNet(torch.nn.Module):
 class NNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(NNemb, self).__init__()
-        nn1 = nn.Sequential(nn.Linear(input_size),64), nn.ReLU(), nn.Linear(64,128))
+        nn1 = nn.Sequential(nn.Linear(input_size,64), nn.ReLU(), nn.Linear(64,128))
         self.conv1 = NNConv(input_size,64,nn1)
-        nn2 = nn.Sequential(nn.Linear(input_size),64), nn.ReLU(), nn.Linear(64,256))
+        nn2 = nn.Sequential(nn.Linear(input_size,64), nn.ReLU(), nn.Linear(64,256))
         self.conv2 = NNConv(64,n_classes)
         
     def forward(self,x,edge_index,edge_attr):
