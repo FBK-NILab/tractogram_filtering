@@ -117,7 +117,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             sample_batched = {'points': points, 'gt': target, 'name': name_list}
-
+            print('points:',points)
 
             #if (epoch != 0) and (epoch % 20 == 0):
             #    assert(len(dataloader.dataset) % int(cfg['fold_size']) == 0)
