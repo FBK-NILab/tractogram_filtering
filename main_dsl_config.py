@@ -230,9 +230,9 @@ multi_category = n
 [HCP20]
 ########### data ###########
 dataset = hcp20_graph
-dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampling_HCP20
 fixed_size = 10000
-val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampling_HCP20
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = n
 
-experiment_name = nnc-loss_nll-data_hcp20_full_nogradacc
+experiment_name = pngeom-loss_nll-data_hcp20bspline_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
