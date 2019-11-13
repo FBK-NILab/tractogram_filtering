@@ -20,6 +20,7 @@ import time
 from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
+from torch_geometric.utils import remove_self_loops
 
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 
@@ -144,15 +145,20 @@ class HCP20Dataset(gDataset):
         #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
+            edge_attr = None
             e1 = set(np.arange(0,l-1)) - set(slices-1)
             e2 = set(np.arange(1,l)) - set(slices)
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
+            edges, edge_attr = remove_self_loops(edges, edge_attr)
             graph_sample['edge_index'] = edges
+            graph_sample['edge_attr'] = edge_attr
+            
+        
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
-        print('sample:',sample['points'])
+        #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
         return sample
     
