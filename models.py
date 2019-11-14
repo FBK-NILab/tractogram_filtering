@@ -209,7 +209,7 @@ class GCNConvNet(torch.nn.Module):
         x = self.fc(F.relu(x))
         return x
     
-class NNC(torch.nn.Module):
+class NNC_working(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*embedding_size))
@@ -230,6 +230,38 @@ class NNC(torch.nn.Module):
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x        
+    
+class NNC(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
+        super(NNC, self).__init__()
+        nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*embedding_size))
+        self.conv1_0 = NNConv(input_size, 64, nn1)
+        nn2 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,64))
+        self.conv1_1 = NNConv(64, 64, nn1)
+        #self.conv2_0 = NNConv(64,64, nn1)
+        #self.conv2_1 = NNConv(64, 128, nn1)
+        #self.conv2_2 = NNConv(128, 1024, nn1)
+        #self.conv2_3 = NNConv(1024, 512, nn1)
+        #self.conv2_4 = NNConv(512, 256, nn1)
+        #self.conv3 = NNConv(256, embedding_size)
+        
+        
+        
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+        
+    def forward(self, data):
+        x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
+        x = self.conv1_1(data.x, data.edge_index, data.edge_attr))
+        emb = self.pool(x, data.batch)
+        x = emb.view(-1, self.emb_size)
+        self.embedding = x.data
+        x = self.fc(F.relu(x))
+        return x   
     
 class NNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
