@@ -252,7 +252,7 @@ class NNC(torch.nn.Module):
         
     def forward(self, data):
         x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
-        x = self.conv1_1(data.x, data.edge_index, data.edge_attr)
+        x = self.conv1_1(x, data.edge_index, data.edge_attr)
         emb = self.pool(x, data.batch)
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
