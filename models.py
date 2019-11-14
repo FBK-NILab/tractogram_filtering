@@ -244,14 +244,10 @@ class NNC(torch.nn.Module):
         self.conv2_0 = NNConv(64,64, nn3)
         nn4 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,64*128))
         self.conv2_1 = NNConv(64, 128, nn4)
-        nn5 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,128*1024))
-        self.conv2_2 = NNConv(128, 1024, nn5)
-        nn6 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,1024*512))
-        self.conv2_3 = NNConv(1024, 512, nn6)
-        nn7 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,512*256))
-        self.conv2_4 = NNConv(512, 256, nn7)
-        nn8 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,256*embedding_size))
-        self.conv3 = NNConv(256, embedding_size, nn8)
+        nn5 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,128*256))
+        self.conv2_4 = NNConv(128, 256, nn5)
+        nn6 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,256*embedding_size))
+        self.conv3 = NNConv(256, embedding_size, nn6)
          
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
