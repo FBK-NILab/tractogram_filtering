@@ -149,7 +149,7 @@ class HCP20Dataset(gDataset):
             e2 = set(np.arange(1,l)) - set(slices)
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
-            edge_attr = torch.ones(int(edges[1]),1)
+            edge_attr = torch.ones(list(e2)+list(e1),1)
             graph_sample['edge_attr'] = edge_attr
             graph_sample['edge_index'] = edges        
         if self.with_gt:
