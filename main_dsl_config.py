@@ -80,7 +80,7 @@ verbose = n
 viz_emb_input = n
 viz_logits_distribution = n
 viz_learned_features = n
-print_bwgraph = n
+print_bwgraph = y
 viz_clusters = n
 save_embedding = n
 #ed73e946a138f3cfbc0909d98a1ff2b4
