@@ -209,7 +209,7 @@ class GCNConvNet(torch.nn.Module):
         x = self.fc(F.relu(x))
         return x
     
-class NNC_working(torch.nn.Module):
+class NNC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*embedding_size))
@@ -222,16 +222,14 @@ class NNC_working(torch.nn.Module):
         self.embedding = None
         
     def forward(self, data):
-        print('data:',data)
         x = F.relu(self.conv(data.x, data.edge_index, data.edge_attr))
-        print('shape of x:',x.shape)
         emb = self.pool(x, data.batch)
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x        
     
-class NNC(torch.nn.Module):
+class NNC_notworking(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 25), nn.ReLU(), nn.Linear(25, input_size*embedding_size))
