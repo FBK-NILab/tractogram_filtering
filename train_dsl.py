@@ -196,6 +196,22 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
             ep_cluster_loss += loss_cluster
 
         ep_loss += loss
+        if cfg['print_bwgraph']:
+            #with torch.onnx.set_training(classifier, False):
+            #    trace, _ = torch.jit.get_trace_graph(classifier, args=(points.transpose(2,1),))
+            #g = make_dot_from_trace(trace)
+            from torchviz import make_dot, make_dot_from_trace
+            g = make_dot(loss,
+                                    params=dict(classifier.named_parameters()))
+            #   g = make_dot(loss,
+            #                           params=None)
+            g.view('pointnet_mgf')
+            print('classifier parameters: %d' % int(count_parameters(classifier)))
+            os.system('rm -r runs/%s' % writer.logdir.split('/',1)[1])
+            os.system('rm -r tb_logs/%s' % writer.logdir.split('/',1)[1])
+            import sys; sys.exit()
+        #print('memory allocated in MB: ', torch.cuda.memory_allocated()/2**20)
+        #import sys; sys.exit()
         loss.backward()
         
         if int(cfg['accumulation_interval']) % (i_batch+1) == 0:
