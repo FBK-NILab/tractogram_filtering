@@ -149,11 +149,13 @@ class HCP20Dataset(gDataset):
             e2 = set(np.arange(1,l)) - set(slices)
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
+            edge_attr = torch.ones(edges[1],1)
+            graph_sample['edge_attr'] = edge_attr
             graph_sample['edge_index'] = edges        
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
-        #print('sample:',sample['points'])
+        print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
         return sample
     
