@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = pn_geom
+model = gcn
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 3
+batch_size = 2
 repeat_sampling = 3
 shuffling = y
 rnd_sampling = y
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = pngeom-loss_nll-data_hcp20bspline_full_nogradacc
+experiment_name = gcn-loss_nll-data_hcp20bspline_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
