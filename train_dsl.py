@@ -33,6 +33,71 @@ from tensorboardX import SummaryWriter
 from utils import get_spaced_colors
 from visdom import Visdom
 
+def count_parameters(model):
+    print([p.size() for p in model.parameters()])
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+def plot_3dscatter(points, labels, n_classes=None):
+    plt.switch_backend('agg')
+
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    points -= points.min(axis=0)
+    points = points/points.max()
+
+    xs = points[:,0]
+    ys = points[:,1]
+    zs = points[:,2]
+
+    if n_classes is None:
+        n_classes = len(np.unique(labels))
+    colors = np.array(get_spaced_colors(n_classes))
+
+    for cl in range(n_classes):
+        i = np.where(labels == cl)
+        if len(i[0]) == 0:
+            continue
+        ax.scatter(xs[i], ys[i], zs[i], c=colors[cl], s=50, label=cl)
+    #ax.scatter(xs, ys, zs, c=colors[labels], s=50)
+
+    plt.axis('off')
+    plt.axis('equal')
+
+    ax.set_xlim(0,1)
+    ax.set_ylim(0,1)
+    ax.set_zlim(0,1)
+
+    ax.view_init(-30., 70.)
+    ax.legend()
+
+    #plt.show()
+
+    #print('ax.azim {}'.format(ax.azim))
+    #print('ax.elev {}'.format(ax.elev))
+
+    return fig
+
+def plot_heatmap(x, title):
+    plt.switch_backend('agg')
+    if type(x) != list:
+        x = [x]
+        title = [title]
+    fig, axs = plt.subplots(ncols=len(x))
+
+    if len(x) == 1:
+        axs = [axs]
+
+    for i, ax in enumerate(axs):
+        im = ax.imshow(x[i].data.cpu().numpy(),
+                    cmap='bwr',
+                    interpolation='nearest',
+                    aspect='auto')
+        fig.colorbar(im, ax=ax)
+        ax.set_title(title[i])
+
+    return fig
+
 def get_model(cfg):
 
     num_classes = int(cfg['n_classes'])
