@@ -211,7 +211,7 @@ class GCNConvNet(torch.nn.Module):
     
 class NNC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
-        super(NNC1, self).__init__()
+        super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*32))
         self.conv1_0 = NNConv(input_size, 32, nn1)
         nn2 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, 32**32))
