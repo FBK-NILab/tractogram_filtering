@@ -214,7 +214,7 @@ class NNC(torch.nn.Module):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*32))
         self.conv1_0 = NNConv(input_size, 32, nn1)
-        nn2 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, 32**32))
+        nn2 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, 32*32))
         self.conv1_1 = NNConv(32, 32, nn2)
         nn3 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,32*64))
         self.conv2_0 = NNConv(32,64, nn3)
