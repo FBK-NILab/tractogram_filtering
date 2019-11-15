@@ -211,13 +211,17 @@ class GCNConvNet(torch.nn.Module):
     
 class NNC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
-        super(NNC, self).__init__()
-        nn1 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64, input_size*64))
-        self.conv1_0 = NNConv(input_size, 64, nn1)
-        nn3 = nn.Sequential(nn.Linear(1, 64), nn.ReLU(), nn.Linear(64,64*128))
-        self.conv2_0 = NNConv(64,128, nn3)
-        nn4 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,128*embedding_size))
-        self.conv3 = NNConv(128, embedding_size, nn4)
+        super(NNC1, self).__init__()
+        nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*32))
+        self.conv1_0 = NNConv(input_size, 32, nn1)
+        nn2 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, 32**32))
+        self.conv1_1 = NNConv(32, 32, nn2)
+        nn3 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,32*64))
+        self.conv2_0 = NNConv(32,64, nn3)
+        nn4 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, 64*64))
+        self.conv2_1 = NNConv(64*64, nn4)
+        nn5 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,64*embedding_size))
+        self.conv3 = NNConv(64, embedding_size, nn5)
          
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
@@ -228,13 +232,15 @@ class NNC(torch.nn.Module):
         
     def forward(self, data):
         x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
+        x = F.relu(self.conv1_1(x, data.edge_index, data.edge_attr))
         x = F.relu(self.conv2_0(x, data.edge_index, data.edge_attr))
+        x = F.relu(self.conv2_1(x, data.edge_index, data.edge_attr))
         x = self.conv3(x, data.edge_index, data.edge_attr)
         emb = self.pool(x, data.batch)
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         x = self.fc(F.relu(x))
-        return x   
+        return x  
     
 class NNC1(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
