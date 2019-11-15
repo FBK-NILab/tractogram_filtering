@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = gcn
+model = nnc
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -80,7 +80,7 @@ verbose = n
 viz_emb_input = n
 viz_logits_distribution = n
 viz_learned_features = n
-print_bwgraph = y
+print_bwgraph = n
 viz_clusters = n
 save_embedding = n
 #ed73e946a138f3cfbc0909d98a1ff2b4
