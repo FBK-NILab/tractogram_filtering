@@ -106,8 +106,8 @@ class HCP20Dataset(gDataset):
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
-        if self.transform:
-            sample = self.transform(sample)
+        #if self.transform:
+        #    sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
         
         if self.split_obj:
@@ -158,6 +158,8 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
+        if self.transform:
+            sample = self.transform(sample)
         return sample
     
 class RndSampling(object):
