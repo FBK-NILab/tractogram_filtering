@@ -18,6 +18,7 @@ from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
 from torchvision import transforms
 from torch_geometric.nn import global_max_pool
+import torch_geometric.transforms as T
 
 import datasets as ds
 #import lovasz_losses as L
@@ -501,7 +502,7 @@ def train(cfg):
       dataset = ds.HCP20Dataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
                                 act=cfg['act'],
-                                transform=transforms.Compose(trans_train),
+                                transform=transforms.Compose([trans_train,T.Distance(norm=False)]),
                                 return_edges=True)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
@@ -531,7 +532,7 @@ def train(cfg):
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
                                           act=cfg['act'],
-                                          transform=transforms.Compose(trans_val),
+                                          transform=transforms.Compose([trans_train,T.Distance(norm=False)]),
                                           return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
