@@ -107,8 +107,8 @@ class HCP20Dataset(gDataset):
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
-        if self.transform:
-            sample = self.transform(sample)
+        #if self.transform:
+        #    sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
         
         if self.split_obj:
@@ -157,6 +157,8 @@ class HCP20Dataset(gDataset):
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
+        if self.transform:
+            sample = self.transform(sample)
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
         return sample
