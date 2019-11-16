@@ -497,12 +497,14 @@ def train(cfg):
     if cfg['standardization']:
         trans_train.append(ds.SampleStandardization())
         trans_val.append(ds.SampleStandardization())
+    transform_train = T.Compose([trans_train,T.Distance(norm=False)])
+    transform_val = T.Compose([trans_val,T.Distance(norm=False)])
 
     if cfg['dataset'] == 'hcp20_graph':
       dataset = ds.HCP20Dataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
                                 act=cfg['act'],
-                                transform=transforms.Compose(trans_train),
+                                transform=transform_train,
                                 return_edges=True)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
@@ -532,7 +534,7 @@ def train(cfg):
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
                                           act=cfg['act'],
-                                          transform=transforms.Compose(trans_val),
+                                          transform=transform_val,
                                           return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
