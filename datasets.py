@@ -16,7 +16,7 @@ import pickle
 import nibabel as nib
 import glob
 import time
-import torch_geometric.transforms as T
+from torch_geometric.transforms import Distance
 
 from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
@@ -159,7 +159,7 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
-        sample['points'] = T.Distance(sample['points'], norm=False)
+        sample['points'] = Distance(sample['points'], norm=False)
         return sample
     
 class RndSampling(object):
