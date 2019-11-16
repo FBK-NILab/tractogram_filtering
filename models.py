@@ -260,7 +260,7 @@ class NNC(torch.nn.Module):
         self.embedding = None
         
     def forward(self, data):
-        print('edge attr:',data.edge_attr)
+        #print('edge attr:',data.edge_attr)
         x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
         x = F.relu(self.conv2_0(x, data.edge_index, data.edge_attr))
         x = self.conv3(x, data.edge_index, data.edge_attr)
