@@ -32,6 +32,7 @@ class HCP20Dataset(gDataset):
                  act=True,
                  fold_size=None,
                  transform=None,
+                 distance=None,
                  with_gt=True,
                  return_edges=False,
                  split_obj=False,
@@ -47,6 +48,7 @@ class HCP20Dataset(gDataset):
             subjects = f.readlines()
         self.subjects = [s.strip() for s in subjects]
         self.transform = transform
+        self.distance = distance
         self.fold_size = fold_size
         self.act = act
         self.with_gt = with_gt
@@ -154,6 +156,8 @@ class HCP20Dataset(gDataset):
             num_edges = graph_sample.num_edges
             edge_attr = torch.ones(num_edges,1)
             graph_sample['edge_attr'] = edge_attr
+        if self.distance:
+            graph_sample = self.distance(graph_sample)
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
