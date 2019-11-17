@@ -133,11 +133,7 @@ class HCP20Dataset(gDataset):
         else:
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-        print('streams:',streams)
-        dist = distance.cdist(streams,streams,'euclidean')
-        print('distance:',dist)
-        dist = np.mean(dist,axis=1)
-        print('mean dist:',dist)
+        
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
@@ -150,7 +146,8 @@ class HCP20Dataset(gDataset):
         l = streams.shape[0]
         graph_sample = gData(x=streams, 
                              lengths=lengths,
-                             bvec=batch_vec)
+                             bvec=batch_vec
+                             pos=streams,)
         #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
