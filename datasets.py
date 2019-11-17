@@ -166,7 +166,6 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
-        print(graph_sample['edge_attr'])
         return sample
     
 class RndSampling(object):
