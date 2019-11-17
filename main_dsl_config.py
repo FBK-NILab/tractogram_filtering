@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = n
 
-experiment_name = nnc-loss_nll-data_hcp20_full_nogradacc_cartesian
+experiment_name = nnc_max-loss_nll-data_hcp20_full_nogradacc_distance
 
 ####### ************************************************************************
 ####### ************************************************************************
