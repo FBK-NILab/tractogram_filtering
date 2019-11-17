@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = nnc
+model = gcn
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
