@@ -135,7 +135,7 @@ class HCP20Dataset(gDataset):
                                                     sample['points'].tolist())
         print('streams:',streams)
         dist = distance.cdist(streams,streams,'euclidean')
-        print('distance:',distance)
+        print('distance:',dist)
         dist = np.mean(dist,axis=1)
         print('mean dist:',dist)
         #print('time loading selected streamlines %f' % (time.time()-t0))
