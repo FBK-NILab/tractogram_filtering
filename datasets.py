@@ -1,4 +1,5 @@
 from __future__ import print_function
+from scipy.spatial import distance
 import torch.utils.data as data
 import os
 import os.path
@@ -132,6 +133,11 @@ class HCP20Dataset(gDataset):
         else:
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
+        print('streams:',streams)
+        dist = distance.cdist(streams,streams,'euclidean')
+        print('distance:',distance)
+        dist = np.mean(dist,axis=1)
+        print('mean dist:',dist)
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
