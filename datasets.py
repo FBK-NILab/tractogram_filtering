@@ -146,7 +146,7 @@ class HCP20Dataset(gDataset):
         l = streams.shape[0]
         graph_sample = gData(x=streams, 
                              lengths=lengths,
-                             bvec=batch_vec
+                             bvec=batch_vec,
                              pos=streams)
         #                     bslices=batch_slices)
         print(graph_sample.pos)
