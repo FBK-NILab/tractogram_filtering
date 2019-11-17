@@ -20,6 +20,7 @@ from cluster_losses import CSimLoss, DistLoss, HLoss
 from tensorboardX import SummaryWriter
 from torchvision import transforms
 from train_dsl import get_model
+import torch_geometric.transforms as T
 
 def get_ncolors(n):
     random.seed(10)
@@ -89,6 +90,7 @@ def test(cfg):
                                   act=cfg['act'],
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
+                                  distance=T.Distance(norm=True,cat=False),
                                   return_edges=True,
                                   split_obj=True,
                                   train=False)
