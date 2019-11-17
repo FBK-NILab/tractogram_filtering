@@ -149,7 +149,6 @@ class HCP20Dataset(gDataset):
                              bvec=batch_vec,
                              pos=streams)
         #                     bslices=batch_slices)
-        print(graph_sample.pos)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
             e1 = set(np.arange(0,l-1)) - set(slices-1)
@@ -167,7 +166,7 @@ class HCP20Dataset(gDataset):
         sample['points'] = graph_sample
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
-        print(sample['points'])
+        print(graph_sample['edge_attr'])
         return sample
     
 class RndSampling(object):
