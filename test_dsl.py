@@ -227,10 +227,10 @@ def test(cfg):
                     target = target.view(-1, 1)[:, 0]
                 if cfg['same_size']:
                     points['lengths'] = points['lengths'][0].item()
-            print('points:',points)
-            print('points x:',points['x'])
-            print('target:',target)
-            print('target shape:', target.shape)
+            #print('points:',points)
+            #print('points x:',points['x'])
+            #print('target:',target)
+            #print('target shape:', target.shape)
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
@@ -280,10 +280,10 @@ def test(cfg):
                         loss = L.lovasz_softmax_flat(pred, target,
                                                     op=cfg['llm_op'],
                                                     only_present=cfg['multi_category'])
-            print('pred:',pred)
-            print('pred shape:',pred.shape)
-            print('pred choice:',pred_choice)
-            print('pred choice shape:',pred_choice.shape)
+            #print('pred:',pred)
+            #print('pred shape:',pred.shape)
+            #print('pred choice:',pred_choice)
+            #print('pred choice shape:',pred_choice.shape)
             if visualized < int(cfg['viz_clusters']):
                 visualized += 1
                 colors = torch.from_numpy(get_spaced_colors(n_gf))
@@ -311,7 +311,8 @@ def test(cfg):
                     loss = loss_seg + alfa * loss_cluster
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
-
+                print('pred:',obj_pred_choice)
+                print('taget:',obj_target_choice)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
