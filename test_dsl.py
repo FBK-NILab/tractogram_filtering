@@ -312,7 +312,9 @@ def test(cfg):
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
                 print('pred:',obj_pred_choice)
-                print('taget:',obj_target_choice)
+                print('taget:',obj_target)
+                print('pred shape:',obj_pred_choice.shape)
+                print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
