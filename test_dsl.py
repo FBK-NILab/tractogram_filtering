@@ -459,7 +459,7 @@ def test(cfg):
         if not os.path.exists(gf_dir):
             os.makedirs(gf_dir)
         i = 0
-        for filename, value in gf_buffer.iteritems():
+        for filename, value in gf_buffer.items():
             if i == 3:
                 break
             with open(os.path.join(gf_dir, filename) + '.pkl', 'wb') as f:
