@@ -299,7 +299,7 @@ def test(cfg):
             if split_obj:
                 #obj_data[data['obj_idxs']] = data['points']
                 obj_data.append(points['x'])
-                l.append(obj_data.num_nodes)
+                l.append(points['x'].num_nodes)
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
                 if cfg['save_embedding']:
