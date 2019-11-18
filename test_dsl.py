@@ -228,7 +228,7 @@ def test(cfg):
                 if cfg['same_size']:
                     points['lengths'] = points['lengths'][0].item()
             print('points:',points)
-            print('points shape:',points.shape)
+            print('points x:',points['x'])
             print('target:',target)
             print('target shape:', target.shape)
             #if cfg['model'] == 'pointnet_cls':
