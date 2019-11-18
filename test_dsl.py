@@ -187,7 +187,6 @@ def test(cfg):
             consumed = False
         else:
             consumed = True
-        l = []
         j = 0
         visualized = 0
         new_obj_read = True
@@ -196,8 +195,6 @@ def test(cfg):
 
             if split_obj:
                 if new_obj_read:
-                    obj_data = torch.zeros(data['obj_full_size']).cuda()
-                    #obj_data=[]
                     obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     new_obj_read = False
@@ -297,9 +294,6 @@ def test(cfg):
 
 
             if split_obj:
-                obj_data = data
-                #obj_data.append(len(points['x']))
-                #l.append(points.num_nodes)
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
                 if cfg['save_embedding']:
@@ -317,9 +311,8 @@ def test(cfg):
                     loss = loss_seg + alfa * loss_cluster
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
-                print('points:',obj_data)
-                #print('nodes:',l)
-                print('points shape:',sum(obj_data))
+                print('points:',points['streamlines'])
+                print('points shape:',points['streamlines'].shape)
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
