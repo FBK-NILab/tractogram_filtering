@@ -298,7 +298,7 @@ def test(cfg):
 
             if split_obj:
                 #obj_data[data['obj_idxs']] = data['points']
-                obj_data.append(points['x'])
+                obj_data.append(len(points['x']))
                 l.append(points.num_nodes)
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
@@ -318,8 +318,8 @@ def test(cfg):
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
                 print('points:',obj_data)
-                print('nodes:',l)
-                print('points shape:',sum(l))
+                #print('nodes:',l)
+                print('points shape:',sum(obj_data))
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
