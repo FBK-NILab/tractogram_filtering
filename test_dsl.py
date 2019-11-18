@@ -187,7 +187,7 @@ def test(cfg):
             consumed = False
         else:
             consumed = True
-
+        l = []
         j = 0
         visualized = 0
         new_obj_read = True
@@ -295,7 +295,7 @@ def test(cfg):
                     bg_msk = data['bg']*-1
                     writer.add_mesh('bg_mask', points, colors[bg_msk.tolist()].unsqueeze(0))
 
-            l = []
+
             if split_obj:
                 #obj_data[data['obj_idxs']] = data['points']
                 obj_data.append(points['x'])
