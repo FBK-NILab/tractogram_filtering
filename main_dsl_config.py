@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = nnc
+model = pn_geom
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -71,9 +71,9 @@ n_workers = 8
 model_dir = models
 save_model = y
 seed = 10
-save_pred = n
+save_pred = y
 save_softmax_out = n
-save_gf = n
+save_gf = y
 
 ########### logging ###########
 verbose = n
@@ -231,7 +231,7 @@ multi_category = n
 ########### data ###########
 dataset = hcp20_graph
 dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-fixed_size = 8000
+fixed_size = 10000
 val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 2
+batch_size = 3
 repeat_sampling = 3
 shuffling = y
 rnd_sampling = y
