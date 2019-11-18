@@ -429,12 +429,12 @@ def test(cfg):
         epoch_iou = macro_iou.item()
 
     if cfg['save_pred']:
-        os.system('rm -r %s/predictions_test*' % writer.logdir)
+        #os.system('rm -r %s/predictions_test*' % writer.logdir)
         pred_dir = writer.logdir + '/predictions_test_%d' % epoch
         if not os.path.exists(pred_dir):
             os.makedirs(pred_dir)
         print('saving files')
-        for filename, value in pred_buffer.iteritems():
+        for filename, value in pred_buffer.items():
             with open(os.path.join(pred_dir, filename) + '.pkl', 'wb') as f:
                 pickle.dump(
                     value, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -454,7 +454,7 @@ def test(cfg):
                     value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     if cfg['save_gf']:
-        os.system('rm -r %s/gf_test*' % writer.logdir)
+        #os.system('rm -r %s/gf_test*' % writer.logdir)
         gf_dir = writer.logdir + '/gf_test_%d' % epoch
         if not os.path.exists(gf_dir):
             os.makedirs(gf_dir)
