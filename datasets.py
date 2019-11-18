@@ -118,6 +118,7 @@ class HCP20Dataset(gDataset):
             self.remaining[idx] -= set(sample['points'])
             sample['obj_idxs'] = sample['points'].copy()
             sample['obj_full_size'] = T.header['nb_streamlines']
+            sample['streamlines'] = T.streamlines
 
         #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
