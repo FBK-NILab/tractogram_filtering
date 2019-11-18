@@ -374,10 +374,10 @@ def test(cfg):
                         sm_buffer[sample_name].append(
                                 l.mf.softmax_out.cpu().numpy())
                 sm2_buffer[sample_name] = probas.cpu().numpy()
-            if cfg['save_gf']:
+            #if cfg['save_gf']:
                 #   gf_buffer[sample_name] = np.unique(
                 #           classifier.feat.globalfeat.data.cpu().squeeze().numpy(), axis = 0)
-                gf_buffer[sample_name] = classifier.globalfeat
+                #gf_buffer[sample_name] = classifier.globalfeat
             if cfg['save_embedding'] and consumed:
                 emb_buffer[sample_name] = obj_embedding
 
