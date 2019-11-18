@@ -296,7 +296,7 @@ def test(cfg):
 
 
             if split_obj:
-                obj_data[data['obj_idxs']] = points['x']
+                obj_data[data['obj_idxs']] = data['points']
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
                 if cfg['save_embedding']:
