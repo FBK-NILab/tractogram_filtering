@@ -295,10 +295,11 @@ def test(cfg):
                     bg_msk = data['bg']*-1
                     writer.add_mesh('bg_mask', points, colors[bg_msk.tolist()].unsqueeze(0))
 
-
+            l = []
             if split_obj:
                 #obj_data[data['obj_idxs']] = data['points']
                 obj_data.append(points['x'])
+                l.append(obj_data.num_nodes)
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
                 if cfg['save_embedding']:
@@ -317,7 +318,8 @@ def test(cfg):
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
                 print('points:',obj_data)
-                print('points shape:',len(obj_data))
+                print('nodes:',l)
+                print('points shape:',sum(l))
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
