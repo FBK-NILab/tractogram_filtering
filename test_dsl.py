@@ -231,7 +231,10 @@ def test(cfg):
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
-
+            print('points:',points)
+            print('points shape:',points.shape)
+            print('target:',target)
+            print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
@@ -274,7 +277,9 @@ def test(cfg):
                         loss = L.lovasz_softmax_flat(pred, target,
                                                     op=cfg['llm_op'],
                                                     only_present=cfg['multi_category'])
-
+            print('pred:',pred)
+            print('pred shape:',pred.shape)
+            print('pred choice:',pred_choice)
             if visualized < int(cfg['viz_clusters']):
                 visualized += 1
                 colors = torch.from_numpy(get_spaced_colors(n_gf))
