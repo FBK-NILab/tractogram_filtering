@@ -94,7 +94,7 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
-        streamlines,head,leng,idxs = load_streamlines(T_file)
+        #streamlines,head,leng,idxs = load_streamlines(T_file)
         #print('streamlines:',streamlines)
         #print('length sls:',len(streamlines))
         with open(label_file, 'rb') as f:
@@ -125,6 +125,7 @@ class HCP20Dataset(gDataset):
 
         #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+        print(sample['name'])
 
         n = len(sample['points'])
         #t0 = time.time()
