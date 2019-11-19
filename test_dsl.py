@@ -324,6 +324,11 @@ def test(cfg):
                 print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
+                y_pred = obj_pred_choice.numpy()
+                np.save(data['dir']+'/',y_pred)
+                y_test = obj_target.numpy()
+                np.save(data['dir']+'/',y_test)
+                np.save(data['dir']+'/',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
