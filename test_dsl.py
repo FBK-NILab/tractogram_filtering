@@ -21,6 +21,7 @@ from tensorboardX import SummaryWriter
 from torchvision import transforms
 from train_dsl import get_model
 import torch_geometric.transforms as T
+from nilab.load_trk import load_streamlines
 
 def get_ncolors(n):
     random.seed(10)
@@ -314,7 +315,8 @@ def test(cfg):
                 #print('points:',points['streamlines'])
                 #print('points shape:',points['streamlines'].shape)
                 #print('streamlines:',
-                print('tract:',data['tract'])
+                streamlines, head, leng, idxs = load_streamlines(data['name']+'.trk')
+                print('tract:',len(streamlines))
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
