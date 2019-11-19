@@ -94,6 +94,7 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
+        print('tract:',T)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
@@ -118,7 +119,7 @@ class HCP20Dataset(gDataset):
             self.remaining[idx] -= set(sample['points'])
             sample['obj_idxs'] = sample['points'].copy()
             sample['obj_full_size'] = T.header['nb_streamlines']
-            sample['streamlines'] = T.streamlines
+            #sample['streamlines'] = T.streamlines
 
         #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
@@ -134,7 +135,7 @@ class HCP20Dataset(gDataset):
         else:
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-        
+        print('streams:',streams)
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
