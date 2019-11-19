@@ -311,8 +311,9 @@ def test(cfg):
                     loss = loss_seg + alfa * loss_cluster
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
-                print('points:',points['streamlines'])
-                print('points shape:',points['streamlines'].shape)
+                #print('points:',points['streamlines'])
+                #print('points shape:',points['streamlines'].shape)
+                #print('streamlines:',
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
