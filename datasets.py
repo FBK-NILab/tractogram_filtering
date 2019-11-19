@@ -96,7 +96,7 @@ class HCP20Dataset(gDataset):
         T = nib.streamlines.load(T_file, lazy_load=True)
         streamlines,head,leng,idxs = load_streamlines(T_file)
         print('streamlines:',streamlines)
-        print('length sls:',len(streamlines)
+        print('length sls:',len(streamlines))
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
