@@ -316,7 +316,7 @@ def test(cfg):
                 #print('points shape:',points['streamlines'].shape)
                 #print('streamlines:',
                 #data_dir = cfg['dataset_dir']
-                streamlines, head, leng, idxs = load_streamlines(data['dir']+data['name']+'.trk')
+                streamlines, head, leng, idxs = load_streamlines(data['dir']+'/'+data['name']+'.trk')
                 print('tract:',len(streamlines))
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
