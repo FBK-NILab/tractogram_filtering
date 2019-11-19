@@ -280,9 +280,9 @@ def test(cfg):
                                                     op=cfg['llm_op'],
                                                     only_present=cfg['multi_category'])
             #print('pred:',pred)
-            #print('pred shape:',pred.shape)
+            print('pred shape:',pred.shape)
             #print('pred choice:',pred_choice)
-            #print('pred choice shape:',pred_choice.shape)
+            print('pred choice shape:',pred_choice.shape)
             if visualized < int(cfg['viz_clusters']):
                 visualized += 1
                 colors = torch.from_numpy(get_spaced_colors(n_gf))
