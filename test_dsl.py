@@ -314,6 +314,7 @@ def test(cfg):
                 #print('points:',points['streamlines'])
                 #print('points shape:',points['streamlines'].shape)
                 #print('streamlines:',
+                print('tract:',data['tract'])
                 print('pred:',obj_pred_choice)
                 print('taget:',obj_target)
                 print('pred shape:',obj_pred_choice.shape)
