@@ -23,7 +23,7 @@ from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
-
+from nilab.load_trk import load_streamlines
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 
 class HCP20Dataset(gDataset):
@@ -94,7 +94,9 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
-        print('tract:',T)
+        streamlines,head,leng,idxs = load_streamlines(T_file)
+        print('streamlines:',streamlines)
+        print('length sls:',len(streamlines)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
@@ -135,7 +137,7 @@ class HCP20Dataset(gDataset):
         else:
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-        print('streams:',streams)
+
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
