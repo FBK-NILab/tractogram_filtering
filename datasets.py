@@ -89,6 +89,7 @@ class HCP20Dataset(gDataset):
     def getitem(self, idx):
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+        sample['dir'] = sub_dir
         T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
