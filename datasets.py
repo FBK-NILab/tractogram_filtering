@@ -95,7 +95,7 @@ class HCP20Dataset(gDataset):
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
         streamlines,head,leng,idxs = load_streamlines(T_file)
-        print('streamlines:',streamlines)
+        #print('streamlines:',streamlines)
         print('length sls:',len(streamlines))
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
