@@ -125,7 +125,7 @@ class HCP20Dataset(gDataset):
 
         #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
-        print(sample['name'])
+        #print(sample['name'])
 
         n = len(sample['points'])
         #t0 = time.time()
@@ -169,7 +169,7 @@ class HCP20Dataset(gDataset):
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
-        sample['tract'] = streamlines
+        #sample['tract'] = streamlines
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
         return sample
