@@ -71,9 +71,9 @@ n_workers = 8
 model_dir = models
 save_model = y
 seed = 10
-save_pred = y
+save_pred = n
 save_softmax_out = n
-save_gf = y
+save_gf = n
 
 ########### logging ###########
 verbose = n
@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 3
+batch_size = 2
 repeat_sampling = 3
 shuffling = y
 rnd_sampling = y
