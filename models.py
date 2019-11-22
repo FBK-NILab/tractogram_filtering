@@ -14,7 +14,7 @@ from torch_geometric.nn import global_mean_pool
 from torch_geometric.utils import normalized_cut
 from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus
 #from pointnet_mgf import max_mod
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
+from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
 
 def MLP(channels, batch_norm=True):
     return Seq(*[
