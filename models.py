@@ -316,7 +316,7 @@ class NNConvNet(torch.nn.Module):
         x = self.fc(F.relu(x))
         return x
     
-def DEC(torch.nn.Module):
+class DEC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DEC, self).__init__()
         self.conv1 = DynamicEdgeConv(MLP([2 * 3, 64, 64, 64]), k, aggr)
