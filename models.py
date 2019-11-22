@@ -12,7 +12,7 @@ import torch_geometric.transforms as T
 from torch_geometric.nn import global_max_pool
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.utils import normalized_cut
-from torch_geometric.nn import GCNConv, NNConv, graclus
+from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus
 #from pointnet_mgf import max_mod
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
 
@@ -318,24 +318,10 @@ class NNConvNet(torch.nn.Module):
     
 def DEC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
-        super().__init__()
-
-        self.conv1 = DynamicEdgeConv(MLP([2 * input_size, 64, 64, 64]), k, aggr)
-        self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
-        self.lin1 = MLP([128 + 64, 1024])
-
-        self.mlp = Seq(
-            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
-            Lin(256, out_channels))
-
-    def forward(self, gdata):
-        pos, batch = gdata.pos, gdata.batch
-        x1 = self.conv1(pos, batch)
-        x2 = self.conv2(x1, batch)
-        out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
-        out = self.mlp(out)
-        return out
+        super(DEC, self).__init__()
+        mlp1 = nn.Sequential(nn.Linear(2*input_size), nn.ReLU(), nn.Linear(64, 64))
+        self.conv1 = Dyn
+        
 
                  
         
