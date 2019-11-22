@@ -105,7 +105,7 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
-    if cfg['mode'] == 'dec':
+    if cfg['model'] == 'dec':
       classifier = DEC(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
