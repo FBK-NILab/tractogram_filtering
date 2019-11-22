@@ -325,9 +325,9 @@ class DEC(torch.nn.Module):
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
-            Lin(256, n_classes)
+            Lin(256, n_classes))
 
-     def forward(self, data):
+    def forward(self, data): 
         pos, batch = data.pos, data.batch
         x1 = self.conv1(pos, batch)
         x2 = self.conv2(x1, batch)
