@@ -28,7 +28,7 @@ from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from pointnet_mgf import (OnlyFC, PointNetClsMultiFeat, PointNetDenseClsLocal,
                           #PointNetDenseClsMultiFeat,
                           #PointNetDenseClsMultiFeatMultiLayer, mean_mod)
-from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet, ST_loss
+from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet, DEC, ST_loss
 from tensorboardX import SummaryWriter
 #from twounit_net import TwoUnitNet
 from utils import get_spaced_colors
@@ -105,6 +105,15 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
+    if cfg['mode'] == 'dec':
+      classifier = DEC(input_size,
+                       int(cfg['embedding_size']),
+                       num_classes,
+                       batch_size=int(cfg['batch_size']),
+                       k=5,
+                       aggr='max',
+                       pool_op=global_max_pool,
+                       same_size=cfg['same_size'])    
     if cfg['model'] == 'nnc':
       classifier = NNC(input_size,
                        int(cfg['embedding_size']),
