@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 if __name__ == '__main__':
     np.random.seed(0)
     nb_points = 16
-    subset_size = 100000
+    subset_size = 20000
     filename_template = 'data_emanuele/%s_%s_tracks.trk'
     subjects = ['100206', '100307']
     label_y = {'plausible': 1, 'unplausible': 0}
