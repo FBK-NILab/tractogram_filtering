@@ -2,14 +2,21 @@ import numpy as np
 from nilab.load_trk import load_streamlines
 from streamline_embedding import (embed_flattened,
                                   embed_flattened_plus_flipped,
-                                  embed_ordered)
+                                  embed_ordered,
+                                  embed_flattened_plus_length,
+                                  embed_flattened_plus_flipped_plus_length,
+                                  embed_flattened_plus_flipped_plus_length_plus_curvature)
 from dipy.tracking.streamline import set_number_of_points
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import (KNeighborsClassifier,
                                RadiusNeighborsClassifier)
 from sklearn.model_selection import LeaveOneGroupOut, cross_validate
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import (RandomForestClassifier,
+                              GradientBoostingClassifier,
+                              ExtraTreesClassifier,
+                              AdaBoostClassifier)
+from sklearn.naive_bayes import (GaussianNB, BernoulliNB)
 
 
 if __name__ == '__main__':
@@ -32,8 +39,11 @@ if __name__ == '__main__':
 
             streamlines = set_number_of_points(streamlines, nb_points)
             # tmp = embed_flattened(streamlines)
-            tmp = embed_flattened_plus_flipped(streamlines)
+            # tmp = embed_flattened_plus_flipped(streamlines)
             # tmp = embed_ordered(streamlines)
+            # tmp = embed_flattened_plus_length(streamlines)
+            # tmp = embed_flattened_plus_flipped_plus_length(streamlines)
+            tmp = embed_flattened_plus_flipped_plus_length_plus_curvature(streamlines)
             X.append(tmp)
             y.append([label_y[label]] * len(tmp))
             groups.append([subject] * len(tmp))
@@ -55,7 +65,8 @@ if __name__ == '__main__':
             KNeighborsClassifier(n_neighbors=k, algorithm='kd_tree',
                                  weights='distance', n_jobs=-1),
             DecisionTreeClassifier(),
-            RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1)]
+            RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1),
+            ExtraTreesClassifier(n_estimators=n_estimators, n_jobs=-1)]
 
     cv = LeaveOneGroupOut()
     for clf in clfs:
