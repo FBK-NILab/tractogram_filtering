@@ -37,7 +37,9 @@ if __name__ == '__main__':
                                                                   idxs=subset_size,
                                                                   verbose=True)
 
+            print("Resampling streamlines to %s points" % nb_points)
             streamlines = set_number_of_points(streamlines, nb_points)
+            print("Embedding streamlines into vectors")
             # tmp = embed_flattened(streamlines)
             # tmp = embed_flattened_plus_flipped(streamlines)
             # tmp = embed_ordered(streamlines)
@@ -65,8 +67,10 @@ if __name__ == '__main__':
             KNeighborsClassifier(n_neighbors=k, algorithm='kd_tree',
                                  weights='distance', n_jobs=-1),
             DecisionTreeClassifier(),
-            RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1),
-            ExtraTreesClassifier(n_estimators=n_estimators, n_jobs=-1)]
+            RandomForestClassifier(n_estimators=n_estimators, n_jobs=-1)]
+
+    # Removed because similar but sistematically inferior to RandomForestClassifier:
+    # ExtraTreesClassifier(n_estimators=n_estimators, n_jobs=-1)]
 
     cv = LeaveOneGroupOut()
     for clf in clfs:
@@ -74,3 +78,5 @@ if __name__ == '__main__':
         scores = cross_validate(clf, X, y, cv=cv, groups=groups,
                                 verbose=10, n_jobs=1)
         print('scores: %s' % (scores,))
+        print('test_score: %s' % scores['test_score'].mean())
+        print('')
