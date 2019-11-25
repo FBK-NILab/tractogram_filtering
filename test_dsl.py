@@ -142,7 +142,7 @@ def test(cfg):
     print("Validation dataset loaded, found %d samples" % (len(dataset)))
 
     for ext in range(100):
-        logdir = '%stest_%d' % (cfg['exp_path'], ext)
+        logdir = '%s/test_%d' % (cfg['exp_path'], ext)
         if not os.path.exists(logdir):
             break
     writer = SummaryWriter(logdir)
