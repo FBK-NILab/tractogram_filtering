@@ -171,17 +171,17 @@ class PointNetPyg(torch.nn.Module):
 class GCNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(GCNemb, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64, cached=True)
-        self.conv1_1 = GCNConv(64, 64, cached=True)
-        self.conv2_0 = GCNConv(64, 64, cached=True)
-        self.conv2_1 = GCNConv(64, 128, cached=True)
-        self.conv2_2 = GCNConv(128,1024, cached=True)
-        self.conv2_3 = GCNConv(1024, 512, cached=True)
-        self.conv2_4 = GCNConv(512, 256, cached=True)
-        self.conv3 = GCNConv(256, n_classes, cached=True)
+        self.conv1_0 = GCNConv(input_size, 64)
+        self.conv1_1 = GCNConv(64, 64)
+        self.conv2_0 = GCNConv(64, 64)
+        self.conv2_1 = GCNConv(64, 128)
+        self.conv2_2 = GCNConv(128,1024)
+        self.conv2_3 = GCNConv(1024, 512)
+        self.conv2_4 = GCNConv(512, 256)
+        self.conv3 = GCNConv(256, n_classes)
         
     def forward(self, x, edge_index):
-        #edge_index, _ = add_self_loops(edge_index)
+        edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
         x = F.relu(self.conv1_0(x, edge_index))
         x = F.dropout(x, training=self.training)
         x = F.relu(self.conv1_1(x, edge_index))
