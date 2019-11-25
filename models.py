@@ -180,6 +180,7 @@ class GCNemb(torch.nn.Module):
         self.conv3 = GCNConv(256, n_classes)
         
     def forward(self, x, edge_index):
+        edge_index, _ = add_self_loops(edge_index)
         x = F.relu(self.conv1_0(x, edge_index))
         x = F.relu(self.conv1_1(x, edge_index))
         x = F.relu(self.conv2_0(x, edge_index))
