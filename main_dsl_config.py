@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = gcn
+model = dec
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -241,7 +241,7 @@ data_dim = 3
 embedding_size = 40
 fold_size = 2
 
-batch_size = 2
+batch_size = 3
 repeat_sampling = 3
 shuffling = y
 rnd_sampling = y
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = gcn_self_loops-loss_nll-data_hcp20_full_nogradacc
+experiment_name = dec_own-loss_nll-data_hcp20_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
