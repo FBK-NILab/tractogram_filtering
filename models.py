@@ -365,7 +365,7 @@ class DEC(torch.nn.Module):
     def forward(self, data): 
         x = F.relu(self.conv1(data.x,data.batch))
         x = F.relu(self.conv2(x,data.batch))
-        x = self.conv3(x)
+        x = self.conv3(x,data.batch)
         emb = self.pool(x, data.batch)
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
