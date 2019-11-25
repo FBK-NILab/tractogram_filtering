@@ -515,7 +515,7 @@ def train(cfg):
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train),
                                 #distance=T.Distance(norm=True,cat=False),
-                                return_edges=False)    
+                                return_edges=True)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
@@ -546,7 +546,7 @@ def train(cfg):
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
-                                          return_edges=False)
+                                          return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
                                     cfg['sub_list_val'],
