@@ -81,8 +81,8 @@ def embed_flattened_plus_flipped_plus_length_plus_curvature(streamlines):
     lengths = length(streamlines)
     # Mean curvature of the streamline (TO BE CHECKED!):
     # curvature = np.vstack([np.linalg.norm(np.gradient(s, axis=0), axis=0) for s in streamlines])
-    curvature = np.array([frenet_serret(s)[3].mean() for s in streamlines])[:, None]
-    torsion = np.array([frenet_serret(s)[4].mean() for s in streamlines])[:, None]
+    curvature = np.array([frenet_serret(s)[3].squeeze() for s in streamlines])
+    torsion = np.array([frenet_serret(s)[4].squeeze() for s in streamlines])
     X = embed_flattened_plus_flipped(streamlines)
     X = np.concatenate([X, np.concatenate([lengths, lengths])[:, None],
                         np.vstack([curvature, curvature[::-1]]),
