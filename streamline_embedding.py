@@ -4,6 +4,7 @@ from euclidean_embeddings.dissimilarity import compute_dissimilarity
 from euclidean_embeddings.distances import parallel_distance_computation
 from functools import partial
 from dipy.tracking.streamline import length
+from dipy.tracking.metrics import frenet_serret
 
 
 def check_same_nb_points(streamlines):
@@ -79,10 +80,13 @@ def embed_flattened_plus_flipped_plus_length(streamlines):
 def embed_flattened_plus_flipped_plus_length_plus_curvature(streamlines):
     lengths = length(streamlines)
     # Mean curvature of the streamline (TO BE CHECKED!):
-    curvature = np.vstack([np.linalg.norm(np.gradient(s, axis=0), axis=0) for s in streamlines])
+    # curvature = np.vstack([np.linalg.norm(np.gradient(s, axis=0), axis=0) for s in streamlines])
+    curvature = np.array([frenet_serret(s)[3].mean() for s in streamlines])[:, None]
+    torsion = np.array([frenet_serret(s)[4].mean() for s in streamlines])[:, None]
     X = embed_flattened_plus_flipped(streamlines)
     X = np.concatenate([X, np.concatenate([lengths, lengths])[:, None],
-                        np.vstack([curvature, curvature])], axis=1)
+                        np.vstack([curvature, curvature[::-1]]),
+                        np.vstack([torsion, torsion[::-1]])], axis=1)
     return X
 
 
