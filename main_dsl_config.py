@@ -231,7 +231,7 @@ multi_category = n
 ########### data ###########
 dataset = hcp20_graph
 dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-fixed_size = 10000
+fixed_size = 5000
 val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = dec-loss_nll-data_hcp20_full_nogradacc
+experiment_name = dec_own-loss_nll-data_hcp20_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************

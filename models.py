@@ -15,6 +15,7 @@ from torch_geometric.utils import normalized_cut
 from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus
 #from pointnet_mgf import max_mod
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
+from torch_geometric.utils import add_self_loops
 
 def MLP(channels, batch_norm=True):
     return Seq(*[
@@ -170,23 +171,31 @@ class PointNetPyg(torch.nn.Module):
 class GCNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(GCNemb, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64)
-        self.conv1_1 = GCNConv(64, 64)
-        self.conv2_0 = GCNConv(64, 64)
-        self.conv2_1 = GCNConv(64, 128)
-        self.conv2_2 = GCNConv(128,1024)
-        self.conv2_3 = GCNConv(1024, 512)
-        self.conv2_4 = GCNConv(512, 256)
-        self.conv3 = GCNConv(256, n_classes)
+        self.conv1_0 = GCNConv(input_size, 64, improved=True)
+        self.conv1_1 = GCNConv(64, 64, improved=True)
+        self.conv2_0 = GCNConv(64, 64, improved=True)
+        self.conv2_1 = GCNConv(64, 128, improved=True)
+        self.conv2_2 = GCNConv(128,1024, improved=True)
+        self.conv2_3 = GCNConv(1024, 512, improved=True)
+        self.conv2_4 = GCNConv(512, 256, improved=True)
+        self.conv3 = GCNConv(256, n_classes, improved=True)
         
     def forward(self, x, edge_index):
+        edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
         x = F.relu(self.conv1_0(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv1_1(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_0(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_1(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_2(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_3(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = F.relu(self.conv2_4(x, edge_index))
+        #x = F.dropout(x, training=self.training)
         x = self.conv3(x, edge_index)
         return x        
 
@@ -316,9 +325,9 @@ class NNConvNet(torch.nn.Module):
         x = self.fc(F.relu(x))
         return x
     
-class DEC(torch.nn.Module):
+class DEC2(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
-        super(DEC, self).__init__()
+        super(DEC2, self).__init__()
         self.conv1 = DynamicEdgeConv(MLP([2 * 3, 64, 64, 64]), k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
@@ -336,6 +345,32 @@ class DEC(torch.nn.Module):
         out = self.mlp(out)
         return out
     
+class DEC(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+        super(DEC, self).__init__()
+        nn1 = nn.Sequential(nn.Linear(2*input_size,64), nn.ReLU(),nn.Linear(64,64)) 
+        self.conv1 = DynamicEdgeConv(nn1, k, aggr)
+        nn2 = nn.Sequential(nn.Linear(2*64,128), nn.ReLU(), nn.Linear(128,512))
+        self.conv2 = DynamicEdgeConv(nn2, k, aggr)
+        nn3 = nn.Sequential(nn.Linear(2*512,512), nn.ReLU(), nn.Linear(512,embedding_size))
+        self.conv3 = DynamicEdgeConv(nn3, k, aggr)
+        
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+        
+    def forward(self, data): 
+        x = F.relu(self.conv1(data.x,data.batch))
+        x = F.relu(self.conv2(x,data.batch))
+        x = self.conv3(x,data.batch)
+        emb = self.pool(x, data.batch)
+        x = emb.view(-1, self.emb_size)
+        self.embedding = x.data
+        x = self.fc(F.relu(x))
+        return x 
         
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
