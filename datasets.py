@@ -90,7 +90,7 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         #trk_dir = os.path.join(self.root_dir,'derivatives/streamlines_resampling_32p', 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_permuted.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
