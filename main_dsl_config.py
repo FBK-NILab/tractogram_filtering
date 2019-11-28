@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = dec
+model = dec_ori
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = dec-loss_nll-data_hcp20_permuted_full_nogradacc
+experiment_name = dec_ori-loss_nll-data_hcp20_16pnts_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
