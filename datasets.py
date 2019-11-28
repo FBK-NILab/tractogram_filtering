@@ -34,6 +34,7 @@ class HCP20Dataset(gDataset):
                  fold_size=None,
                  transform=None,
                  distance=None,
+                 self_loops=None,
                  with_gt=True,
                  return_edges=False,
                  split_obj=False,
@@ -52,6 +53,7 @@ class HCP20Dataset(gDataset):
         self.distance = distance
         self.fold_size = fold_size
         self.act = act
+        self.self_loops = self_loops
         self.with_gt = with_gt
         self.return_edges = return_edges
         self.fold = []
