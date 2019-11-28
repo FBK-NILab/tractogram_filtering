@@ -17,7 +17,7 @@ import pickle
 import nibabel as nib
 import glob
 import time
-from torch_geometric.transforms import Distance
+from torch_geometric.transforms import Distance, AddSelfLoops
 
 from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
@@ -170,6 +170,8 @@ class HCP20Dataset(gDataset):
             graph_sample['edge_attr'] = edge_attr
         if self.distance:
             graph_sample = self.distance(graph_sample)
+        if self.self_loops:
+            graph_sample = self.self_loops(graph_sample)
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
