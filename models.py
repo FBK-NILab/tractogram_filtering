@@ -388,6 +388,7 @@ class DGCNNSeq(nn.Module):
         self.bs = batch_size
         #self.fov = fov
         self.k = k
+        self.input_size = input_size
 
         self.bn1 = nn.BatchNorm2d(64)
         self.bn2 = nn.BatchNorm2d(64)
@@ -419,7 +420,7 @@ class DGCNNSeq(nn.Module):
         self.linear3 = nn.Linear(256, n_classes)
 
     def forward(self, data):
-        x = data.x.reshape(self.bs, -1, input_size)
+        x = data.x.reshape(self.bs, -1, self.input_size)
         x = x.permute(0,2,1).contiguous()
         batch_size = x.size(0)
         x = get_graph_feature(x, k=self.k)
