@@ -17,6 +17,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch_cluster import knn_graph
 
 def knn(x, k):
     inner = -2*torch.matmul(x.transpose(2, 1), x)
@@ -27,34 +28,43 @@ def knn(x, k):
     return idx
 
 
-def get_graph_feature(x, k=20, idx=None):
-    batch_size = x.size(0)
-    num_points = x.size(2)
-    x = x.view(batch_size, -1, num_points)
-    if idx is None:
-        idx = knn(x, k=k)   # (batch_size, num_points, k)
-    device = torch.device('cuda')
+# def get_graph_feature(x, k=20, idx=None):
+#     batch_size = x.size(0)
+#     num_points = x.size(2)
+#     x = x.view(batch_size, -1, num_points)
+#     if idx is None:
+#         idx = knn(x, k=k)   # (batch_size, num_points, k)
+#     device = torch.device('cuda')
 
-    idx_base = torch.arange(0, batch_size, device=device).view(-1, 1, 1)*num_points
+#     idx_base = torch.arange(0, batch_size, device=device).view(-1, 1, 1)*num_points
 
-    idx = idx + idx_base
+#     idx = idx + idx_base
 
-    idx = idx.view(-1)
+#     idx = idx.view(-1)
 
-    _, num_dims, _ = x.size()
+#     _, num_dims, _ = x.size()
 
-    x = x.transpose(2, 1).contiguous()   # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
-    feature = x.view(batch_size*num_points, -1)[idx, :]
-    feature = feature.view(batch_size, num_points, k, num_dims)
-    x = x.view(batch_size, num_points, 1, num_dims).repeat(1, 1, k, 1)
+#     x = x.transpose(2, 1).contiguous()   # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
+#     feature = x.view(batch_size*num_points, -1)[idx, :]
+#     feature = feature.view(batch_size, num_points, k, num_dims)
+#     x = x.view(batch_size, num_points, 1, num_dims).repeat(1, 1, k, 1)
 
-    feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2)
+#     feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2)
 
-    return feature
+#     return feature
+
+def get_graph_feature(x, k, batch=None):
+    batch_size = batch.max() + 1 if batch is not None else 1
+    # knn
+    edges = knn_graph(x, k, batch=batch)
+    x = torch.cat([x[edges[1]] - x[edges[0]], x[edges[0]]], dim=1)
+    x = x.view(batch_size, -1, x.size(1))
+
+    return x.permute(0,2,1).contiguous()
 
 class DGCNNSeq(nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, k=5, fov=1, dropout=0.5):
-        super(DGCNNSeq, self, fov=3).__init__()
+        super(DGCNNSeq, self).__init__()
         self.k = k
 
         self.bn1 = nn.BatchNorm2d(64)
@@ -63,21 +73,29 @@ class DGCNNSeq(nn.Module):
         self.bn4 = nn.BatchNorm2d(256)
         self.bn5 = nn.BatchNorm1d(embedding_size)
 
+        pad = (fov - 1)/2
+
         self.conv1 = nn.Sequential(
-            nn.Conv1d(input_size, 64, kernel_size=fov, bias=False), self.bn1,
-            nn.LeakyReLU(negative_slope=0.2))
+            nn.Conv1d(2 * input_size,
+                      64,
+                      kernel_size=fov,
+                      bias=False,
+                      padding=pad), self.bn1, nn.LeakyReLU(negative_slope=0.2))
         self.conv2 = nn.Sequential(
-            nn.Conv1d(64 * 2, 64, kernel_size=fov, bias=False), self.bn2,
-            nn.LeakyReLU(negative_slope=0.2))
+            nn.Conv1d(64 * 2, 64, kernel_size=fov, bias=False, padding=pad),
+            self.bn2, nn.LeakyReLU(negative_slope=0.2))
         self.conv3 = nn.Sequential(
-            nn.Conv1d(64 * 2, 128, kernel_size=fov, bias=False), self.bn3,
-            nn.LeakyReLU(negative_slope=0.2))
+            nn.Conv1d(64 * 2, 128, kernel_size=fov, bias=False, padding=pad),
+            self.bn3, nn.LeakyReLU(negative_slope=0.2))
         self.conv4 = nn.Sequential(
-            nn.Conv1d(128 * 2, 256, kernel_size=fov, bias=False), self.bn4,
-            nn.LeakyReLU(negative_slope=0.2))
+            nn.Conv1d(128 * 2, 256, kernel_size=fov, bias=False, padding=pad),
+            self.bn4, nn.LeakyReLU(negative_slope=0.2))
         self.conv5 = nn.Sequential(
-            nn.Conv1d(512, embedding_size, kernel_size=fov, bias=False),
-            self.bn5, nn.LeakyReLU(negative_slope=0.2))
+            nn.Conv1d(512,
+                      embedding_size,
+                      kernel_size=fov,
+                      bias=False,
+                      padding=pad), self.bn5, nn.LeakyReLU(negative_slope=0.2))
         self.linear1 = nn.Linear(embedding_size * 2, 512, bias=False)
         self.bn6 = nn.BatchNorm1d(512)
         self.dp1 = nn.Dropout(p=dropout)
@@ -86,22 +104,24 @@ class DGCNNSeq(nn.Module):
         self.dp2 = nn.Dropout(p=dropout)
         self.linear3 = nn.Linear(256, n_classes)
 
-    def forward(self, x):
-        x = x.permute(0,2,1).contiguous()
-        batch_size = x.size(0)
-        x = get_graph_feature(x, k=self.k)
+    def forward(self, data):
+        batch_size = data.batch.max() + 1 
+        x = get_graph_feature(data.pos, self.k, batch=data.batch)
         x = self.conv1(x)
         x1 = x.max(dim=-1, keepdim=False)[0]
+        x1_flat = x1.permute(0,2,1).contiguous().view(-1, x1.size(2))
 
-        x = get_graph_feature(x1, k=self.k)
+        x = get_graph_feature(x1_flat, self.k, batch=data.batch)
         x = self.conv2(x)
         x2 = x.max(dim=-1, keepdim=False)[0]
+        x2_falt = x2.permute(0,2,1).contiguous().view(-1, x2.size(2))
 
-        x = get_graph_feature(x2, k=self.k)
+        x = get_graph_feature(x2_falt, self.k, batch=data.batch)
         x = self.conv3(x)
         x3 = x.max(dim=-1, keepdim=False)[0]
+        x3_flat = x3.permute(0,2,1).contiguous().view(-1, x3.size(2))
 
-        x = get_graph_feature(x3, k=self.k)
+        x = get_graph_feature(x3_flat, self.k, batch=data.batch)
         x = self.conv4(x)
         x4 = x.max(dim=-1, keepdim=False)[0]
 
