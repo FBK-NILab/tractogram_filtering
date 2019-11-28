@@ -170,8 +170,8 @@ class HCP20Dataset(gDataset):
             graph_sample['edge_attr'] = edge_attr
         if self.distance:
             graph_sample = self.distance(graph_sample)
-        if self.self_loops:
-            graph_sample = self.self_loops(graph_sample)
+        #if self.self_loops:
+            #graph_sample = self.self_loops(graph_sample)
         if self.with_gt:
             graph_sample['y'] = torch.from_numpy(sample['gt'])
         sample['points'] = graph_sample
