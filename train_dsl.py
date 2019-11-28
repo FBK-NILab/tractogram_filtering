@@ -109,6 +109,7 @@ def get_model(cfg):
       classifier = DGCNNSeq(input_size,
                             int(cfg['embedding_size']),
                             num_classes,
+                            batch_size=int(cfg['batch_size']),
                             k=5,
                             fov=1,
                             dropout=0.5)    
