@@ -385,6 +385,8 @@ class DEC(torch.nn.Module):
 class DGCNNSeq(nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1,k=5, fov=1, dropout=0.5):
         super(DGCNNSeq, self).__init__()
+        self.bs = batch_size
+        #self.fov = fov
         self.k = k
 
         self.bn1 = nn.BatchNorm2d(64)
@@ -416,8 +418,8 @@ class DGCNNSeq(nn.Module):
         self.dp2 = nn.Dropout(p=dropout)
         self.linear3 = nn.Linear(256, n_classes)
 
-    def forward(self, data,batch_size):
-        x = data.x.reshape(batch_size, -1, input_size)
+    def forward(self, data):
+        x = data.x.reshape(self.bs, -1, input_size)
         x = x.permute(0,2,1).contiguous()
         batch_size = x.size(0)
         x = get_graph_feature(x, k=self.k)
