@@ -384,7 +384,7 @@ class DEC(torch.nn.Module):
 
 class DGCNNSeq(nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, k=5, fov=1, dropout=0.5):
-        super(DGCNNSeq, self, fov=3).__init__()
+        super(DGCNNSeq, self).__init__()
         self.k = k
 
         self.bn1 = nn.BatchNorm2d(64)
