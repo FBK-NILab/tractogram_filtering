@@ -1,5 +1,8 @@
 from __future__ import print_function
-
+import os
+import sys
+import copy
+import math
 import numpy as np
 #import pointnet_trials as pnt
 import torch
@@ -22,6 +25,40 @@ def MLP(channels, batch_norm=True):
         Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
         for i in range(1, len(channels))
     ])
+
+def knn(x, k):
+    inner = -2*torch.matmul(x.transpose(2, 1), x)
+    xx = torch.sum(x**2, dim=1, keepdim=True)
+    pairwise_distance = -xx - inner - xx.transpose(2, 1)
+
+    idx = pairwise_distance.topk(k=k, dim=-1)[1]   # (batch_size, num_points, k)
+    return idx
+
+
+def get_graph_feature(x, k=20, idx=None):
+    batch_size = x.size(0)
+    num_points = x.size(2)
+    x = x.view(batch_size, -1, num_points)
+    if idx is None:
+        idx = knn(x, k=k)   # (batch_size, num_points, k)
+    device = torch.device('cuda')
+
+    idx_base = torch.arange(0, batch_size, device=device).view(-1, 1, 1)*num_points
+
+    idx = idx + idx_base
+
+    idx = idx.view(-1)
+
+    _, num_dims, _ = x.size()
+
+    x = x.transpose(2, 1).contiguous()   # (batch_size, num_points, num_dims)  -> (batch_size*num_points, num_dims) #   batch_size * num_points * k + range(0, batch_size*num_points)
+    feature = x.view(batch_size*num_points, -1)[idx, :]
+    feature = feature.view(batch_size, num_points, k, num_dims)
+    x = x.view(batch_size, num_points, 1, num_dims).repeat(1, 1, k, 1)
+
+    feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2)
+
+    return feature
 
 class PNptg(torch.nn.Module):
 
@@ -344,33 +381,74 @@ class DEC(torch.nn.Module):
         out = global_max_pool(out, batch)
         out = self.mlp(out)
         return out
-    
-class DEC2(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
-        super(DEC2, self).__init__()
-        nn1 = nn.Sequential(nn.Linear(2*input_size,64), nn.ReLU(),nn.Linear(64,64)) 
-        self.conv1 = DynamicEdgeConv(nn1, k, aggr)
-        nn2 = nn.Sequential(nn.Linear(2*64,128), nn.ReLU(), nn.Linear(128,512))
-        self.conv2 = DynamicEdgeConv(nn2, k, aggr)
-        nn3 = nn.Sequential(nn.Linear(2*512,512), nn.ReLU(), nn.Linear(512,embedding_size))
-        self.conv3 = DynamicEdgeConv(nn3, k, aggr)
-        
-        self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
-        self.bs = batch_size
-        self.emb_size = embedding_size
-        self.same_size = same_size
-        self.embedding = None
-        
-    def forward(self, data): 
-        x = F.relu(self.conv1(data.x,data.batch))
-        x = F.relu(self.conv2(x,data.batch))
-        x = self.conv3(x,data.batch)
-        emb = self.pool(x, data.batch)
-        x = emb.view(-1, self.emb_size)
-        self.embedding = x.data
-        x = self.fc(F.relu(x))
-        return x 
+
+class DGCNNSeq(nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, k=5, fov=1, dropout=0.5):
+        super(DGCNNSeq, self, fov=3).__init__()
+        self.k = k
+
+        self.bn1 = nn.BatchNorm2d(64)
+        self.bn2 = nn.BatchNorm2d(64)
+        self.bn3 = nn.BatchNorm2d(128)
+        self.bn4 = nn.BatchNorm2d(256)
+        self.bn5 = nn.BatchNorm1d(embedding_size)
+
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(input_size, 64, kernel_size=fov, bias=False), self.bn1,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv2 = nn.Sequential(
+            nn.Conv1d(64 * 2, 64, kernel_size=fov, bias=False), self.bn2,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv3 = nn.Sequential(
+            nn.Conv1d(64 * 2, 128, kernel_size=fov, bias=False), self.bn3,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv4 = nn.Sequential(
+            nn.Conv1d(128 * 2, 256, kernel_size=fov, bias=False), self.bn4,
+            nn.LeakyReLU(negative_slope=0.2))
+        self.conv5 = nn.Sequential(
+            nn.Conv1d(512, embedding_size, kernel_size=fov, bias=False),
+            self.bn5, nn.LeakyReLU(negative_slope=0.2))
+        self.linear1 = nn.Linear(embedding_size * 2, 512, bias=False)
+        self.bn6 = nn.BatchNorm1d(512)
+        self.dp1 = nn.Dropout(p=dropout)
+        self.linear2 = nn.Linear(512, 256)
+        self.bn7 = nn.BatchNorm1d(256)
+        self.dp2 = nn.Dropout(p=dropout)
+        self.linear3 = nn.Linear(256, n_classes)
+
+    def forward(self, x):
+        x = data.x.reshape(batch_size, -1, input_size)
+        x = x.permute(0,2,1).contiguous()
+        batch_size = x.size(0)
+        x = get_graph_feature(x, k=self.k)
+        x = self.conv1(x)
+        x1 = x.max(dim=-1, keepdim=False)[0]
+
+        x = get_graph_feature(x1, k=self.k)
+        x = self.conv2(x)
+        x2 = x.max(dim=-1, keepdim=False)[0]
+
+        x = get_graph_feature(x2, k=self.k)
+        x = self.conv3(x)
+        x3 = x.max(dim=-1, keepdim=False)[0]
+
+        x = get_graph_feature(x3, k=self.k)
+        x = self.conv4(x)
+        x4 = x.max(dim=-1, keepdim=False)[0]
+
+        x = torch.cat((x1, x2, x3, x4), dim=1)
+
+        x = self.conv5(x)
+        x1 = F.adaptive_max_pool1d(x, 1).view(batch_size, -1)
+        x2 = F.adaptive_avg_pool1d(x, 1).view(batch_size, -1)
+        x = torch.cat((x1, x2), 1)
+
+        x = F.leaky_relu(self.bn6(self.linear1(x)), negative_slope=0.2)
+        x = self.dp1(x)
+        x = F.leaky_relu(self.bn7(self.linear2(x)), negative_slope=0.2)
+        x = self.dp2(x)
+        x = self.linear3(x)
+        return x
         
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
