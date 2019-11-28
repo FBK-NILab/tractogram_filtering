@@ -416,7 +416,7 @@ class DGCNNSeq(nn.Module):
         self.dp2 = nn.Dropout(p=dropout)
         self.linear3 = nn.Linear(256, n_classes)
 
-    def forward(self, data):
+    def forward(self, data,batch_size):
         x = data.x.reshape(batch_size, -1, input_size)
         x = x.permute(0,2,1).contiguous()
         batch_size = x.size(0)
