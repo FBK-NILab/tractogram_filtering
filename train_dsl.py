@@ -28,7 +28,7 @@ from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from pointnet_mgf import (OnlyFC, PointNetClsMultiFeat, PointNetDenseClsLocal,
                           #PointNetDenseClsMultiFeat,
                           #PointNetDenseClsMultiFeatMultiLayer, mean_mod)
-from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet, DEC, DGCNNSeq, ST_loss
+from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet, DEC, DECSeq, DGCNNSeq, ST_loss
 from tensorboardX import SummaryWriter
 #from twounit_net import TwoUnitNet
 from utils import get_spaced_colors
@@ -114,7 +114,7 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DEC(input_size,
+      classifier = DECSeq(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
                        batch_size=int(cfg['batch_size']),
@@ -524,7 +524,7 @@ def train(cfg):
                                 transform=transforms.Compose(trans_train),
                                 #self_loops=T.AddSelfLoops(),
                                 #distance=T.Distance(norm=True,cat=False),
-                                return_edges=False)    
+                                return_edges=True)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
@@ -556,7 +556,7 @@ def train(cfg):
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
                                           #self_loops=T.AddSelfLoops(),
-                                          return_edges=False)
+                                          return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
                                     cfg['sub_list_val'],
