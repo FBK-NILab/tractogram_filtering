@@ -118,7 +118,7 @@ def get_model(cfg):
                        int(cfg['embedding_size']),
                        num_classes,
                        batch_size=int(cfg['batch_size']),
-                       k=11,
+                       k=5,
                        aggr='max',
                        pool_op=global_max_pool,
                        same_size=cfg['same_size'])    
