@@ -86,7 +86,7 @@ class PNptg(torch.nn.Module):
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x
-        
+
 class PNbatch(torch.nn.Module):
 
     def __init__(self,
@@ -204,7 +204,7 @@ class PointNetPyg(torch.nn.Module):
         #print('t batch reshaping: %f' % (time.time()-t0))
         x = self.fc(F.relu(x))
         return x
-    
+
 class GCNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(GCNemb, self).__init__()
@@ -216,7 +216,7 @@ class GCNemb(torch.nn.Module):
         self.conv2_3 = GCNConv(1024, 512, improved=True)
         self.conv2_4 = GCNConv(512, 256, improved=True)
         self.conv3 = GCNConv(256, n_classes, improved=True)
-        
+
     def forward(self, x, edge_index):
         edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
         x = F.relu(self.conv1_0(x, edge_index))
@@ -234,7 +234,7 @@ class GCNemb(torch.nn.Module):
         x = F.relu(self.conv2_4(x, edge_index))
         #x = F.dropout(x, training=self.training)
         x = self.conv3(x, edge_index)
-        return x        
+        return x
 
 class GCNConvNet(torch.nn.Module):
     def __init__(self,
@@ -252,7 +252,7 @@ class GCNConvNet(torch.nn.Module):
         self.emb_size = embedding_size
         self.same_size = same_size
         self.embedding = None
-        
+
     def forward(self, gdata):
         x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
         x = self.gcn(x,edge_index)
@@ -261,7 +261,7 @@ class GCNConvNet(torch.nn.Module):
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x
-    
+
 class NNC1(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
         super(NNC, self).__init__()
@@ -275,14 +275,14 @@ class NNC1(torch.nn.Module):
         self.conv2_1 = NNConv(64,64, nn4)
         nn5 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,64*embedding_size))
         self.conv3 = NNConv(64, embedding_size, nn5)
-         
+
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
         self.embedding = None
-        
+
     def forward(self, data):
         x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
         x = F.relu(self.conv1_1(x, data.edge_index, data.edge_attr))
@@ -293,8 +293,8 @@ class NNC1(torch.nn.Module):
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         x = self.fc(F.relu(x))
-        return x  
-    
+        return x
+
 class NNC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
         super(NNC, self).__init__()
@@ -304,14 +304,14 @@ class NNC(torch.nn.Module):
         self.conv2_0 = NNConv(32,64, nn3, aggr='max')
         nn4 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32,64*embedding_size))
         self.conv3 = NNConv(64, embedding_size, nn4, aggr='max')
-         
+
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         self.pool = pool_op
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
         self.embedding = None
-        
+
     def forward(self, data):
         #print('edge attr:',data.edge_attr)
         x = F.relu(self.conv1_0(data.x, data.edge_index, data.edge_attr))
@@ -321,8 +321,8 @@ class NNC(torch.nn.Module):
         x = emb.view(-1, self.emb_size)
         self.embedding = x.data
         x = self.fc(F.relu(x))
-        return x   
-    
+        return x
+
 class NNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(NNemb, self).__init__()
@@ -330,15 +330,15 @@ class NNemb(torch.nn.Module):
         self.conv1 = NNConv(input_size,64,nn1)
         nn2 = nn.Sequential(nn.Linear(1,64), nn.ReLU(), nn.Linear(64,256))
         self.conv2 = NNConv(64,n_classes,nn2)
-        
+
     def forward(self,x,edge_index,edge_attr):
         x = F.relu(self.conv1(x, edge_index, edge_attr))
         x = self.conv2(x, edge_index, edge_attr)
         return x
-    
+
 class NNConvNet(torch.nn.Module):
-    def __init__(self, 
-                 input_size, 
+    def __init__(self,
+                 input_size,
                  embedding_size,
                  n_classes,
                  batch_size=1,
@@ -352,7 +352,7 @@ class NNConvNet(torch.nn.Module):
         self.emb_size = embedding_size
         self.same_size = same_size
         self.embedding = None
-        
+
     def forward(self, gdata):
         x, edge_index, edge_attr, batch = gdata.x, gdata.edge_index, gdata.edge_attr, gdata.batch
         x = self.nnc(x,edge_index,edge_attr)
@@ -361,7 +361,7 @@ class NNConvNet(torch.nn.Module):
         self.embedding = x.data
         x = self.fc(F.relu(x))
         return x
-    
+
 class DEC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DEC, self).__init__()
@@ -373,7 +373,7 @@ class DEC(torch.nn.Module):
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
             Lin(256, n_classes))
 
-    def forward(self, data): 
+    def forward(self, data):
         pos, batch = data.pos, data.batch
         x1 = self.conv1(pos, batch)
         x2 = self.conv2(x1, batch)
@@ -401,6 +401,48 @@ class DECSeq(torch.nn.Module):
         out = global_max_pool(out, batch)
         out = self.mlp(out)
         return out
+
+class DECSeq2(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, aggr='max',pool_op=global_max_pool, bn=True):
+        super(DECSeq2, self).__init__()
+        pad = int((fov - 1)/2)
+        self.bn1 = nn.BatchNorm1d(64)
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(2 * input_size, 64, kernel_size=fov, padding=pad),
+            self.bn1, nn.ReLU())
+        self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(
+            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            Lin(256, n_classes))
+
+    def forward(self, data):
+        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        n_pts = pos.size(0)
+        batch_size = batch.max() + 1 if batch is not None else 1
+
+        # inverting the labels in the second half of edgde_index
+        # in order to account for the flipped streamlines
+        eidx[:, eidx.size(1)/2] = eidx[:, eidx.size(1)/2].flip(1)
+        # enlarged filter convolution
+        x = torch.cat([x[eidx[1]] - x[eidx[0]], x[eidx[0]]], dim=1)
+        assert (x.size(0) == 2*n_pts)
+        x = x.view(batch_size*2, -1, x.size(1))
+        x = x.permute(0,2,1).contiguous()
+        x = self.conv1(x)
+        # keep max between the two direction
+        x = x.unsquueze(0)
+        x1 = torch.max(torch.cat([x[:,:batch_size], x[:,batch_size:]]))[0]
+        x1_flat = x1.permute(0,2,1).contiguous().view(-1, x1.size(1))
+
+
+        x2 = self.conv2(x1_flat, batch)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
+
 
 class DGCNNSeq(nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1,k=5, fov=1, dropout=0.5):
@@ -472,7 +514,7 @@ class DGCNNSeq(nn.Module):
         x = self.dp2(x)
         x = self.linear3(x)
         return x
-        
+
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
     A_t = A.transpose(2, 1).contiguous()
