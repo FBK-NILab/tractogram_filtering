@@ -472,6 +472,20 @@ class DGCNNSeq(nn.Module):
         x = self.dp2(x)
         x = self.linear3(x)
         return x
+    
+#class SplineConv(torch.nn.Module):
+    #def __init__(self,input_size,embedding_size,n_classes,batch_size=1,pool_op=global_max_pool,same_size=False):
+    #    super(SplineConv, self).__init__()
+    #    self.fc = torch.nn.Linear(embedding_size, n_classes)
+    #    self.pool = pool_op
+    #    self.bs = batch_size
+    #    self.emb_size = embedding_size
+    #    self.same_size = same_size
+    #    self.embedding = None
+        
+    #    self.conv1 = SplineConv(input_size, 64, dim=1, kernel_size=3)
+        
+    #def forward(self 
         
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
