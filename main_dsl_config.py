@@ -34,7 +34,7 @@ knngraph = 5
 
 ########## training ###########
 n_epochs = 1000
-optimizer = adam
+optimizer = sgd_momentum
 accumulation_interval = n
 # optimizer alternatives:
 # sgd, sgd_momentum, adam
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = dec-seq2-loss_nll-data_hcp20_resampled16_full_nogradacc_k5
+experiment_name = dec-seq-loss_nll-data_hcp20_resampled16_full_nogradacc_k20_centralization
 
 ####### ************************************************************************
 ####### ************************************************************************
