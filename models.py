@@ -397,7 +397,7 @@ class DECSeq(torch.nn.Module):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, batch)
-        out = self.lin1(torch.cat([x1, [x1-x2]], dim=1))
+        out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
         out = self.mlp(out)
         return out
@@ -427,6 +427,7 @@ class DECSeq2(torch.nn.Module):
 
     def forward(self, data):
         x, batch, eidx = data.pos, data.batch, data.edge_index
+        print('eidx size:',eidx.shape)
         n_pts = x.size(0)
         batch_size = batch.max() + 1 if batch is not None else 1
 
