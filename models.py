@@ -451,7 +451,7 @@ class DECSeq2(torch.nn.Module):
 
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
-        batch = torch.arange(batch_size).repeat_interleave(data.lengths[0] - 1)
+        batch = torch.arange(batch_size).repeat_interleave(data.lengths - 1)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
