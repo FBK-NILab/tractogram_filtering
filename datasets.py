@@ -148,7 +148,7 @@ class HCP20Dataset(gDataset):
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
         lengths = torch.from_numpy(lengths)
-        print('lengths:',lengths)
+        #print('lengths:',lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
         batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
         slices = batch_slices[1:-1]
