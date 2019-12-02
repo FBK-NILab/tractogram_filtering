@@ -114,16 +114,16 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DEC(input_size,
+      classifier = DECSeq2(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
-                       #fov=1,
-                       batch_size=int(cfg['batch_size']),
+                       fov=1,
+                       #batch_size=int(cfg['batch_size']),
                        k=5,
                        aggr='max',
                        pool_op=global_max_pool,
-                       same_size=cfg['same_size']) 
-                       #bn=True)
+                       #same_size=cfg['same_size']) 
+                       bn=True)
     if cfg['model'] == 'nnc':
       classifier = NNC(input_size,
                        int(cfg['embedding_size']),
@@ -524,7 +524,7 @@ def train(cfg):
                                 cfg['dataset_dir'],
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train),
-                                self_loops=T.AddSelfLoops(),
+                                #self_loops=T.AddSelfLoops(),
                                 #distance=T.Distance(norm=True,cat=False),
                                 return_edges=True)    
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
@@ -557,7 +557,7 @@ def train(cfg):
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
-                                          self_loops=T.AddSelfLoops(),
+                                          #self_loops=T.AddSelfLoops(),
                                           return_edges=True)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
