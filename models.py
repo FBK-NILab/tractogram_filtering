@@ -363,7 +363,7 @@ class NNConvNet(torch.nn.Module):
         return x
 
 class DEC(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=20, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DEC, self).__init__()
         self.conv1 = DynamicEdgeConv(MLP([2 * 3, 64, 64, 64]), k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
@@ -377,7 +377,7 @@ class DEC(torch.nn.Module):
         pos, batch = data.pos, data.batch
         x1 = self.conv1(pos, batch)
         x2 = self.conv2(x1, batch)
-        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = self.lin1(torch.cat([x1, x1-x2], dim=1))
         out = global_max_pool(out, batch)
         out = self.mlp(out)
         return out
