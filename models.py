@@ -444,11 +444,8 @@ class DECSeq2(torch.nn.Module):
         x = self.conv1(x)
         # keep max between the two direction
         x = x.unsqueeze(0)
-        x = torch.max(torch.cat([x[:, :batch_size],
-                                 x[:, batch_size:]].flip(1).flip(2),
-                                dim=0),
-                      dim=0,
-                      keepdim=False)[0]
+        x = torch.max(torch.cat([x[:, :batch_size], x[:, batch_size:]],
+                                dim=0).flip(1).flip(2), dim=0, keepdim=False)[0]
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
 
         # update the batch to refer to edges rather than points,
@@ -533,21 +530,21 @@ class DGCNNSeq(nn.Module):
         return x
 
 
-    
+
 #class SplineConv(torch.nn.Module):
-    #def __init__(self,input_size,embedding_size,n_classes,batch_size=1,pool_op=global_max_pool,same_size=False):
-    #    super(SplineConv, self).__init__()
-    #    self.fc = torch.nn.Linear(embedding_size, n_classes)
-    #    self.pool = pool_op
-    #    self.bs = batch_size
-    #    self.emb_size = embedding_size
-    #    self.same_size = same_size
-    #    self.embedding = None
-        
-    #    self.conv1 = SplineConv(input_size, 64, dim=1, kernel_size=3)
-        
-    #def forward(self 
-        
+#def __init__(self,input_size,embedding_size,n_classes,batch_size=1,pool_op=global_max_pool,same_size=False):
+#    super(SplineConv, self).__init__()
+#    self.fc = torch.nn.Linear(embedding_size, n_classes)
+#    self.pool = pool_op
+#    self.bs = batch_size
+#    self.emb_size = embedding_size
+#    self.same_size = same_size
+#    self.embedding = None
+
+#    self.conv1 = SplineConv(input_size, 64, dim=1, kernel_size=3)
+
+#def forward(self
+
 
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
