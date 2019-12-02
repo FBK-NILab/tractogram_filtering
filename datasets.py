@@ -161,8 +161,8 @@ class HCP20Dataset(gDataset):
         #                     bslices=batch_slices)
         #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
-            e1 = set(np.arange(0,l-1)) - set(slices-1)
-            e2 = set(np.arange(1,l)) - set(slices)
+            e1 = set(np.arange(0,l-1)) - set(slices.numpy()-1)
+            e2 = set(np.arange(1,l)) - set(slices.numpy())
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
             graph_sample['edge_index'] = edges
