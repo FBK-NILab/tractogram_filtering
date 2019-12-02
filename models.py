@@ -377,7 +377,7 @@ class DEC(torch.nn.Module):
         pos, batch = data.pos, data.batch
         x1 = self.conv1(pos, batch)
         x2 = self.conv2(x1, batch)
-        out = self.lin1(torch.cat([x1, x1-x2], dim=1))
+        out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
         out = self.mlp(out)
         return out
