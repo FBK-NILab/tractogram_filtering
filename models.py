@@ -527,9 +527,8 @@ class DGCNNSeq(nn.Module):
         x = self.dp2(x)
         x = self.linear3(x)
         return x
-<<<<<<< HEAD
 
-=======
+
     
 #class SplineConv(torch.nn.Module):
     #def __init__(self,input_size,embedding_size,n_classes,batch_size=1,pool_op=global_max_pool,same_size=False):
@@ -545,7 +544,7 @@ class DGCNNSeq(nn.Module):
         
     #def forward(self 
         
->>>>>>> 3dfb14c1f65ec5dc4d9c41dd08af464452a8aa38
+
 def ST_loss(pn_model, gamma=0.001):
     A = pn_model.trans  # BxKxK
     A_t = A.transpose(2, 1).contiguous()
