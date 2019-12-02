@@ -427,8 +427,8 @@ class DECSeq2(torch.nn.Module):
 
     def forward(self, data):
         x, batch, eidx = data.pos, data.batch, data.edge_index
-        #print('eidx size:',eidx.shape)
-        #print('size x:', x.shape)
+        print('eidx size:',eidx.shape)
+        print('size x:', x.shape)
         n_pts = x.size(0)
         batch_size = batch.max() + 1 if batch is not None else 1
 
@@ -444,14 +444,16 @@ class DECSeq2(torch.nn.Module):
         x = self.conv1(x)
         # keep max between the two direction
         x = x.unsqueeze(0)
-        x = torch.max(torch.cat([x[:, :batch_size], x[:, batch_size:]], dim=0),
+        x = torch.max(torch.cat([x[:, :batch_size],
+                                 x[:, batch_size:]].flip(1).flip(2),
+                                dim=0),
                       dim=0,
                       keepdim=False)[0]
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
 
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
-        batch = torch.arange(batch_size).repeat_interleave(data.lengths - 1).cuda()
+        batch = torch.arange(batch_size).repeat_interleave(data.lengths[0] - 1)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
