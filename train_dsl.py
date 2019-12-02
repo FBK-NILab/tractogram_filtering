@@ -114,16 +114,16 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DECSeq2(input_size,
+      classifier = DEC(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
-                       fov=1,
-                       #batch_size=int(cfg['batch_size']),
-                       k=5,
+                       #fov=1,
+                       batch_size=int(cfg['batch_size']),
+                       k=20,
                        aggr='max',
                        pool_op=global_max_pool,
-                       #same_size=cfg['same_size']) 
-                       bn=True)
+                       same_size=cfg['same_size']) 
+                       #bn=True)
     if cfg['model'] == 'nnc':
       classifier = NNC(input_size,
                        int(cfg['embedding_size']),
