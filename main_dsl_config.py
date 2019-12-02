@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = dec
+model = nnc
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = decseq2-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov1
+experiment_name = nnc_max_distance-loss_nll-data_hcp20_resampled16_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
