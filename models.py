@@ -441,6 +441,7 @@ class DECSeq2(torch.nn.Module):
         # enlarged filter convolution
         x = torch.cat([x[eidx[1]] - x[eidx[0]], x[eidx[0]]], dim=1)
         x = x.view(batch_size * 2, -1, x.size(1))
+        print('x after view:',x.shape)
         x = x.permute(0,2,1).contiguous()
         # after the prevoius steps the number of objects in x changed
         # from n_pts to n_edges*2.
