@@ -458,6 +458,66 @@ class DECSeq2(torch.nn.Module):
         return out
 
 
+class DECSeq3(torch.nn.Module):
+
+    def __init__(self,
+                 input_size,
+                 embedding_size,
+                 n_classes,
+                 fov=1,
+                 k=5,
+                 aggr='max',
+                 pool_op=global_max_pool,
+                 bn=True):
+        super(DECSeq3, self).__init__()
+        pad = int((fov - 1) / 2)
+        self.bn1 = self.bn2 = nn.BatchNorm1d(64)
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(2 * input_size, 64, kernel_size=fov, padding=pad),
+            self.bn1, nn.ReLU())
+        self.conv2 = nn.Sequential(
+            nn.Conv1d(2 * input_size, 64, kernel_size=fov, padding=pad),
+            self.bn2, nn.ReLU())
+        self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(MLP([1024, 512]), Dropout(0.5), MLP([512, 256]),
+                       Dropout(0.5), Lin(256, n_classes))
+
+    def forward(self, data):
+        x, batch, eidx = data.pos, data.batch, data.edge_index
+        #print('eidx size:',eidx.shape)
+        #print('size x:', x.shape)
+        n_pts = x.size(0)
+        batch_size = batch.max() + 1 if batch is not None else 1
+
+        # inverting the labels in the second half of edgde_index
+        # in order to account for the flipped streamlines
+        eidx[:, :eidx.size(1) // 2] = eidx[:, eidx.size(1) // 2:].flip(1)
+        # enlarged filter convolution
+        x = torch.cat([x[eidx[1]] - x[eidx[0]], x[eidx[0]]], dim=1)
+        x = x.view(batch_size * 2, -1, x.size(1))
+        x = x.permute(0,2,1).contiguous()
+        # after the prevoius steps the number of objects in x changed
+        # from n_pts to n_edges*2.
+
+        # one conv learns one direction and the other learn the opposite
+        x_fw = self.conv1(x[:batch_size])
+        x_bw = self.conv2(x[batch_size:])
+        # the two embedded directions are summed up into a unique element
+        x = x_fw + x_bw.flip(0).flip(1)
+
+        x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
+
+        # update the batch to refer to edges rather than points,
+        # hence, delete one object from each batch
+        batch = torch.arange(batch_size).repeat_interleave(data.lengths[0] - 1)
+        x2 = self.conv2(x1, batch)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
+
 class DGCNNSeq(nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1,k=5, fov=1, dropout=0.5):
         super(DGCNNSeq, self).__init__()
