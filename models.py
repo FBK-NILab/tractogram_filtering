@@ -414,7 +414,7 @@ class DECSeq2(torch.nn.Module):
                  pool_op=global_max_pool,
                  bn=True):
         super(DECSeq2, self).__init__()
-        pad = int((fov - 1) / 2)
+        pad = int(fov / 2)
         self.pad = pad
         self.bn1 = nn.BatchNorm1d(64)
         self.conv1 = nn.Sequential(
@@ -453,8 +453,8 @@ class DECSeq2(torch.nn.Module):
         print('size x1:',x1.shape)
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
-        batch = torch.arange(batch_size).repeat_interleave(data.lengths -
-                                                           self.pad).cuda()
+        batch = torch.arange(batch_size).repeat_interleave(
+                                                    data.lengths - 1).cuda()
         print('size batch:',batch.shape)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
@@ -475,7 +475,7 @@ class DECSeq3(torch.nn.Module):
                  pool_op=global_max_pool,
                  bn=True):
         super(DECSeq3, self).__init__()
-        pad = int((fov - 1) / 2)
+        pad = int(fov / 2)
         self.pad = pad
         self.bn1 = self.bn2 = nn.BatchNorm1d(64)
         self.conv1 = nn.Sequential(
@@ -517,8 +517,8 @@ class DECSeq3(torch.nn.Module):
 
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
-        batch = torch.arange(batch_size).repeat_interleave(data.lengths[0] -
-                                                           self.pad)
+        batch = torch.arange(batch_size).repeat_interleave(
+                                                    data.lengths - 1).cuda()
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
