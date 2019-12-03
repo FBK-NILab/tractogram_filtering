@@ -433,7 +433,7 @@ class DECSeq2(torch.nn.Module):
         #print('eidx size:',eidx.shape)
         #print('size x:', x.shape)
         n_pts = x.size(0)
-        batch_size = batch.max() + 1 if batch is not None else 1
+        batch_size = batch.max().item() + 1 if batch is not None else 1
         print('batch size:',batch_size.shape)
 
         # inverting the labels in the second half of edgde_index
