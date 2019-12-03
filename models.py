@@ -498,7 +498,7 @@ class DECSeq3(torch.nn.Module):
         #print('eidx size:',eidx.shape)
         #print('size x:', x.shape)
         n_pts = x.size(0)
-        batch_size = batch.max() + 1 if batch is not None else 1
+        batch_size = batch.max().item() + 1 if batch is not None else 1
 
         # inverting the labels in the second half of edgde_index
         # in order to account for the flipped streamlines
@@ -520,7 +520,7 @@ class DECSeq3(torch.nn.Module):
 
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
-        batch = torch.arange(batch_size).repeat_interleave(data.lengths).cuda()
+        batch = torch.arange(batch_size).repeat_interleave(data.lengths-1).cuda()
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
