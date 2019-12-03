@@ -451,7 +451,7 @@ class DECSeq2(torch.nn.Module):
         # keep max between the two direction
         x = x.unsqueeze(0)
         x = torch.max(torch.cat([x[:, :batch_size],
-                                 x[:, batch_size:]].flip(1).flip(3),
+                                 x[:, batch_size:].flip(1).flip(3)],
                                 dim=0),
                       dim=0,
                       keepdim=False)[0]
