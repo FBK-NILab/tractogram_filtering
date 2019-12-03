@@ -114,7 +114,7 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DECSeq3(input_size,
+      classifier = DECSeq2(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
                        fov=3,
