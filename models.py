@@ -520,7 +520,7 @@ class DECSeq3(torch.nn.Module):
         x = x_fw + x_bw.flip(0).flip(2)
 
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
-
+        print('x1 size:',x1.shape)
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
         batch = torch.arange(batch_size).repeat_interleave(data.lengths-1).cuda()
