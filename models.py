@@ -428,6 +428,8 @@ class DECSeq2(torch.nn.Module):
 
     def forward(self, data):
         x, batch, eidx = data.pos, data.batch, data.edge_index
+        print('size eidx:',eidx.shape)
+        print('size batch:',batch.shape)
         #print('eidx size:',eidx.shape)
         #print('size x:', x.shape)
         n_pts = x.size(0)
