@@ -443,16 +443,19 @@ class DECSeq2(torch.nn.Module):
         # after the prevoius steps the number of objects in x changed
         # from n_pts to n_edges*2.
         x = self.conv1(x)
+        print('size x:',x.shape)
         # keep max between the two direction
         x = x.unsqueeze(0)
         x = torch.max(torch.cat([x[:, :batch_size], x[:, batch_size:]],
                                 dim=0).flip(1).flip(2), dim=0, keepdim=False)[0]
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
-
+        print('size x:',x.shape)
+        print('size x1:',x1.shape)
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
         batch = torch.arange(batch_size).repeat_interleave(data.lengths -
                                                            self.pad).cuda()
+        print('size batch:',batch.shape)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
