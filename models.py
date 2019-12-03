@@ -408,7 +408,7 @@ class DECSeq2(torch.nn.Module):
                  input_size,
                  embedding_size,
                  n_classes,
-                 fov=1,
+                 fov=4,
                  k=5,
                  aggr='max',
                  pool_op=global_max_pool,
