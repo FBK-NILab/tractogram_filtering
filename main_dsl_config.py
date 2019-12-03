@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = decseq2-loss_nll-data_hcp20_resampled16_full_nogradacc_fov4_k5
+experiment_name = decseq2-loss_nll-data_hcp20_resampled16_full_nogradacc_fov3_k5
 
 ####### ************************************************************************
 ####### ************************************************************************
