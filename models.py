@@ -450,11 +450,14 @@ class DECSeq2(torch.nn.Module):
         print('size x:',x.shape)
         # keep max between the two direction
         x = x.unsqueeze(0)
-        x = torch.max(torch.cat([x[:, :batch_size], x[:, batch_size:]],
-                                dim=0).flip(1).flip(2), dim=0, keepdim=False)[0]
+        x = torch.max(torch.cat([x[:, :batch_size],
+                                 x[:, batch_size:]].flip(1).flip(3),
+                                dim=0),
+                      dim=0,
+                      keepdim=False)[0]
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
-        print('size x:',x.shape)
-        print('size x1:',x1.shape)
+        print('size x:', x.shape)
+        print('size x1:', x1.shape)
         # update the batch to refer to edges rather than points,
         # hence, delete one object from each batch
         batch = torch.arange(batch_size).repeat_interleave(data.lengths-1).cuda()
@@ -514,7 +517,7 @@ class DECSeq3(torch.nn.Module):
         x_fw = self.conv1(x[:batch_size])
         x_bw = self.conv2(x[batch_size:])
         # the two embedded directions are summed up into a unique element
-        x = x_fw + x_bw.flip(0).flip(1)
+        x = x_fw + x_bw.flip(0).flip(2)
 
         x1 = x.permute(0, 2, 1).contiguous().view(-1, x.size(1))
 
