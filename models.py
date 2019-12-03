@@ -483,13 +483,13 @@ class DECSeq3(torch.nn.Module):
         super(DECSeq3, self).__init__()
         pad = int(fov / 2)
         self.pad = pad
-        self.bn1 = self.bn2 = nn.BatchNorm1d(64)
-        self.conv1 = nn.Sequential(
+        self.bn1fw = self.bn1bw = nn.BatchNorm1d(64)
+        self.conv1fw = nn.Sequential(
             nn.Conv1d(2 * input_size, 64, kernel_size=fov, padding=pad),
-            self.bn1, nn.ReLU())
-        self.conv2 = nn.Sequential(
+            self.bn1fw, nn.ReLU())
+        self.conv1bw = nn.Sequential(
             nn.Conv1d(2 * input_size, 64, kernel_size=fov, padding=pad),
-            self.bn2, nn.ReLU())
+            self.bn1bw, nn.ReLU())
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
 
@@ -514,8 +514,8 @@ class DECSeq3(torch.nn.Module):
         # from n_pts to n_edges*2.
 
         # one conv learns one direction and the other learn the opposite
-        x_fw = self.conv1(x[:batch_size])
-        x_bw = self.conv2(x[batch_size:])
+        x_fw = self.conv1fw(x[:batch_size])
+        x_bw = self.conv1bw(x[batch_size:])
         # the two embedded directions are summed up into a unique element
         x = x_fw + x_bw.flip(0).flip(2)
 
