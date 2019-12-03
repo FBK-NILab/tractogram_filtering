@@ -91,7 +91,7 @@ def test(cfg):
                                   act=cfg['act'],
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
-                                  #distance=T.Distance(norm=True,cat=False),
+                                  distance=T.Distance(norm=True,cat=False),
                                   return_edges=True,
                                   split_obj=True,
                                   train=False)
@@ -325,10 +325,10 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_gcn_resampled16_GIN',y_pred)
+                np.save(data['dir']+'/y_pred_nnc_max_resampled16',y_pred)
                 y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_gcn_resampled16_GIN',y_test)
-                np.save(data['dir']+'/streamlines_gcn_resampled16_GIN',streamlines)
+                np.save(data['dir']+'/y_test_nnc_max_resampled16',y_test)
+                np.save(data['dir']+'/streamlines_nnc_max_resampled16',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
