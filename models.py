@@ -382,6 +382,65 @@ class DEC(torch.nn.Module):
         out = self.mlp(out)
         return out
 
+class DECSeq6(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+        super(DECSeq6, self).__init__()
+        self.fov = fov
+        self.bn0 = nn.BatchNorm1d(64)
+        self.conv0 = nn.Sequential(
+            nn.Conv1d(input_size, 32, kernel_size=fov),
+            self.bn0, nn.ReLU())
+        self.conv1 = DynamicEdgeConv(MLP([2 * 32, 64, 64, 64]), k, aggr)
+        self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(
+            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            Lin(256, n_classes))
+
+    def forward(self, data):
+        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        batch_size = batch.max().item() + 1 if batch is not None else 1
+        # inverting the labels in the second half of edgde_index
+        # in order to account for the flipped streamlines (in the batch size)
+        eidx[:, :eidx.size(1) // 2] = eidx[:, eidx.size(1) // 2:].flip(1)
+        x = x.view(batch_size * 2, -1, x.size(1))
+        x = x.permute(0,2,1).contiguous()
+        x = self.conv0(x)
+        x0 = x.permute(0,2,1).contiguous().view(-1, x.size(1))
+        batch = torch.arange(batch_size *
+                             2).repeat_interleave(data.lengths -
+                                                  (self.fov - 1)).cuda()
+        x1 = self.conv1(x0, batch)
+        x2 = self.conv2(x1, batch)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
+
+
+
+class DECSeq5(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+        super(DECSeq5, self).__init__()
+        self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
+        self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(
+            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            Lin(256, n_classes))
+
+    def forward(self, data):
+        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        x1 = self.conv1(pos, eidx)
+        x2 = self.conv2(x1, eidx)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
+
+
 class DECSeq(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DECSeq, self).__init__()
