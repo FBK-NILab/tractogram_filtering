@@ -20,7 +20,7 @@ from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus, EdgeCo
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
 from torch_geometric.utils import add_self_loops
 
-def MLP(channels, batch_norm=True):
+def MLP(channels, batch_norm=False):
     return Seq(*[
         Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
         for i in range(1, len(channels))
@@ -409,8 +409,8 @@ class DECSeq6(torch.nn.Module):
         self.fov = fov
         self.bn0 = nn.BatchNorm1d(32)
         self.conv0 = nn.Sequential(
-            nn.Conv1d(input_size, 32, kernel_size=fov),
-            self.bn0, nn.ReLU())
+            nn.Conv1d(input_size, 32, kernel_size=fov),nn.ReLU())
+            #self.bn0, nn.ReLU())
         self.conv1 = DynamicEdgeConv(MLP([2 * 32, 64, 64, 64]), k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
