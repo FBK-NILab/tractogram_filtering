@@ -167,7 +167,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     mean_recall = torch.tensor([])
 
     ### state that the model will run in train mode
-    classifier.train()
+    # classifier.train()
  
     #d_list=[]
     #for dat in dataloader:
@@ -348,7 +348,7 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
     alfa = float(cfg['alfa_loss'])
     ep_loss = 0.
 
-    classifier.eval()
+    # classifier.eval()
 
     with torch.no_grad():
         pred_buffer = {}
@@ -667,7 +667,7 @@ def train(cfg):
         mean_acc, mean_prec, mean_iou, mean_recall, loss, n_iter = train_iter(
                                     cfg,
                                     dataloader,
-                                    classifier,
+                                    classifier.train(),
                                     optimizer,
                                     writer,
                                     epoch,
@@ -679,7 +679,7 @@ def train(cfg):
         if epoch==10 and cfg['val_in_train'] or epoch % int(cfg['val_freq']) == 0 and cfg['val_in_train']:
             best_epoch, best_pred, loss_val = val_iter(cfg,
                     val_dataloader,
-                    classifier,
+                    classifier.eval(),
                     optimizer,
                     writer,
                     epoch,
