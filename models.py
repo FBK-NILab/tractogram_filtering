@@ -420,7 +420,7 @@ class DECSeq6(torch.nn.Module):
             Lin(256, n_classes))
 
     def forward(self, data):
-        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        x, batch, eidx = data.pos, data.batch, data.edge_index
         batch_size = batch.max().item() + 1 if batch is not None else 1
         # inverting the labels in the second half of edgde_index
         # in order to account for the flipped streamlines (in the batch size)
