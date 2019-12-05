@@ -165,6 +165,9 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
     mean_iou = torch.tensor([])
     mean_prec = torch.tensor([])
     mean_recall = torch.tensor([])
+
+    ### state that the model will run in train mode
+    classifier.train()
  
     #d_list=[]
     #for dat in dataloader:
@@ -229,8 +232,7 @@ def train_iter(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter, cl
         if not cfg['accumulation_interval'] or i_batch == 0:
             optimizer.zero_grad()
 
-        ### state that the model will run in train mode
-        classifier = classifier.train()
+
 
         ### forward
         if cfg['multi_loss']:
@@ -346,6 +348,8 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
     alfa = float(cfg['alfa_loss'])
     ep_loss = 0.
 
+    classifier.eval()
+
     with torch.no_grad():
         pred_buffer = {}
         sm_buffer = {}
@@ -384,7 +388,6 @@ def val_iter(cfg, val_dataloader, classifier, optimizer, writer, epoch, cluster_
            
             sample_name = data['name'][0]
                        
-            classifier = classifier.eval()
             if cfg['multi_loss']:
                 logits, gf = classifier(points)
             else:
