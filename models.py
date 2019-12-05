@@ -22,7 +22,7 @@ from torch_geometric.utils import add_self_loops
 
 def MLP(channels, batch_norm=False):
     return Seq(*[
-        Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i]))
+        Seq(Lin(channels[i - 1], channels[i]), ReLU())#, BN(channels[i]))
         for i in range(1, len(channels))
     ])
 
