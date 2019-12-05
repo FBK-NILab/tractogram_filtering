@@ -676,7 +676,7 @@ def train(cfg):
                                     )
 
         ### validation during training
-        if epoch % int(cfg['val_freq']) == 0 and cfg['val_in_train']:
+        if epoch==10 and cfg['val_in_train'] or epoch % int(cfg['val_freq']) == 0 and cfg['val_in_train']:
             best_epoch, best_pred, loss_val = val_iter(cfg,
                     val_dataloader,
                     classifier,
