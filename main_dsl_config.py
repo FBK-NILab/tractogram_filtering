@@ -9,7 +9,7 @@ prototypes_file = data/prototypes.trk
 ########### model ###########
 model = dec
 batch_norm = y
-bn_decay = y
+bn_decay = n
 bn_decay_init = 0.5
 bn_decay_step = 90
 bn_decay_gamma = 0.5
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = decseq6-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov3_60epochs
+experiment_name = decseq6-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov3_60epochs_noBNdec
 
 ####### ************************************************************************
 ####### ************************************************************************
