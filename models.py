@@ -407,7 +407,7 @@ class DECSeq6(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DECSeq6, self).__init__()
         self.fov = fov
-        self.bn0 = nn.BatchNorm1d(64)
+        self.bn0 = nn.BatchNorm1d(32)
         self.conv0 = nn.Sequential(
             nn.Conv1d(input_size, 32, kernel_size=fov),
             self.bn0, nn.ReLU())
