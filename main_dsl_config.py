@@ -33,7 +33,7 @@ direct_pooling = n
 knngraph = 5
 
 ########## training ###########
-n_epochs = 1000
+n_epochs = 60
 optimizer = adam
 accumulation_interval = n
 # optimizer alternatives:
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = decseq6-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov3
+experiment_name = decseq6-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov3_60epochs
 
 ####### ************************************************************************
 ####### ************************************************************************
