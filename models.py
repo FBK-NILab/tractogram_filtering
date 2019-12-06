@@ -20,9 +20,9 @@ from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus, EdgeCo
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
 from torch_geometric.utils import add_self_loops
 
-def MLP(channels, batch_norm=False):
+def MLP(channels, batch_norm=True):
     return Seq(*[
-        Seq(Lin(channels[i - 1], channels[i]), ReLU())#, BN(channels[i]))
+        Seq(Lin(channels[i - 1], channels[i]), ReLU()), BN(channels[i]))
         for i in range(1, len(channels))
     ])
 
