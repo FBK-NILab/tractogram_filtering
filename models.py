@@ -382,6 +382,41 @@ class DEC(torch.nn.Module):
         out = self.mlp(out)
         return out
 
+
+class BiLSTM(torch.nn.Module):
+    def __init__(self, input_size, n_classes=2, embedding_size=64, hidden_size=256):
+        super(BiLSTM, self).__init__()
+        self.emb_size = embedding_size
+        self.h_size = hidden_size
+        self.mlp = MLP([input_size, embedding_size])
+        self.lstm = nn.LSTM(embedding_size, hidden_size, 
+                            bidirectional=True, batch_first=True)
+        self.lin = nn.Linear(hidden_size, n_classes)
+        # self.h0, self.c0 = init_hidden()
+
+    def init_hidden(self):
+        return (torch.randn(2, 2, self.h_size),
+                torch.randn(2, 2, self.h_size))
+
+    def forward(self, x):
+        # expected input has fixed size objects in batches 
+        bs = data.batch.max() + 1
+        # embedding of th single points
+        x = self.mlp(data.x)
+        x = x.view(bs, -1, x.size(1))
+
+        # hn = hidden state at time step n (final)
+        # hn : (num_layers * num_directions, batch, h_size)
+        _, (hn, cn) = self.lstm(x)
+
+        # summing up the two hidden states of the two directions
+        emb = hn.sum(0)
+
+        # classify
+        x = self.lin(emb)
+        return x
+
+
 class DECSeq7(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DECSeq5, self).__init__()
