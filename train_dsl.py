@@ -117,7 +117,7 @@ def get_model(cfg):
       classifier = DEC(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
-                       $fov=3,
+                       #fov=3,
                        batch_size=int(cfg['batch_size']),
                        k=5,
                        aggr='max',
