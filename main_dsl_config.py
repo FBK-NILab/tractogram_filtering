@@ -33,7 +33,7 @@ direct_pooling = n
 knngraph = 5
 
 ########## training ###########
-n_epochs = 1000
+n_epochs = 80
 optimizer = adam
 accumulation_interval = n
 # optimizer alternatives:
@@ -63,7 +63,7 @@ cluster_loss = center
 alfa_loss = 4e-4
 split_backprop = n
 val_in_train = y
-val_freq = 100
+val_freq = 20
 
 ########### general ###########
 load_all_once = y
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = decseq6-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_fov3_valfreq100_noBN
+experiment_name = decseq5-loss_nll-data_hcp20_resampled16_full_nogradacc_k5_80epochs
 
 ####### ************************************************************************
 ####### ************************************************************************
