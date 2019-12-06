@@ -114,11 +114,11 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DECSeq6(input_size,
+      classifier = DEC(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
-                       fov=3,
-                       #batch_size=int(cfg['batch_size']),
+                       $fov=3,
+                       batch_size=int(cfg['batch_size']),
                        k=5,
                        aggr='max',
                        pool_op=global_max_pool,
