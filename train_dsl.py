@@ -105,6 +105,13 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
+    if cfg['model'] == gat:
+      classifier = GATConv(input_size,
+                           int(cfg['embedding_size']),
+                           num_classes,
+                           batch_size=int(cfg['batch_size']),
+                           pool_op=global_max_pool,
+                           same_size=cfg['same_size'])
     if cfg['model'] == 'dec_ori':
       classifier = DGCNNSeq(input_size,
                             int(cfg['embedding_size']),
