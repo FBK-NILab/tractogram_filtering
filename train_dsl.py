@@ -110,6 +110,9 @@ def get_model(cfg):
                            int(cfg['embedding_size']),
                            num_classes,
                            batch_size=int(cfg['batch_size']),
+                           heads=8,
+                           dropout=0.6,
+                           concat=True,
                            pool_op=global_max_pool,
                            same_size=cfg['same_size'])
     if cfg['model'] == 'dec_ori':
