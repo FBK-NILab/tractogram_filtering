@@ -15,7 +15,7 @@ import torch_geometric.transforms as T
 from torch_geometric.nn import global_max_pool
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.utils import normalized_cut
-from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus, EdgeConv
+from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus, EdgeConv, GATConv
 #from pointnet_mgf import max_mod
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
 from torch_geometric.utils import add_self_loops
@@ -714,6 +714,22 @@ class DGCNNSeq(nn.Module):
         x = F.leaky_relu(self.bn7(self.linear2(x)), negative_slope=0.2)
         x = self.dp2(x)
         x = self.linear3(x)
+        return x
+    
+class GATConv(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
+        super(GATConv, self).__init__()
+        self.conv1 = GATConv(input_size, 8, heads=8, dropout=0.6)
+        self.conv2 = GATConv(8*8, embedding_size, heads=1, concat=True, dropout=0.6)
+        self.lin = torch.nn.Linear(embedding_size, n_classes)
+        
+    def forward(self):
+        x = F.dropout(data.x, p=0.6, training=self.training)
+        x = F.relu(self.conv1(x, data.edge_index))
+        x = F.dropout(x, p=0.6, training=self.training)
+        x = self.conv2(x, data.edge_index)
+        out = global_max_pool(out, data.batch)
+        out = self.lin(F.relu(out))
         return x
 
 
