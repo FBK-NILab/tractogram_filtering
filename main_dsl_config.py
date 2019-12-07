@@ -9,7 +9,7 @@ prototypes_file = data/prototypes.trk
 ########### model ###########
 model = gat
 batch_norm = y
-bn_decay = n
+bn_decay = y
 bn_decay_init = 0.5
 bn_decay_step = 90
 bn_decay_gamma = 0.5
@@ -33,7 +33,7 @@ direct_pooling = n
 knngraph = 5
 
 ########## training ###########
-n_epochs = 80
+n_epochs = 1000
 optimizer = adam
 accumulation_interval = n
 # optimizer alternatives:
