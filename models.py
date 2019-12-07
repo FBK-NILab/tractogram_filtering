@@ -716,14 +716,14 @@ class DGCNNSeq(nn.Module):
         x = self.linear3(x)
         return x
     
-class GATConv(torch.nn.Module):
+class GATConvNet(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, heads=8, dropout=0.6, concat=True, pool_op=global_max_pool, same_size=False):
-        super(GATConv, self).__init__()
+        super(GATConvNet, self).__init__()
         self.bs = batch_size
         self.input_size = input_size
         self.classes = n_classes
         self.conv1 = GATConv(input_size, 8, heads=heads, dropout=dropout)
-        self.conv2 = GATConv(8*8, embedding_size, heads=heads, concat=concat, dropout=dropout)
+        self.conv2 = GATConv(8*8, n_classes, heads=heads, concat=concat, dropout=dropout)
         self.lin = torch.nn.Linear(embedding_size, n_classes)
         
     def forward(self):
