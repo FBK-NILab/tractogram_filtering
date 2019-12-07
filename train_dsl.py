@@ -105,7 +105,7 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
-    if cfg['model'] == gat:
+    if cfg['model'] == 'gat':
       classifier = GATConv(input_size,
                            int(cfg['embedding_size']),
                            num_classes,
