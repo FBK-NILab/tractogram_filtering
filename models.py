@@ -728,8 +728,8 @@ class GATConvNet(torch.nn.Module):
         x = F.relu(self.conv1(x, data.edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = self.conv2(x, data.edge_index)
-        out = global_max_pool(x, data.batch)
-        out = self.lin(F.relu(out))
+        #out = global_max_pool(x, data.batch)
+        out = self.lin(F.relu(x))
         return out
 
 
