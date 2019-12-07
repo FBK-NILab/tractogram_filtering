@@ -106,7 +106,7 @@ def get_model(cfg):
     n_gf = int(cfg['num_gf'])
     
     if cfg['model'] == 'gat':
-      classifier = GATConv(input_size,
+      classifier = GATConvNet(input_size,
                            int(cfg['embedding_size']),
                            num_classes,
                            batch_size=int(cfg['batch_size']),
