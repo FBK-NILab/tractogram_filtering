@@ -492,23 +492,22 @@ class DECSeq5(torch.nn.Module):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
         e1 = torch.repeat_interleave(eidx[0,:int(eidx.shape[1]/2)],self.k)
         e1=torch.cat((e1,torch.repeat_interleave(eidx[0,-1],self.k)))
-        e2 = []
+        e2 = torch.tensor([],dtype=torch.long)
         for i in list(eidx[0,:int(eidx.shape[1]/2)]):
             if i == 0:
-                e2.append(np.arange(i+1,self.k+1))
+                e2 = torch.cat([e2,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
             if i==1:
-                e2.append(np.concatenate((i-1,np.arange(i+1,self.k+1)),axis=None))
+                e2 = torch.cat([e2,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
             if i<self.k/2 and i>1:
-                e2.append(np.concatenate((np.arange(0,i),np.arange(i+1,i+(self.k-i)+1)),axis=None))
+                e2 = torch.cat([e2,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)
             if i>=self.k/2 and i!=eidx[0,int(eidx.shape[1]/2)-1]:
                 if i+self.k/2 > eidx[0,-1]:
-                    e2.append(np.concatenate((np.arange(i-(self.k-(eidx[0,-1]-i)),i),np.arange(i+1,eidx[0,-1]+1)),axis=None))
+                    e2 = torch.cat([e2,torch.cat([torch.arange(i-(self.k-(eidx[0,-1]-i)),i),torch.arange(i+1,eidx[0,-1]+1)],dim=0)])
                 else:
-                    e2.append(np.concatenate((np.arange(i-self.k/2,i),np.arange(i+1,i+self.k/2+1)),axis=None))
-            if i==edges[0,int(edges.shape[1]/2)-1]:
-                e2.append(np.concatenate((np.arange(i-1,i-self.k,-1)[::-1],i+1),axis=None))
-        e2.append(np.arange(eidx[0,-1]-1,(eidx[0,-1]-1)-self.k, -1)[::-1])
-        e2 = np.hstack(e2)
+                    e2 = torch.cat([e2,torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)],dim=0)])
+            if i==eidx[0,int(eidx.shape[1]/2)-1]:
+                e2 = torch.cat([e2,torch.cat([torch.arange(i-1,i-self.k,-1),torch.tensor([i+1])])])
+        e2 = torch.cat([e2,torch.arange(eidx[0,-1]-1,(eidx[0,-1]-1)-self.k, -1)],dim=0)
         edges = torch.stack((e1,e2),0)
         print('edges:',edges)
         x1 = self.conv1(pos, edges)
