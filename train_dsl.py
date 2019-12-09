@@ -28,7 +28,7 @@ from cluster_losses import CenterLoss, CSimLoss, DistLoss, GFLoss, HLoss
 #from pointnet_mgf import (OnlyFC, PointNetClsMultiFeat, PointNetDenseClsLocal,
                           #PointNetDenseClsMultiFeat,
                           #PointNetDenseClsMultiFeatMultiLayer, mean_mod)
-from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet, DECSeq5, DECSeq6, DEC, DECSeq, DECSeq2, DECSeq3, DGCNNSeq, ST_loss
+from models import PNemb, PNbatch, PNptg, PointNetPyg, GCNemb, GCNConvNet, NNC, NNemb, NNConvNet,BiLSTM, DECSeq5, DECSeq6, DEC, DECSeq, DECSeq2, DECSeq3, DGCNNSeq, ST_loss
 from tensorboardX import SummaryWriter
 #from twounit_net import TwoUnitNet
 from utils import get_spaced_colors
@@ -105,6 +105,11 @@ def get_model(cfg):
     input_size = int(cfg['data_dim'])
     n_gf = int(cfg['num_gf'])
     
+    if cfg['model'] == 'blstm':
+      classifier = BiLSTM(input_size,
+                          n_classes=num_classes,
+                          embedding_size=int(cfg['embedding_size']),
+                          hidden_size=256)   
     if cfg['model'] == 'dec_ori':
       classifier = DGCNNSeq(input_size,
                             int(cfg['embedding_size']),
