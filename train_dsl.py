@@ -119,7 +119,7 @@ def get_model(cfg):
                        num_classes,
                        #fov=3,
                        batch_size=int(cfg['batch_size']),
-                       k=5,
+                       k=4,
                        aggr='max',
                        pool_op=global_max_pool,
                        same_size=cfg['same_size']) 
