@@ -499,7 +499,7 @@ class DECSeq5(torch.nn.Module):
             if i==1:
                 e2 = torch.cat([e2,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
             if i<self.k/2 and i>1:
-                e2 = torch.cat([e2,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)
+                e2 = torch.cat([e2,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)])
             if i>=self.k/2 and i!=eidx[0,int(eidx.shape[1]/2)-1]:
                 if i+self.k/2 > eidx[0,-1]:
                     e2 = torch.cat([e2,torch.cat([torch.arange(i-(self.k-(eidx[0,-1]-i)),i),torch.arange(i+1,eidx[0,-1]+1)],dim=0)])
