@@ -398,7 +398,7 @@ class BiLSTM(torch.nn.Module):
         return (torch.randn(2, 2, self.h_size),
                 torch.randn(2, 2, self.h_size))
 
-    def forward(self, x):
+    def forward(self, data):
         # expected input has fixed size objects in batches 
         bs = data.batch.max() + 1
         # embedding of th single points
