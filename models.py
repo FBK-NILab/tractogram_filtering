@@ -477,7 +477,7 @@ class DECSeq6(torch.nn.Module):
 
 
 class DECSeq5(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=4, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DECSeq5, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
