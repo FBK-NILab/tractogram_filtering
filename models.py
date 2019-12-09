@@ -479,6 +479,7 @@ class DECSeq6(torch.nn.Module):
 class DECSeq5(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=4, aggr='max',pool_op=global_max_pool, same_size=False):
         super(DECSeq5, self).__init__()
+        self.k = k
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
         self.lin1 = MLP([128 + 64, 1024])
@@ -489,24 +490,24 @@ class DECSeq5(torch.nn.Module):
 
     def forward(self, data):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
-        e1 = torch.repeat_interleave(eidx[0,:int(eidx.shape[1]/2)],k)
-        e1=torch.cat((e1,torch.repeat_interleave(edges[0,-1],k)))
+        e1 = torch.repeat_interleave(eidx[0,:int(eidx.shape[1]/2)],self.k)
+        e1=torch.cat((e1,torch.repeat_interleave(edges[0,-1],self.k)))
         e2 = []
         for i in list(eidx[0,:int(eidx.shape[1]/2)]):
             if i == 0:
-                e2.append(np.arange(i+1,k+1))
+                e2.append(np.arange(i+1,self.k+1))
             if i==1:
-                e2.append(np.concatenate((i-1,np.arange(i+1,k+1)),axis=None))
-            if i<k/2 and i>1:
-                e2.append(np.concatenate((np.arange(0,i),np.arange(i+1,i+(k-i)+1)),axis=None))
-            if i>=k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
-                if i+k/2 > edges[0,-1]:
-                    e_new.append(np.concatenate((np.arange(i-(k-(edges[0,-1]-i)),i),np.arange(i+1,edges[0,-1]+1)),axis=None))
+                e2.append(np.concatenate((i-1,np.arange(i+1,self.k+1)),axis=None))
+            if i<self.k/2 and i>1:
+                e2.append(np.concatenate((np.arange(0,i),np.arange(i+1,i+(self.k-i)+1)),axis=None))
+            if i>=self.k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
+                if i+self.k/2 > edges[0,-1]:
+                    e_new.append(np.concatenate((np.arange(i-(self.k-(edges[0,-1]-i)),i),np.arange(i+1,edges[0,-1]+1)),axis=None))
                 else:
-                    e_new.append(np.concatenate((np.arange(i-k/2,i),np.arange(i+1,i+k/2+1)),axis=None))
+                    e_new.append(np.concatenate((np.arange(i-self.k/2,i),np.arange(i+1,i+self.k/2+1)),axis=None))
             if i==edges[0,int(edges.shape[1]/2)-1]:
-                e_new.append(np.concatenate((np.arange(i-1,i-k,-1)[::-1],i+1),axis=None))
-        e2.append(np.arange(edges[0,-1]-1,(edges[0,-1]-1)-k, -1)[::-1])
+                e_new.append(np.concatenate((np.arange(i-1,i-self.k,-1)[::-1],i+1),axis=None))
+        e2.append(np.arange(edges[0,-1]-1,(edges[0,-1]-1)-self.k, -1)[::-1])
         e2 = np.hstack(e2)
         edges = torch.stack((e1,e2),0)
         print('edges:',edges)
