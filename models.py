@@ -506,7 +506,7 @@ class DECSeq5(torch.nn.Module):
                     e2 = torch.cat([e2,torch.cat([torch.arange(i-(self.k-(eidx[0,-1]-i)),i),torch.arange(i+1,eidx[0,-1]+1)],dim=0)])
                 else:
                     e = torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)])
-                    e.type(torch.LongTensor)
+                    e = e.long()
                     print(e)
                     e2 = torch.cat([e2,e])
                     #e2 = torch.cat([e2,torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)],dim=0)])
