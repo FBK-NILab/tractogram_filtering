@@ -208,14 +208,14 @@ class PointNetPyg(torch.nn.Module):
 class GCNemb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
         super(GCNemb, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64, improved=True)
-        self.conv1_1 = GCNConv(64, 64, improved=True)
-        self.conv2_0 = GCNConv(64, 64, improved=True)
-        self.conv2_1 = GCNConv(64, 128, improved=True)
-        self.conv2_2 = GCNConv(128,1024, improved=True)
-        self.conv2_3 = GCNConv(1024, 512, improved=True)
-        self.conv2_4 = GCNConv(512, 256, improved=True)
-        self.conv3 = GCNConv(256, n_classes, improved=True)
+        self.conv1_0 = GCNConv(input_size, 64, improved=False)
+        self.conv1_1 = GCNConv(64, 64, improved=False)
+        self.conv2_0 = GCNConv(64, 64, improved=False)
+        self.conv2_1 = GCNConv(64, 128, improved=False)
+        self.conv2_2 = GCNConv(128,1024, improved=False)
+        self.conv2_3 = GCNConv(1024, 512, improved=False)
+        self.conv2_4 = GCNConv(512, 256, improved=False)
+        self.conv3 = GCNConv(256, n_classes, improved=False)
 
     def forward(self, x, edge_index):
         edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
