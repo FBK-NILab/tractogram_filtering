@@ -490,6 +490,9 @@ class DECSeq5(torch.nn.Module):
 
     def forward(self, data):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
+        print(eidx)
+        print(eidx[0,-1])
+        print(eidx[0,:int(eidx.shape[1]/2)+2])
         e1 = torch.repeat_interleave(eidx[0,:int(eidx.shape[1]/2)],self.k)
         e1=torch.cat((e1,torch.repeat_interleave(eidx[0,-1],self.k)))
         e2 = torch.tensor([],dtype=torch.long)
@@ -513,6 +516,7 @@ class DECSeq5(torch.nn.Module):
             if i==eidx[0,int(eidx.shape[1]/2)-1]:
                 e2 = torch.cat([e2,torch.cat([torch.arange(i-1,i-self.k,-1),torch.tensor([i+1])])])
         e2 = torch.cat([e2,torch.arange(eidx[0,-1]-1,(eidx[0,-1]-1)-self.k, -1)],dim=0)
+        e1, e2 = e1.cuda(), e2.cuda()
         edges = torch.stack((e1,e2),0)
         print('edges:',edges)
         x1 = self.conv1(pos, edges)
