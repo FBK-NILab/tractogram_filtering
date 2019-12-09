@@ -489,8 +489,29 @@ class DECSeq5(torch.nn.Module):
 
     def forward(self, data):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
-        x1 = self.conv1(pos, eidx)
-        x2 = self.conv2(x1, eidx)
+        e1 = torch.repeat_interleave(eidx[0,:int(eidx.shape[1]/2)],k)
+        e1=torch.cat((e1,torch.repeat_interleave(edges[0,-1],k)))
+        e2 = []
+        for i in list(eidx[0,:int(eidx.shape[1]/2)]):
+            if i == 0:
+                e2.append(np.arange(i+1,k+1))
+            if i==1:
+                e2.append(np.concatenate((i-1,np.arange(i+1,k+1)),axis=None))
+            if i<k/2 and i>1:
+                e2.append(np.concatenate((np.arange(0,i),np.arange(i+1,i+(k-i)+1)),axis=None))
+            if i>=k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
+                if i+k/2 > edges[0,-1]:
+                    e_new.append(np.concatenate((np.arange(i-(k-(edges[0,-1]-i)),i),np.arange(i+1,edges[0,-1]+1)),axis=None))
+                else:
+                    e_new.append(np.concatenate((np.arange(i-k/2,i),np.arange(i+1,i+k/2+1)),axis=None))
+            if i==edges[0,int(edges.shape[1]/2)-1]:
+                e_new.append(np.concatenate((np.arange(i-1,i-k,-1)[::-1],i+1),axis=None))
+        e2.append(np.arange(edges[0,-1]-1,(edges[0,-1]-1)-k, -1)[::-1])
+        e2 = np.hstack(e2)
+        edges = torch.stack((e1,e2),0)
+        print('edges:',edges)
+        x1 = self.conv1(pos, edges)
+        x2 = self.conv2(x1, edges)
         out = self.lin1(torch.cat([x1, x2], dim=1))
         out = global_max_pool(out, batch)
         out = self.mlp(out)
