@@ -530,6 +530,7 @@ def train(cfg):
     if cfg['dataset'] == 'hcp20_graph':
       dataset = ds.HCP20Dataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
+                                k=4,
                                 act=cfg['act'],
                                 transform=transforms.Compose(trans_train),
                                 #self_loops=T.AddSelfLoops(),
@@ -562,6 +563,7 @@ def train(cfg):
         if cfg['dataset'] == 'hcp20_graph':
             val_dataset = ds.HCP20Dataset(cfg['sub_list_val'], 
                                           cfg['val_dataset_dir'],
+                                          k=4,
                                           act=cfg['act'],
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
