@@ -92,7 +92,7 @@ def test(cfg):
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
-                                  return_edges=True,
+                                  return_edges=False,
                                   split_obj=True,
                                   train=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
@@ -325,10 +325,10 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                #np.save(data['dir']+'/y_pred_decseq6_resampled16_valfreg100',y_pred)
+                np.save(data['dir']+'/y_pred_bilstm',y_pred)
                 y_test = obj_target.cpu().numpy()
-                #np.save(data['dir']+'/y_test_decseq6_resampled16_valfreq100',y_test)
-                #np.save(data['dir']+'/streamlines_decseq6_resampled16_valfreq100',streamlines)
+                np.save(data['dir']+'/y_test_bilstm',y_test)
+                np.save(data['dir']+'/streamlines_bilstm',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
