@@ -108,8 +108,8 @@ def get_model(cfg):
     if cfg['model'] == 'blstm':
       classifier = BiLSTM(input_size,
                           n_classes=num_classes,
-                          embedding_size=int(cfg['embedding_size']),
-                          hidden_size=256)   
+                          embedding_size=256,
+                          hidden_size=1024)   
     if cfg['model'] == 'dec_ori':
       classifier = DGCNNSeq(input_size,
                             int(cfg['embedding_size']),
