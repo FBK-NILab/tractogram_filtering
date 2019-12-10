@@ -30,6 +30,7 @@ class HCP20Dataset(gDataset):
     def __init__(self,
                  sub_file,
                  root_dir,
+                 k=4,
                  act=True,
                  fold_size=None,
                  transform=None,
@@ -49,6 +50,7 @@ class HCP20Dataset(gDataset):
         with open(sub_file) as f:
             subjects = f.readlines()
         self.subjects = [s.strip() for s in subjects]
+        self.k = k
         self.transform = transform
         self.distance = distance
         self.fold_size = fold_size
@@ -90,6 +92,7 @@ class HCP20Dataset(gDataset):
 
     def getitem(self, idx):
         sub = self.subjects[idx]
+        print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
         T_file = os.path.join(trk_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
@@ -165,7 +168,38 @@ class HCP20Dataset(gDataset):
             e2 = set(np.arange(1,l)) - set(slices.numpy())
             edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],
                             dtype=torch.long)
-            graph_sample['edge_index'] = edges
+            print('old edges:', edges)
+            print(edges[0,-1])
+            print(edges[0,:int(edges.shape[1]/2)+2])
+            e1_new = torch.repeat_interleave(edges[0,:int(edges.shape[1]/2)],self.k)
+            e1_new=torch.cat((e1_new,torch.repeat_interleave(edges[0,-1],self.k)))
+            e2_new = torch.tensor([],dtype=torch.long)
+            for i in list(edges[0,:int(edges.shape[1]/2)]):
+                if i==500000:
+                    print(i,e2_new)
+                #print(i,e2)
+                if i == 0:
+                    e2_new = torch.cat([e2_new,torch.arange(i+1,self.k+1)],dim=0)
+                if i==1:
+                    e2_new = torch.cat([e2_new,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
+                if i<self.k/2 and i>1:
+                    e2_new = torch.cat([e2_new,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)])
+                if i>=self.k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
+                    if i+self.k/2 > edges[0,-1]:
+                        e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-(self.k-(edges[0,-1]-i)),i),torch.arange(i+1,edges[0,-1]+1)],dim=0)])
+                    else:
+                        e = torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)])
+                        e = e.long()
+                        #print(e)
+                        e2_new = torch.cat([e2_new,e])
+                    #e2 = torch.cat([e2,torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)],dim=0)])
+                if i==edges[0,int(edges.shape[1]/2)-1]:
+                    e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-1,i-self.k,-1),torch.tensor([i+1])])])
+            e2_new = torch.cat([e2_new,torch.arange(edges[0,-1]-1,(edges[0,-1]-1)-self.k, -1)],dim=0)
+            #e1, e2 = e1.cuda(), e2.cuda()
+            edges_new = torch.stack((e1_new,e2_new),0)
+            print('new edges:',edges)
+            graph_sample['edge_index'] = edges_new
             num_edges = graph_sample.num_edges
             edge_attr = torch.ones(num_edges,1)
             graph_sample['edge_attr'] = edge_attr
