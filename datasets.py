@@ -198,7 +198,7 @@ class HCP20Dataset(gDataset):
             e2_new = torch.cat([e2_new,torch.arange(edges[0,-1]-1,(edges[0,-1]-1)-self.k, -1)],dim=0)
             #e1, e2 = e1.cuda(), e2.cuda()
             edges_new = torch.stack((e1_new,e2_new),0)
-            print('new edges:',edges)
+            print('new edges:',edges_new)
             graph_sample['edge_index'] = edges_new
             num_edges = graph_sample.num_edges
             edge_attr = torch.ones(num_edges,1)
