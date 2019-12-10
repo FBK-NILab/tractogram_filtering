@@ -7,7 +7,7 @@ prototypes_file = data/prototypes.trk
 # prototypes.trk saved in voxel coordinates
 
 ########### model ###########
-model = blstm
+model = dec
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = bilstm_loss_nll-data_hcp20_resampled16_full_nogradacc_morecomplexversion
+experiment_name = decseq5morenghbrs_loss_nll-data_hcp20_resampled16_full_nogradacc
 
 ####### ************************************************************************
 ####### ************************************************************************
