@@ -92,7 +92,7 @@ class HCP20Dataset(gDataset):
 
     def getitem(self, idx):
         sub = self.subjects[idx]
-        print('sub:', sub)
+        #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
         T_file = os.path.join(trk_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
