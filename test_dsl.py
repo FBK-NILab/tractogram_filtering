@@ -92,7 +92,7 @@ def test(cfg):
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
-                                  return_edges=False,
+                                  return_edges=True,
                                   split_obj=True,
                                   train=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
