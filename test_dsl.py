@@ -234,6 +234,7 @@ def test(cfg):
             points = points.to('cuda')
             print('streamline number:',sls_count)
             sls_count+=1
+            print('lengths:',points['lengths'])
             ### add one-hot labels if multi-category task
             print('k:',classifier.k)
             new_k = points['lengths']*(classifier.k/16)
