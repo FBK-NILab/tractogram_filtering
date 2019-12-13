@@ -236,7 +236,7 @@ def test(cfg):
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
             #print('points:',points)
-            #print('points shape:',points.shape)
+            print(data['obj_idxs'])
             #print('target:',target)
             #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
