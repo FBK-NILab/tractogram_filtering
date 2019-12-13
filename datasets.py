@@ -25,6 +25,7 @@ from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
 from nilab.load_trk import load_streamlines
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
+from dipy.tracking.streamline import length
 
 class HCP20Dataset(gDataset):
     def __init__(self,
@@ -100,6 +101,7 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
+        
         #streamlines,head,leng,idxs = load_streamlines(T_file)
         #print('streamlines:',streamlines)
         #print('length sls:',len(streamlines))
@@ -151,7 +153,7 @@ class HCP20Dataset(gDataset):
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
         lengths = torch.from_numpy(lengths)
-        #print('lengths:',lengths)
+        print('lengths:',lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
         batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
         slices = batch_slices[1:-1]
