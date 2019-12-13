@@ -243,7 +243,7 @@ def test(cfg):
             print('k:',classifier.k)
             new_k = points['lengths']*(classifier.k/16)
             print('new k:',new_k,'rounded k:',int(round(new_k)))
-            classifier.conv1.k = int(round(new_k))
+            classifier.conv2.k = int(round(new_k))
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
