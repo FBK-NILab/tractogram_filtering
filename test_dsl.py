@@ -241,9 +241,9 @@ def test(cfg):
             ### add one-hot labels if multi-category task
             print('length:',points['lengths'])
             print('k:',classifier.k)
-            new_k = points['lengths']*(classifier.k/points['lengths'])
-            print('new k:',new_k,'integer k:',int(new_k))
-            classifier.conv1.k = int(new_k)
+            new_k = points['lengths']*(classifier.k/16)
+            print('new k:',new_k,'rounded k:',int(round(new_k)))
+            classifier.conv1.k = int(round(new_k))
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
