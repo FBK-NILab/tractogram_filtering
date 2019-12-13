@@ -101,7 +101,9 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
-        
+        sls_lengths = length(T.streamlines)
+        print('sls length:',sls_lengths)
+        print(len(sls_lengths))
         #streamlines,head,leng,idxs = load_streamlines(T_file)
         #print('streamlines:',streamlines)
         #print('length sls:',len(streamlines))
@@ -152,8 +154,9 @@ class HCP20Dataset(gDataset):
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure
+        sls_lengths = torch.from_numpy(sls_lengths)
         lengths = torch.from_numpy(lengths)
-        print('lengths:',lengths)
+        print('sls lengths:',sls_lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
         batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
         slices = batch_slices[1:-1]
@@ -161,6 +164,7 @@ class HCP20Dataset(gDataset):
         l = streams.shape[0]
         graph_sample = gData(x=streams, 
                              lengths=lengths,
+                             sls_lengths=sls_lengths
                              bvec=batch_vec,
                              pos=streams)
         #                     bslices=batch_slices)
