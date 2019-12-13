@@ -192,6 +192,7 @@ def test(cfg):
         j = 0
         visualized = 0
         new_obj_read = True
+        sls_count = 1
         while j < len(dataset):
             data = dataset[j]
 
@@ -231,6 +232,8 @@ def test(cfg):
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
+            print('streamline number:',sls_count)
+            sls_count+=1
             ### add one-hot labels if multi-category task
             print('k:',classifier.k)
             new_k = points['lengths']*(classifier.k/16)
