@@ -22,6 +22,7 @@ from torchvision import transforms
 from train_dsl import get_model
 import torch_geometric.transforms as T
 from nilab.load_trk import load_streamlines
+from dipy.tracking.streamline import length
 
 def get_ncolors(n):
     random.seed(10)
@@ -239,9 +240,10 @@ def test(cfg):
             #print('target:',target)
             #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
-            print('length:',points['lengths'])
+            sl_length = length(points['x'])
+            print('length:',sl_length)
             print('k:',classifier.k)
-            new_k = points['lengths']*(classifier.k/16)
+            new_k = sl_length*(classifier.k/16)
             print('new k:',new_k,'rounded k:',int(round(new_k)))
             classifier.conv2.k = int(round(new_k))
             if cfg['multi_category']:
