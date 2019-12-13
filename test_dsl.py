@@ -237,7 +237,7 @@ def test(cfg):
             print('lengths:',points['lengths'])
             ### add one-hot labels if multi-category task
             print('k:',classifier.k)
-            new_k = points['lengths']*(classifier.k/16)
+            new_k = points['lengths'].item()*(classifier.k/16)
             print('new k:',new_k,'rounded k:',int(round(new_k)))
             classifier.conv2.k = int(round(new_k))
             if cfg['multi_category']:
