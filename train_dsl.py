@@ -108,7 +108,7 @@ def get_model(cfg):
     if cfg['model'] == 'blstm':
       classifier = BiLSTM(input_size,
                           n_classes=num_classes,
-                          embedding_size=int(cfg['embedding_size']),
+                          embedding_size=128,
                           hidden_size=256)   
     if cfg['model'] == 'dec_ori':
       classifier = DGCNNSeq(input_size,
@@ -535,7 +535,7 @@ def train(cfg):
                                 transform=transforms.Compose(trans_train),
                                 #self_loops=T.AddSelfLoops(),
                                 #distance=T.Distance(norm=True,cat=False),
-                                return_edges=True)
+                                return_edges=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
                                 cfg['dataset_dir'],
@@ -568,7 +568,7 @@ def train(cfg):
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
                                           #self_loops=T.AddSelfLoops(),
-                                          return_edges=True)
+                                          return_edges=False)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
                                     cfg['sub_list_val'],
