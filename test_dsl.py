@@ -231,16 +231,10 @@ def test(cfg):
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
-            #print('points:',points)
-            #print(len(data['obj_idxs']),len(points['x']))
-            #print('target:',target)
-            #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
             #print('lengths:',points['lengths'])
             print('points x:', points['x'])
-            sls = points['x']
-            sls = sls.cpu().numpy()
-            print('sls:',sls)
+            print('sls length:',points['sls_lengths'])
             sl_length = length(sls)
             print('length:',sl_length)
             print('k:',classifier.k)
