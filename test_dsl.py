@@ -235,7 +235,7 @@ def test(cfg):
             #print('lengths:',points['lengths'])
             print('points x:', points['x'])
             print('sls length:',points['sls_lengths'])
-            sl_length = length(sls)
+            sl_length = len(points['sls_lengths'])
             print('length:',sl_length)
             print('k:',classifier.k)
             new_k = sl_length*(classifier.k/16)
