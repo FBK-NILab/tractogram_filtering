@@ -119,7 +119,7 @@ def get_model(cfg):
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
-      classifier = DECS(input_size,
+      classifier = DEC(input_size,
                        int(cfg['embedding_size']),
                        num_classes,
                        #fov=3,
