@@ -228,19 +228,15 @@ def test(cfg):
                     target = target.view(-1, 1)[:, 0]
                 if cfg['same_size']:
                     points['lengths'] = points['lengths'][0].item()
-            #print('points:',points)
-            #print('points x:',points['x'])
-            #print('target:',target)
-            #print('target shape:', target.shape)
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
             #print('points:',points)
-            print(len(data['obj_idxs']),len(points['x']))
+            #print(len(data['obj_idxs']),len(points['x']))
             #print('target:',target)
             #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
-            print('lengths:',points['lengths'])
+            #print('lengths:',points['lengths'])
             print('points x:', points['x'])
             sls = points['x']
             sls = sls.cpu().numpy()
