@@ -239,6 +239,11 @@ def test(cfg):
             #print('target:',target)
             #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
+            print('length:',points['lengths'])
+            print('k:',classifier.k)
+            new_k = points['lengths']*(classifier.k/points['lengths'])
+            print('new k:',new_k)
+            classifier.conv1.k = new_k.cuda()
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
