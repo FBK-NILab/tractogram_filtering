@@ -385,15 +385,17 @@ class DEC(torch.nn.Module):
 
 
 class BiLSTM(torch.nn.Module):
-    def __init__(self, input_size, n_classes=2, embedding_size=256, hidden_size=1024):
+    def __init__(self, input_size, n_classes=2, embedding_size=64, hidden_size=256):
         super(BiLSTM, self).__init__()
         self.emb_size = embedding_size
         self.h_size = hidden_size
         self.mlp = MLP([input_size, embedding_size])
         self.lstm = nn.LSTM(embedding_size, hidden_size, 
                             bidirectional=True, batch_first=True)
-        self.lin = nn.Linear(hidden_size, n_classes)
-        # self.h0, self.c0 = init_hidden()
+        self.lin = Seq(
+            MLP([hidden_size, 256]), Dropout(0.5),
+            MLP([256, 128]), Dropout(0.5),
+            nn.Linear(128, n_classes))
 
     def init_hidden(self):
         return (torch.randn(2, 2, self.h_size),
