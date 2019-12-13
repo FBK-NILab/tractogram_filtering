@@ -243,7 +243,7 @@ def test(cfg):
             print('points x:', points['x'])
             sls = points['x'].cpu().numpy()
             print('sls:',sls)
-            sl_length = length(list(sls))
+            sl_length = length(sls)
             print('length:',sl_length)
             print('k:',classifier.k)
             new_k = sl_length*(classifier.k/16)
