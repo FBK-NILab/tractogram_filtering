@@ -241,7 +241,7 @@ def test(cfg):
             #print('target shape:', target.shape)
             ### add one-hot labels if multi-category task
             print('points x:', points['x'])
-            sls = points['x'].cpu().tolist()
+            sls = points['x'].tolist()
             print('sls:',sls)
             sl_length = length(sls)
             print('length:',sl_length)
