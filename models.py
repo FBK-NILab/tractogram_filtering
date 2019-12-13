@@ -385,7 +385,7 @@ class DEC(torch.nn.Module):
 
 
 class BiLSTM(torch.nn.Module):
-    def __init__(self, input_size, n_classes=2, embedding_size=64, hidden_size=256):
+    def __init__(self, input_size, n_classes=2, embedding_size=128, hidden_size=256):
         super(BiLSTM, self).__init__()
         self.emb_size = embedding_size
         self.h_size = hidden_size
