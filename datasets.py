@@ -122,11 +122,9 @@ class HCP20Dataset(gDataset):
         return self.data_fold[idx]
 
     def get_one_streamline(self, idx):
-        print(idx)
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
         gt = torch.tensor(self.full_subj[2][idx])
-        print(l,stream,gts)
 
         self.remaining[0] -= set([idx])
         gsample = self.build_graph_sample(
