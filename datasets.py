@@ -156,40 +156,40 @@ class HCP20Dataset(gDataset):
                 sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
-        if self.transform:
-            sample = self.transform(sample)
+            if self.transform:
+                sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
 
-        if self.split_obj:
-            self.remaining[idx] -= set(sample['points'])
-            sample['obj_idxs'] = sample['points'].copy()
-            sample['obj_full_size'] = T.header['nb_streamlines']
-            #sample['streamlines'] = T.streamlines
+            if self.split_obj:
+                self.remaining[idx] -= set(sample['points'])
+                sample['obj_idxs'] = sample['points'].copy()
+                sample['obj_full_size'] = T.header['nb_streamlines']
+                #sample['streamlines'] = T.streamlines
 
         #t0 = time.time()
-        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
-        sample['dir'] = sub_dir
+            sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+            sample['dir'] = sub_dir
         #print(sample['name'])
 
-        n = len(sample['points'])
+            n = len(sample['points'])
         #t0 = time.time()
-        uniform_size = False
-        if uniform_size:
-            streams, l_max = load_selected_streamlines_uniform_size(T_file,
-                                                    sample['points'].tolist())
-            streams.reshape(n, l_max, -1)
-            sample['points'] = torch.from_numpy(streams)
-        else:
-            streams, lengths = load_selected_streamlines(T_file,
-                                                    sample['points'].tolist())
+            uniform_size = False
+            if uniform_size:
+                streams, l_max = load_selected_streamlines_uniform_size(T_file,
+                                                        sample['points'].tolist())
+                streams.reshape(n, l_max, -1)
+                sample['points'] = torch.from_numpy(streams)
+            else:
+                streams, lengths = load_selected_streamlines(T_file,
+                                                        sample['points'].tolist())
 
-        sample['points'] = self.build_graph_sample(streams,
-                    lengths,
-                    torch.from_numpy(sample['gt']) if self.with_gt else None)
+            sample['points'] = self.build_graph_sample(streams,
+                        lengths,
+                        torch.from_numpy(sample['gt']) if self.with_gt else None)
         #sample['tract'] = streamlines
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
-        return sample
+            return sample
 
     def build_graph_sample(self, streams, lengths, gt=None):
         #print('time loading selected streamlines %f' % (time.time()-t0))
