@@ -117,8 +117,8 @@ class HCP20Dataset(gDataset):
 
     def get_one_streamline(self, idx):
         print(idx)
-        l = self.full_subj[1][idx]
-        stream = self.full_subj[0][idx]
+        l = self.full_subj[1]#[idx]
+        stream = self.full_subj[0]#[idx]
         gts = self.full_subj[2]
         print(l,stream,gts)
         T = self.full_subj[3]
