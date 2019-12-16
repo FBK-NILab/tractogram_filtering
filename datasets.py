@@ -75,7 +75,7 @@ class HCP20Dataset(gDataset):
         if self.load_one_full_subj:
             sub = subjects[0]
             sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-            T_file = glob.glob('%s/*.trk' % sub_dir)[0]
+            T_file = glob.glob('%s/*GIN_full_tract.trk' % sub_dir)
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
             streams, lengths = load_selected_streamlines(T_file, idxs)
