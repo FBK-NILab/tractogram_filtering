@@ -6,7 +6,7 @@ import os.path
 import torch
 import numpy as np
 import sys
-from tqdm import tqdm 
+from tqdm import tqdm
 import json
 from plyfile import PlyData, PlyElement
 import h5py
@@ -97,7 +97,10 @@ class HCP20Dataset(gDataset):
             else:
                 gts = None
             gts = np.array(gts) if type(gts) == list else gts
-            self.full_subj = (streamlines, lengths, gts, T, T_file, sub_dir)
+            assert split_obj == True
+            self.remaining[0] = set(np.arange(len(streamlines)))
+            name = T_file.split('/')[-1].rsplit('.', 1)[0]
+            self.full_subj = (streamlines, lengths, gts, name, sub_dir)
 
 
     def __len__(self):
@@ -121,30 +124,18 @@ class HCP20Dataset(gDataset):
         print(idx)
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
-        gts = self.full_subj[2]
+        gts = self.full_subj[2][idx]
         print(l,stream,gts)
-        T = self.full_subj[3]
-        T_file = self.full_subj[4]
-        sub_dir = self.full_subj[5]
-        #gsample = self.build_graph_sample(stream,[l], gts)
-        if self.split_obj:
-            if len(self.remaining[idx]) == 0:
-                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
-            sample = {'points': np.array(list(self.remaining[idx]))}
-            if self.with_gt:
-                sample['gt'] = gts[list(self.remaining[idx])]
-        if self.transform:
-            sample = self.transform(sample)
-        #print('time sampling %f' % (time.time()-t0))
 
-        if self.split_obj:
-            self.remaining[idx] -= set(sample['points'])
-            sample['obj_idxs'] = sample['points'].copy()
-            sample['obj_full_size'] = T.header['nb_streamlines']
-            #sample['streamlines'] = T.streamlines
-        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
-        sample['dir'] = sub_dir
-        sample['points'] = self.build_graph_sample(stream,[l], torch.from_numpy(sample['gt']) if self.with_gt else None)
+        self.remaining[0] -= set([idx])
+
+        sample['obj_idxs'] = [idx]
+        sample['obj_full_size'] = len(self)
+        sample['name'] = self.full_subj[4]
+        sample['dir'] = self.full_subj[5]
+        sample['points'] = self.build_graph_sample(
+            stream, [l],
+            torch.from_numpy(sample['gt']) if self.with_gt else None)
         #return {'points': gsample, 'gt': gts}
         return sample
 
@@ -166,7 +157,7 @@ class HCP20Dataset(gDataset):
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
-    
+
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
         gt = np.array(gt) if type(gt) == list else gt
@@ -284,7 +275,7 @@ class HCP20Dataset(gDataset):
 
         return graph_sample
 
-    
+
 class RndSampling(object):
     """Random sampling from input object to return a fixed size input object
     Args:
