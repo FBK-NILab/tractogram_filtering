@@ -96,6 +96,7 @@ class HCP20Dataset(gDataset):
                     gts = pickle.load(f)
             else:
                 gts = None
+            gts = np.array(gts) if type(gts) == list else gts
             self.full_subj = (streamlines, lengths, gts, T)
 
 
