@@ -27,6 +27,7 @@ from nilab.load_trk import load_streamlines
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 from dipy.tracking.streamline import length
 
+
 class HCP20Dataset(gDataset):
     def __init__(self,
                  sub_file,
@@ -69,11 +70,33 @@ class HCP20Dataset(gDataset):
         if split_obj:
             self.remaining = [[] for _ in range(len(subjects))]
         self.split_obj = split_obj
+        if self.load_one_full_subj:
+            sub = subjects[0]
+            sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+            T_file = glob.glob('%s/*.trk' % sub_dir)[0]
+            hdr = nib.streamlines.load(T_file, lazy_load=True).header
+            idxs = np.arange(hdr['nb_streamlines']).tolist()
+            streams, lengths = load_selected_streamlines(T_file, idxs)
+            cum_lengths = np.concat([[0],lengths]).cumsum()
+            streamlines = [
+                streams[cl:cl + lengths[i]] for i, cl in enumrate(cum_lengths)
+            ]
+            if with_gt:
+                label_file = os.path.join(sub_dir,
+                                          'sub-%s_var-GIN_labels.pkl' % (sub))
+                with open(label_file, 'rb') as f:
+                    gts = pickle.load(f)
+            else:
+                gts = None
+            self.full_subj = (streamlines, lengths, gts)
+
 
     def __len__(self):
         return len(self.subjects)
 
     def __getitem__(self, idx):
+        if self.load_one_full_subj:
+            self.get_one_streamline(idx)
         fs = self.fold_size
         if fs is None:
             return self.getitem(idx)
@@ -82,6 +105,13 @@ class HCP20Dataset(gDataset):
         idx = fs_0 + (idx % fs)
 
         return self.data_fold[idx]
+
+    def get_one_streamline(self, idx):
+        l = self.full_subj[1][idx]
+        stream = self.full_subj[0][idx]
+        gts = self.full_subj[2]
+        gsample = self.build_graph_sample(stream,[l], gts)
+        return {'points': gsample, 'gt': gts}
 
     def load_fold(self):
         fs = self.fold_size
@@ -96,8 +126,8 @@ class HCP20Dataset(gDataset):
         #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-        T_file = os.path.join(trk_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
+        label_file = os.path.join(sub_dir, 'sub-%s_var-GIN_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
         T = nib.streamlines.load(T_file, lazy_load=True)
@@ -119,14 +149,14 @@ class HCP20Dataset(gDataset):
         else:
             #sample = {'points': np.arange(T.header['nb_streamlines'])}
             #if self.with_gt:
-                #sample['gt'] = gt
+            #sample['gt'] = gt
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
         if self.transform:
             sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
-        
+
         if self.split_obj:
             self.remaining[idx] -= set(sample['points'])
             sample['obj_idxs'] = sample['points'].copy()
@@ -150,6 +180,15 @@ class HCP20Dataset(gDataset):
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
 
+        sample['points'] = self.build_graph_sample(streams,
+                    lengths,
+                    torch.from_numpy(sample['gt']) if self.with_gt else None)
+        #sample['tract'] = streamlines
+        #print('sample:',sample['points'])
+        #print('time building graph %f' % (time.time()-t0))
+        return sample
+
+    def build_graph_sample(self, streams, lengths, gt=None):
         #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
@@ -162,7 +201,7 @@ class HCP20Dataset(gDataset):
         slices = batch_slices[1:-1]
         streams = torch.from_numpy(streams)
         l = streams.shape[0]
-        graph_sample = gData(x=streams, 
+        graph_sample = gData(x=streams,
                              lengths=lengths,
                              #sls_lengths=sls_lengths,
                              bvec=batch_vec,
@@ -181,23 +220,23 @@ class HCP20Dataset(gDataset):
             #e1_new=torch.cat((e1_new,torch.repeat_interleave(edges[0,-1],self.k)))
             #e2_new = torch.tensor([],dtype=torch.long)
             #for i in list(edges[0,:int(edges.shape[1]/2)]):
-                #if i == 0:
-                    #e2_new = torch.cat([e2_new,torch.arange(i+1,self.k+1)],dim=0)
-                #if i==1:
-                    #e2_new = torch.cat([e2_new,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
-                #if i<self.k/2 and i>1:
-                    #e2_new = torch.cat([e2_new,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)])
-                #if i>=self.k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
-                    #if i+self.k/2 > edges[0,-1]:
-                        #e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-(self.k-(edges[0,-1]-i)),i),torch.arange(i+1,edges[0,-1]+1)],dim=0)])
-                    #else:
-                        #e = torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)])
-                        #e = e.long()
-                        #print(e)
-                        #e2_new = torch.cat([e2_new,e])
-                    #e2 = torch.cat([e2,torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)],dim=0)])
-                #if i==edges[0,int(edges.shape[1]/2)-1]:
-                    #e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-1,i-self.k,-1),torch.tensor([i+1])])])
+            #if i == 0:
+            #e2_new = torch.cat([e2_new,torch.arange(i+1,self.k+1)],dim=0)
+            #if i==1:
+            #e2_new = torch.cat([e2_new,torch.cat([torch.tensor([i-1]),torch.arange(i+1,self.k+1)],dim=0)])
+            #if i<self.k/2 and i>1:
+            #e2_new = torch.cat([e2_new,torch.cat([torch.arange(0,i),torch.arange(i+1,i+(self.k-i)+1)],dim=0)])
+            #if i>=self.k/2 and i!=edges[0,int(edges.shape[1]/2)-1]:
+            #if i+self.k/2 > edges[0,-1]:
+            #e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-(self.k-(edges[0,-1]-i)),i),torch.arange(i+1,edges[0,-1]+1)],dim=0)])
+            #else:
+            #e = torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)])
+            #e = e.long()
+            #print(e)
+            #e2_new = torch.cat([e2_new,e])
+            #e2 = torch.cat([e2,torch.cat([torch.arange(i-self.k/2,i),torch.arange(i+1,i+self.k/2+1)],dim=0)])
+            #if i==edges[0,int(edges.shape[1]/2)-1]:
+            #e2_new = torch.cat([e2_new,torch.cat([torch.arange(i-1,i-self.k,-1),torch.tensor([i+1])])])
             #e2_new = torch.cat([e2_new,torch.arange(edges[0,-1]-1,(edges[0,-1]-1)-self.k, -1)],dim=0)
             #e1, e2 = e1.cuda(), e2.cuda()
             #edges_new = torch.stack((e1_new,e2_new),0)
@@ -209,14 +248,12 @@ class HCP20Dataset(gDataset):
         if self.distance:
             graph_sample = self.distance(graph_sample)
         #if self.self_loops:
-            #graph_sample = self.self_loops(graph_sample)
-        if self.with_gt:
-            graph_sample['y'] = torch.from_numpy(sample['gt'])
-        sample['points'] = graph_sample
-        #sample['tract'] = streamlines
-        #print('sample:',sample['points'])
-        #print('time building graph %f' % (time.time()-t0))
-        return sample
+        #graph_sample = self.self_loops(graph_sample)
+        if gt is not None:
+            graph_sample['y'] = gt
+
+        return graph_sample
+
     
 class RndSampling(object):
     """Random sampling from input object to return a fixed size input object
