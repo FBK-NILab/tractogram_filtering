@@ -105,8 +105,8 @@ class HCP20Dataset(gDataset):
 
 
     def __len__(self):
-        if self.load_one_full_subj:
-            return len(self.full_subj[0])
+        #if self.load_one_full_subj:
+         #   return len(self.full_subj[0])
         return len(self.subjects)
 
     def __getitem__(self, idx):
