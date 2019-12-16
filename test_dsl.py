@@ -221,7 +221,8 @@ def test(cfg):
                     target = target.view(-1, 1)[:, 0]
             else:
                 print(data)
-                points = gBatch().from_data_list([data['points']])
+                #points = gBatch().from_data_list([data['points']])
+                points = data['points']
                 if 'bvec' in points.keys:
                     points.batch = points.bvec.clone()
                     del points.bvec
