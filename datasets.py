@@ -118,7 +118,24 @@ class HCP20Dataset(gDataset):
         stream = self.full_subj[0][idx]
         gts = self.full_subj[2]
         gsample = self.build_graph_sample(stream,[l], gts)
-        return {'points': gsample, 'gt': gts}
+        if self.split_obj:
+            if len(self.remaining[idx]) == 0:
+                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
+            sample = {'points': np.array(list(self.remaining[idx]))}
+            if self.with_gt:
+                sample['gt'] = gt[list(self.remaining[idx])]
+        if self.transform:
+            sample = self.transform(sample)
+        #print('time sampling %f' % (time.time()-t0))
+
+        if self.split_obj:
+            self.remaining[idx] -= set(sample['points'])
+            sample['obj_idxs'] = sample['points'].copy()
+            sample['obj_full_size'] = T.header['nb_streamlines']
+            #sample['streamlines'] = T.streamlines
+        sample['points'] = self.build_graph_sample(stream,[l], gts)
+        #return {'points': gsample, 'gt': gts}
+        return sample
 
     def load_fold(self):
         fs = self.fold_size
