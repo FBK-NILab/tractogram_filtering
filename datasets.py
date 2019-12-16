@@ -129,35 +129,31 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        sub = self.subjects[idx]
-        #print('sub:', sub)
-        sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-GIN_labels.pkl' % (sub))
-        #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
-        #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
-        T = nib.streamlines.load(T_file, lazy_load=True)
-        #sls_lengths = length(list(T.streamlines))
-        #print('sls length:',sls_lengths)
-        #print(len(sls_lengths))
-        #streamlines,head,leng,idxs = load_streamlines(T_file)
-        #print('streamlines:',streamlines)
-        #print('length sls:',len(streamlines))
-        with open(label_file, 'rb') as f:
-            gt = pickle.load(f)
-        gt = np.array(gt) if type(gt) == list else gt
-        if self.split_obj:
-            if len(self.remaining[idx]) == 0:
-                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
-            sample = {'points': np.array(list(self.remaining[idx]))}
-            if self.with_gt:
-                sample['gt'] = gt[list(self.remaining[idx])]
-        else:
-            #sample = {'points': np.arange(T.header['nb_streamlines'])}
-            #if self.with_gt:
-            #sample['gt'] = gt
-            sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+        if self.load_one_full_subj = False:
+            sub = self.subjects[idx]
+            #print('sub:', sub)
+            sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+            trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
+            T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
+            label_file = os.path.join(sub_dir, 'sub-%s_var-GIN_labels.pkl' % (sub))
+            #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
+            #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
+            T = nib.streamlines.load(T_file, lazy_load=True)
+    
+            with open(label_file, 'rb') as f:
+                gt = pickle.load(f)
+            gt = np.array(gt) if type(gt) == list else gt
+            if self.split_obj:
+                if len(self.remaining[idx]) == 0:
+                    self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
+                sample = {'points': np.array(list(self.remaining[idx]))}
+                if self.with_gt:
+                    sample['gt'] = gt[list(self.remaining[idx])]
+            else:
+                #sample = {'points': np.arange(T.header['nb_streamlines'])}
+                #if self.with_gt:
+                #sample['gt'] = gt
+                sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
         if self.transform:
