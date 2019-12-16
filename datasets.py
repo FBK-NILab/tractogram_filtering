@@ -81,6 +81,7 @@ class HCP20Dataset(gDataset):
             T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
             #T_file = glob.glob('%s/*GIN_full_tract.trk' % sub_dir)[0]
             print(T_file)
+            T = nib.streamlines.load(T_file, lazy_load=True)
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
             streams, lengths = load_selected_streamlines(T_file, idxs)
@@ -95,7 +96,7 @@ class HCP20Dataset(gDataset):
                     gts = pickle.load(f)
             else:
                 gts = None
-            self.full_subj = (streamlines, lengths, gts)
+            self.full_subj = (streamlines, lengths, gts, T)
 
 
     def __len__(self):
@@ -117,6 +118,7 @@ class HCP20Dataset(gDataset):
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
         gts = self.full_subj[2]
+        T = self.full_subj[3]
         gsample = self.build_graph_sample(stream,[l], gts)
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
