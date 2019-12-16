@@ -129,7 +129,6 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        if self.load_one_full_subj == False:
         sub = self.subjects[idx]
         #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
