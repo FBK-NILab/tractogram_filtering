@@ -93,10 +93,10 @@ def test(cfg):
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
-                                  return_edges=False,
+                                  return_edges=True,
                                   split_obj=True,
                                   train=False,
-                                  load_one_full_subj=False)
+                                  load_one_full_subj=True)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_test'],
                                 cfg['dataset_dir'],
@@ -233,13 +233,13 @@ def test(cfg):
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
-            #print('streamline number:',sls_count)
-            #sls_count+=1
-            #print('lengths:',points['lengths'].item())
+            print('streamline number:',sls_count)
+            sls_count+=1
+            print('lengths:',points['lengths'].item())
             ### add one-hot labels if multi-category task
-            #new_k = points['lengths'].item()*(5/16)
-            #print('new k:',new_k,'rounded k:',int(round(new_k)))
-            #classifier.conv2.k = int(round(new_k))
+            new_k = points['lengths'].item()*(5/16)
+            print('new k:',new_k,'rounded k:',int(round(new_k)))
+            classifier.conv2.k = int(round(new_k))
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
@@ -326,10 +326,10 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_blstm_more_pars',y_pred)
+                np.save(data['dir']+'/y_pred_decseq_dynamic_k_GIN',y_pred)
                 y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_blstm_more_pars',y_test)
-                np.save(data['dir']+'/streamlines_blstm_more_pars',streamlines)
+                np.save(data['dir']+'/y_test_decseq_dynamic_k_GIN',y_test)
+                np.save(data['dir']+'/streamlines_decseq_dynamic_k_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
