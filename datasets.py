@@ -125,7 +125,7 @@ class HCP20Dataset(gDataset):
                 self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
             sample = {'points': np.array(list(self.remaining[idx]))}
             if self.with_gt:
-                sample['gt'] = gt[list(self.remaining[idx])]
+                sample['gt'] = gts[list(self.remaining[idx])]
         if self.transform:
             sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
