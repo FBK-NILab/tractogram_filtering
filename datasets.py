@@ -140,7 +140,7 @@ class HCP20Dataset(gDataset):
             #sample['streamlines'] = T.streamlines
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
         sample['dir'] = sub_dir
-        sample['points'] = self.build_graph_sample(stream,[l], gts)
+        sample['points'] = self.build_graph_sample(stream,[l], torch.from_numpy(sample['gt']) if self.with_gt else None)
         #return {'points': gsample, 'gt': gts}
         return sample
 
