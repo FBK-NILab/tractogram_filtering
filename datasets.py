@@ -143,6 +143,7 @@ class HCP20Dataset(gDataset):
             sample['dir'] = self.full_subj[4]
 
             return sample
+        return sample
 
     def load_fold(self):
         fs = self.fold_size
