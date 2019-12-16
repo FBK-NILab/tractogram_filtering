@@ -64,6 +64,7 @@ class HCP20Dataset(gDataset):
         self.fold = []
         self.n_fold = 0
         self.train = train
+        self.load_one_full_subj = load_one_full_subj
         if fold_size is not None:
             self.load_fold()
         if train:
