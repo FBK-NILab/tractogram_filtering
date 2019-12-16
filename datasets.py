@@ -121,6 +121,7 @@ class HCP20Dataset(gDataset):
 
     def get_one_streamline(self):
         idx = self.remaining[0]
+        print(idx)
         self.remaining[0] = self.remaining[0][1:] 
 
         l = self.full_subj[1][idx]
