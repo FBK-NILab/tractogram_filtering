@@ -41,7 +41,7 @@ class HCP20Dataset(gDataset):
                  with_gt=True,
                  return_edges=False,
                  split_obj=False,
-                 train=True
+                 train=True,
                  load_one_full_subj=True):
         """
         Args:
