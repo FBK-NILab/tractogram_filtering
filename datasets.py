@@ -103,7 +103,7 @@ class HCP20Dataset(gDataset):
 
     def __getitem__(self, idx):
         if self.load_one_full_subj:
-            self.get_one_streamline(idx)
+            return self.get_one_streamline(idx)
         fs = self.fold_size
         if fs is None:
             return self.getitem(idx)
