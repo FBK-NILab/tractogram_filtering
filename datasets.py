@@ -94,9 +94,10 @@ class HCP20Dataset(gDataset):
                                           'sub-%s_var-GIN_labels.pkl' % (sub))
                 with open(label_file, 'rb') as f:
                     gts = pickle.load(f)
+                    gts = torch.tensor(gts).long()
             else:
                 gts = None
-            gts = np.array(gts) if type(gts) == list else gts
+           
             assert split_obj == True
             self.remaining[0] = set(np.arange(len(streamlines)))
             name = T_file.split('/')[-1].rsplit('.', 1)[0]
@@ -128,15 +129,15 @@ class HCP20Dataset(gDataset):
         print(l,stream,gts)
 
         self.remaining[0] -= set([idx])
+        gsample = self.build_graph_sample(
+            stream, [l], gts)
 
+        sample = {'points': gsample, 'gt': gts}
         sample['obj_idxs'] = [idx]
         sample['obj_full_size'] = len(self)
         sample['name'] = self.full_subj[4]
         sample['dir'] = self.full_subj[5]
-        sample['points'] = self.build_graph_sample(
-            stream, [l],
-            torch.from_numpy(sample['gt']) if self.with_gt else None)
-        #return {'points': gsample, 'gt': gts}
+
         return sample
 
     def load_fold(self):
