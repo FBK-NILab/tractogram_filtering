@@ -133,8 +133,8 @@ class HCP20Dataset(gDataset):
         sample = {'points': gsample, 'gt': gt}
         sample['obj_idxs'] = [idx]
         sample['obj_full_size'] = len(self)
-        sample['name'] = self.full_subj[4]
-        sample['dir'] = self.full_subj[5]
+        sample['name'] = self.full_subj[3]
+        sample['dir'] = self.full_subj[4]
 
         return sample
 
