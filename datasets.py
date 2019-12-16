@@ -122,7 +122,7 @@ class HCP20Dataset(gDataset):
         T = self.full_subj[3]
         T_file = self.full_subj[4]
         sub_dir = self.full_subj[5]
-        gsample = self.build_graph_sample(stream,[l], gts)
+        #gsample = self.build_graph_sample(stream,[l], gts)
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
                 self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
