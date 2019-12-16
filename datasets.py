@@ -78,7 +78,7 @@ class HCP20Dataset(gDataset):
             sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
             print(sub_dir)
             #T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
-            T_file = glob.glob('%s/*GIN_full_tract.trk' % sub_dir)
+            T_file = glob.glob('%s/*GIN_full_tract.trk' % sub_dir)[0]
             print(T_file)
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
