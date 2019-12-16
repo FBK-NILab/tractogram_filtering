@@ -129,13 +129,13 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        if self.load_one_full_subj = False:
+        if self.load_one_full_subj == False:
             sub = self.subjects[idx]
             #print('sub:', sub)
             sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
             trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-            T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
-            label_file = os.path.join(sub_dir, 'sub-%s_var-GIN_labels.pkl' % (sub))
+            T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+            label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
             #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
             #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
             T = nib.streamlines.load(T_file, lazy_load=True)
