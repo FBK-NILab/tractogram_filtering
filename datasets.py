@@ -116,9 +116,11 @@ class HCP20Dataset(gDataset):
         return self.data_fold[idx]
 
     def get_one_streamline(self, idx):
+        print(idx)
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
         gts = self.full_subj[2]
+        print(l,stream,gts)
         T = self.full_subj[3]
         T_file = self.full_subj[4]
         sub_dir = self.full_subj[5]
