@@ -251,7 +251,7 @@ multi_category = n
 ignore_class = 0
 same_size = y
 
-experiment_name = blstm_more_params_loss_nll-data_hcp20_resampled16_full_nogradacc
+experiment_name = blstm_more_params_loss_nll-data_hcp20_resampled16_full_nogradacc_bidirectFalse
 
 ####### ************************************************************************
 ####### ************************************************************************
