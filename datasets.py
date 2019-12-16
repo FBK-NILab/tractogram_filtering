@@ -130,66 +130,66 @@ class HCP20Dataset(gDataset):
 
     def getitem(self, idx):
         if self.load_one_full_subj == False:
-            sub = self.subjects[idx]
-            #print('sub:', sub)
-            sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-            trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-            T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-            label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
-            #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
-            #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
-            T = nib.streamlines.load(T_file, lazy_load=True)
+        sub = self.subjects[idx]
+        #print('sub:', sub)
+        sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+        trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
+        #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
+        T = nib.streamlines.load(T_file, lazy_load=True)
     
-            with open(label_file, 'rb') as f:
-                gt = pickle.load(f)
-            gt = np.array(gt) if type(gt) == list else gt
-            if self.split_obj:
-                if len(self.remaining[idx]) == 0:
-                    self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
-                sample = {'points': np.array(list(self.remaining[idx]))}
-                if self.with_gt:
-                    sample['gt'] = gt[list(self.remaining[idx])]
-            else:
-                #sample = {'points': np.arange(T.header['nb_streamlines'])}
-                #if self.with_gt:
-                #sample['gt'] = gt
-                sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+        with open(label_file, 'rb') as f:
+            gt = pickle.load(f)
+        gt = np.array(gt) if type(gt) == list else gt
+        if self.split_obj:
+            if len(self.remaining[idx]) == 0:
+                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
+            sample = {'points': np.array(list(self.remaining[idx]))}
+            if self.with_gt:
+                sample['gt'] = gt[list(self.remaining[idx])]
+        else:
+            #sample = {'points': np.arange(T.header['nb_streamlines'])}
+            #if self.with_gt:
+            #sample['gt'] = gt
+            sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
 
         #t0 = time.time()
-            if self.transform:
-                sample = self.transform(sample)
+        if self.transform:
+            sample = self.transform(sample)
         #print('time sampling %f' % (time.time()-t0))
 
-            if self.split_obj:
-                self.remaining[idx] -= set(sample['points'])
-                sample['obj_idxs'] = sample['points'].copy()
-                sample['obj_full_size'] = T.header['nb_streamlines']
-                #sample['streamlines'] = T.streamlines
+        if self.split_obj:
+            self.remaining[idx] -= set(sample['points'])
+            sample['obj_idxs'] = sample['points'].copy()
+            sample['obj_full_size'] = T.header['nb_streamlines']
+            #sample['streamlines'] = T.streamlines
 
         #t0 = time.time()
-            sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
-            sample['dir'] = sub_dir
+        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+        sample['dir'] = sub_dir
         #print(sample['name'])
 
-            n = len(sample['points'])
+        n = len(sample['points'])
         #t0 = time.time()
-            uniform_size = False
-            if uniform_size:
-                streams, l_max = load_selected_streamlines_uniform_size(T_file,
-                                                        sample['points'].tolist())
-                streams.reshape(n, l_max, -1)
-                sample['points'] = torch.from_numpy(streams)
-            else:
-                streams, lengths = load_selected_streamlines(T_file,
-                                                        sample['points'].tolist())
+        uniform_size = False
+        if uniform_size:
+            streams, l_max = load_selected_streamlines_uniform_size(T_file,
+                                                    sample['points'].tolist())
+            streams.reshape(n, l_max, -1)
+            sample['points'] = torch.from_numpy(streams)
+        else:
+            streams, lengths = load_selected_streamlines(T_file,
+                                                    sample['points'].tolist())
 
-            sample['points'] = self.build_graph_sample(streams,
-                        lengths,
-                        torch.from_numpy(sample['gt']) if self.with_gt else None)
+        sample['points'] = self.build_graph_sample(streams,
+                    lengths,
+                    torch.from_numpy(sample['gt']) if self.with_gt else None)
         #sample['tract'] = streamlines
         #print('sample:',sample['points'])
         #print('time building graph %f' % (time.time()-t0))
-            return sample
+        return sample
 
     def build_graph_sample(self, streams, lengths, gt=None):
         #print('time loading selected streamlines %f' % (time.time()-t0))
