@@ -220,6 +220,7 @@ def test(cfg):
                     target = target.to('cuda')
                     target = target.view(-1, 1)[:, 0]
             else:
+                print(data)
                 points = gBatch().from_data_list([data['points']])
                 if 'bvec' in points.keys:
                     points.batch = points.bvec.clone()
