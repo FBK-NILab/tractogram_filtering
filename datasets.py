@@ -125,14 +125,14 @@ class HCP20Dataset(gDataset):
         print(idx)
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
-        gts = self.full_subj[2][idx]
+        gt = torch.tensor(self.full_subj[2][idx])
         print(l,stream,gts)
 
         self.remaining[0] -= set([idx])
         gsample = self.build_graph_sample(
-            stream, [l], gts)
+            stream, [l], gt)
 
-        sample = {'points': gsample, 'gt': gts}
+        sample = {'points': gsample, 'gt': gt}
         sample['obj_idxs'] = [idx]
         sample['obj_full_size'] = len(self)
         sample['name'] = self.full_subj[4]
