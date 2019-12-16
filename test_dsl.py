@@ -194,7 +194,8 @@ def test(cfg):
         visualized = 0
         new_obj_read = True
         sls_count = 1
-        while j < len(dataset):
+        #while j < len(dataset):
+        while sls_count <= len(dataset):
             data = dataset[j]
 
             if split_obj:
