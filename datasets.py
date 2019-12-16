@@ -99,19 +99,17 @@ class HCP20Dataset(gDataset):
                 gts = None
            
             assert split_obj == True
-            self.remaining[0] = set(np.arange(len(streamlines)))
+            self.remaining[0] = np.arange(len(streamlines)).tolist()
             name = T_file.split('/')[-1].rsplit('.', 1)[0]
             self.full_subj = (streamlines, lengths, gts, name, sub_dir)
 
 
     def __len__(self):
-        if self.load_one_full_subj:
-            return len(self.full_subj[0])
         return len(self.subjects)
 
     def __getitem__(self, idx):
         if self.load_one_full_subj:
-            return self.get_one_streamline(idx)
+            return self.get_one_streamline()
         fs = self.fold_size
         if fs is None:
             return self.getitem(idx)
@@ -121,13 +119,15 @@ class HCP20Dataset(gDataset):
 
         return self.data_fold[idx]
 
-    def get_one_streamline(self, idx):
+    def get_one_streamline(self):
+        idx = self.remaining[0]
+        self.remaining = self.remaining[1:] 
+
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
         gt = self.full_subj[2][idx]
         #gt = torch.tensor(self.full_subj[2][idx])
 
-        self.remaining[0] -= set([idx])
         gsample = self.build_graph_sample(
             stream, [l], gt)
 
