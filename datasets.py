@@ -84,7 +84,7 @@ class HCP20Dataset(gDataset):
             T = nib.streamlines.load(T_file, lazy_load=True)
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
-            streams, lengths = load_selected_streamlines(T_file, idxs)
+            streams, lengths = load_selected_streamlines(T_file, idxs[:50000])
             cum_lengths = np.concatenate([[0],lengths]).cumsum()
             streamlines = [
                 streams[cl:cl + lengths[i]] for i, cl in enumerate(cum_lengths[:-1])
@@ -122,26 +122,27 @@ class HCP20Dataset(gDataset):
         return self.data_fold[idx]
 
     def get_one_streamline(self):
-        idx = self.remaining[0][0]
-        print(idx)
-        self.remaining[0] = self.remaining[0][1:] 
+        while len(self.remaining[0]) > 0: 
+            idx = self.remaining[0][0]
+            print(idx)
+            self.remaining[0] = self.remaining[0][1:] 
 
-        l = self.full_subj[1][idx]
-        stream = self.full_subj[0][idx]
-        gt = self.full_subj[2][idx]
+            l = self.full_subj[1][idx]
+            stream = self.full_subj[0][idx]
+            gt = self.full_subj[2][idx]
         #gt = torch.tensor(self.full_subj[2][idx])
 
-        gsample = self.build_graph_sample(
-            stream, [l], gt)
+            gsample = self.build_graph_sample(
+                stream, [l], gt)
 
-        sample = {'points': gsample, 'gt': gt}
+            sample = {'points': gsample, 'gt': gt}
         #sample['points'] = self.build_graph_sample(stream, [l], gt)
-        sample['obj_idxs'] = [idx]
-        sample['obj_full_size'] = len(self)
-        sample['name'] = self.full_subj[3]
-        sample['dir'] = self.full_subj[4]
+            sample['obj_idxs'] = [idx]
+            sample['obj_full_size'] = len(self)
+            sample['name'] = self.full_subj[3]
+            sample['dir'] = self.full_subj[4]
 
-        return sample
+            return sample
 
     def load_fold(self):
         fs = self.fold_size
