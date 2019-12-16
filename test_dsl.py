@@ -205,7 +205,8 @@ def test(cfg):
                     if cfg['save_embedding']:
                         obj_embedding = torch.empty((data['obj_full_size'], int(cfg['embedding_size']))).cuda()
 
-                if len(dataset.remaining[j]) == 0:
+                #if len(dataset.remaining[j]) == 0:
+                if len(dataset.remaining[0][j]) == 0:
                     consumed = True
                     
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
