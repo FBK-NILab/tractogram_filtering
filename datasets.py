@@ -124,7 +124,8 @@ class HCP20Dataset(gDataset):
     def get_one_streamline(self, idx):
         l = self.full_subj[1][idx]
         stream = self.full_subj[0][idx]
-        gt = torch.tensor(self.full_subj[2][idx])
+        gt = self.full_subj[2][idx]
+        #gt = torch.tensor(self.full_subj[2][idx])
 
         self.remaining[0] -= set([idx])
         gsample = self.build_graph_sample(
