@@ -120,7 +120,7 @@ class HCP20Dataset(gDataset):
         return self.data_fold[idx]
 
     def get_one_streamline(self):
-        idx = self.remaining[0]
+        idx = self.remaining[0][0]
         print(idx)
         self.remaining[0] = self.remaining[0][1:] 
 
