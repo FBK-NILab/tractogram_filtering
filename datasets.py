@@ -97,7 +97,7 @@ class HCP20Dataset(gDataset):
             else:
                 gts = None
             gts = np.array(gts) if type(gts) == list else gts
-            self.full_subj = (streamlines, lengths, gts, T)
+            self.full_subj = (streamlines, lengths, gts, T, T_file, sub_dir)
 
 
     def __len__(self):
@@ -120,6 +120,8 @@ class HCP20Dataset(gDataset):
         stream = self.full_subj[0][idx]
         gts = self.full_subj[2]
         T = self.full_subj[3]
+        T_file = self.full_subj[4]
+        sub_dir = self.full_subj[5]
         gsample = self.build_graph_sample(stream,[l], gts)
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
@@ -136,6 +138,8 @@ class HCP20Dataset(gDataset):
             sample['obj_idxs'] = sample['points'].copy()
             sample['obj_full_size'] = T.header['nb_streamlines']
             #sample['streamlines'] = T.streamlines
+        sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
+        sample['dir'] = sub_dir
         sample['points'] = self.build_graph_sample(stream,[l], gts)
         #return {'points': gsample, 'gt': gts}
         return sample
