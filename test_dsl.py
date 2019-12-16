@@ -95,7 +95,8 @@ def test(cfg):
                                   #distance=T.Distance(norm=True,cat=False),
                                   return_edges=False,
                                   split_obj=True,
-                                  train=False)
+                                  train=False,
+                                  load_one_full_subj=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_test'],
                                 cfg['dataset_dir'],
