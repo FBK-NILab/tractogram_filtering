@@ -132,7 +132,7 @@ class HCP20Dataset(gDataset):
         label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
         #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
-        T = nib.streamlines.load(T_file, lazy_load=True)
+        #T = nib.streamlines.load(T_file, lazy_load=True)
         #sls_lengths = length(list(T.streamlines))
         #print('sls length:',sls_lengths)
         #print(len(sls_lengths))
