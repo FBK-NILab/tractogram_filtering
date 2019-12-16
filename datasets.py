@@ -84,7 +84,7 @@ class HCP20Dataset(gDataset):
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
             streams, lengths = load_selected_streamlines(T_file, idxs)
-            cum_lengths = np.concat([[0],lengths]).cumsum()
+            cum_lengths = np.concatatenate([[0],lengths]).cumsum()
             streamlines = [
                 streams[cl:cl + lengths[i]] for i, cl in enumrate(cum_lengths)
             ]
