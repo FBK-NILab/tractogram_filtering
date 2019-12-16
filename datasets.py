@@ -86,7 +86,7 @@ class HCP20Dataset(gDataset):
             streams, lengths = load_selected_streamlines(T_file, idxs)
             cum_lengths = np.concatenate([[0],lengths]).cumsum()
             streamlines = [
-                streams[cl:cl + lengths[i]] for i, cl in enumerate(cum_lengths)
+                streams[cl:cl + lengths[i]] for i, cl in enumerate(cum_lengths[:-1])
             ]
             if with_gt:
                 label_file = os.path.join(sub_dir,
