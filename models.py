@@ -391,7 +391,7 @@ class BiLSTM(torch.nn.Module):
         self.h_size = hidden_size
         self.mlp = MLP([input_size, embedding_size])
         self.lstm = nn.LSTM(embedding_size, hidden_size, 
-                            bidirectional=True, batch_first=True)
+                            bidirectional=False, batch_first=True)
         self.lin = Seq(
             MLP([hidden_size, 256]), Dropout(0.5),
             MLP([256, 128]), Dropout(0.5),
