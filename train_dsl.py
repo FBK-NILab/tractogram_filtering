@@ -124,7 +124,7 @@ def get_model(cfg):
                        num_classes,
                        #fov=3,
                        batch_size=int(cfg['batch_size']),
-                       k=5,
+                       k=3,
                        aggr='max',
                        pool_op=global_max_pool,
                        same_size=cfg['same_size']) 
@@ -535,7 +535,7 @@ def train(cfg):
                                 transform=transforms.Compose(trans_train),
                                 #self_loops=T.AddSelfLoops(),
                                 #distance=T.Distance(norm=True,cat=False),
-                                return_edges=False,
+                                return_edges=True,
                                 load_one_full_subj=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_train'],
@@ -569,7 +569,7 @@ def train(cfg):
                                           transform=transforms.Compose(trans_val),
                                           #distance=T.Distance(norm=True,cat=False),
                                           #self_loops=T.AddSelfLoops(),
-                                          return_edges=False,
+                                          return_edges=True,
                                           load_one_full_subj=False)
         elif cfg['dataset'] == 'tractseg_500k':
             val_dataset = ds.Tractseg500kDataset(
