@@ -329,10 +329,10 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_blstm_more_pars_GIN',y_pred)
+                np.save(data['dir']+'/y_pred_lstm_more_pars',y_pred)
                 y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_blstm_more_pars_GIN',y_test)
-                np.save(data['dir']+'/streamlines_blstm_more_pars_GIN',streamlines)
+                np.save(data['dir']+'/y_test_lstm_more_pars',y_test)
+                np.save(data['dir']+'/streamlines_lstm_more_pars',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
