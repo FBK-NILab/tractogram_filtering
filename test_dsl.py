@@ -96,7 +96,7 @@ def test(cfg):
                                   return_edges=True,
                                   split_obj=True,
                                   train=False,
-                                  load_one_full_subj=True)
+                                  load_one_full_subj=False)
     elif cfg['dataset'] == 'left_ifof_ss_sl_graph':
         dataset = ds.LeftIFOFSupersetGraphDataset(cfg['sub_list_test'],
                                 cfg['dataset_dir'],
@@ -194,8 +194,8 @@ def test(cfg):
         visualized = 0
         new_obj_read = True
         sls_count = 1
-        #while j < len(dataset):
-        while sls_count <= len(dataset):
+        while j < len(dataset):
+        #while sls_count <= len(dataset):
             data = dataset[j]
 
             if split_obj:
@@ -221,9 +221,9 @@ def test(cfg):
                     target = target.to('cuda')
                     target = target.view(-1, 1)[:, 0]
             else:
-                print(data)
-                #points = gBatch().from_data_list([data['points']])
-                points = data['points']
+                #print(data)
+                points = gBatch().from_data_list([data['points']])
+                #points = data['points']
                 if 'bvec' in points.keys:
                     points.batch = points.bvec.clone()
                     del points.bvec
@@ -236,13 +236,13 @@ def test(cfg):
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
-            print('streamline number:',sls_count)
-            sls_count+=1
-            print('lengths:',points['lengths'].item())
+            #print('streamline number:',sls_count)
+            #sls_count+=1
+            #print('lengths:',points['lengths'].item())
             ### add one-hot labels if multi-category task
-            new_k = points['lengths'].item()*(5/16)
-            print('new k:',new_k,'rounded k:',int(round(new_k)))
-            classifier.conv2.k = int(round(new_k))
+            #new_k = points['lengths'].item()*(5/16)
+            #print('new k:',new_k,'rounded k:',int(round(new_k)))
+            #classifier.conv2.k = int(round(new_k))
             if cfg['multi_category']:
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
@@ -329,10 +329,10 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_decseq_dynamic_k_GIN',y_pred)
+                #np.save(data['dir']+'/y_pred_decseq_dynamic_k_GIN',y_pred)
                 y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_decseq_dynamic_k_GIN',y_test)
-                np.save(data['dir']+'/streamlines_decseq_dynamic_k_GIN',streamlines)
+                #np.save(data['dir']+'/y_test_decseq_dynamic_k_GIN',y_test)
+                #np.save(data['dir']+'/streamlines_decseq_dynamic_k_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
