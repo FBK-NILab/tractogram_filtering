@@ -115,7 +115,7 @@ def get_model(cfg):
                             int(cfg['embedding_size']),
                             num_classes,
                             batch_size=int(cfg['batch_size']),
-                            k=5,
+                            k=7,
                             fov=1,
                             dropout=0.5)    
     if cfg['model'] == 'dec':
