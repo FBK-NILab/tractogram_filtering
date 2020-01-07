@@ -428,7 +428,7 @@ def update_metrics(metrics, prediction, target):
 
 
 def log_avg_metrics(writer, metrics, prefix, epoch):
-    for k, v in metrics.iteritems():
+    for k, v in metrics.items():
         if type(v) == list:
             v = torch.tensor(v)
         writer.add_scalar('%s/epoch_%s' % (prefix, k), v.mean().item(), epoch)
