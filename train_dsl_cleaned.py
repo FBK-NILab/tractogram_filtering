@@ -17,7 +17,7 @@ from torch_geometric.nn import global_max_pool
 from torchvision import transforms
 
 import datasets as ds
-from models import (DEC, NNC, BiLSTM, DECSeq, DECSeq2, DECSeq3, DECSeq5,
+from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeq2, DECSeq3, DECSeq5,
                     DECSeq6, DGCNNSeq, GCNConvNet, GCNemb, NNConvNet, NNemb,
                     PNbatch, PNemb, PNptg, PointNetPyg, ST_loss)
 from tensorboardX import SummaryWriter
@@ -47,7 +47,7 @@ def get_model(cfg):
                               fov=1,
                               dropout=0.5)
     if cfg['model'] == 'dec':
-        classifier = DECSeq(
+        classifier = DECSeqCos(
             input_size,
             int(cfg['embedding_size']),
             num_classes,

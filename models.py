@@ -22,7 +22,7 @@ from torch.nn import ReLU
 from torch.nn import Sequential as Seq
 from torch_cluster import knn_graph
 from torch_geometric.nn import (DynamicEdgeConv, EdgeConv, GATConv, GCNConv,
-                                NNConv, SplineCon, global_max_pool,
+                                NNConv, SplineConv, global_max_pool,
                                 global_mean_pool, graclus)
 from torch_geometric.utils import add_self_loops, normalized_cut
 
@@ -543,7 +543,7 @@ class DECSeq(torch.nn.Module):
 
 class DECSeqCos(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
-        super(DECSeq, self).__init__()
+        super(DECSeqCos, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConvCosine(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
