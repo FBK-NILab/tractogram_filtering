@@ -301,8 +301,8 @@ def test(cfg):
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
-                if cfg['save_embedding']:
-                    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
+                #if cfg['save_embedding']:
+                #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
                 obj_data = points
                 obj_pred_choice = pred_choice
@@ -311,9 +311,9 @@ def test(cfg):
                     obj_embedding = classifier.embedding.squeeze()
 
             if cfg['with_gt'] and consumed:
-                if cfg['multi_loss']:
-                    loss_cluster = cluster_loss_fn(gf.squeeze(3))
-                    loss = loss_seg + alfa * loss_cluster
+                #if cfg['multi_loss']:
+                #    loss_cluster = cluster_loss_fn(gf.squeeze(3))
+                #    loss = loss_seg + alfa * loss_cluster
 
                     #pred_choice = torch.sigmoid(pred.view(-1,1)).data.round().type_as(target.data)
                 #print('points:',points['streamlines'])
