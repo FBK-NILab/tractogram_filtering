@@ -203,8 +203,8 @@ def test(cfg):
                     obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     new_obj_read = False
-                    if cfg['save_embedding']:
-                        obj_embedding = torch.empty((data['obj_full_size'], int(cfg['embedding_size']))).cuda()
+                    #if cfg['save_embedding']:
+                        #obj_embedding = torch.empty((data['obj_full_size'], int(cfg['embedding_size']))).cuda()
 
                 if len(dataset.remaining[j]) == 0:
                     consumed = True
