@@ -174,7 +174,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             ### forward
             logits = classifier(points)
 
-            pred = F.softmax(logits, dim=-1).view(-1, num_classes)
+            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             pred_choice = pred.data.max(1)[1].int()
 
             loss = F.nll_loss(pred, target.long())
