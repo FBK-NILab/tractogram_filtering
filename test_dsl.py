@@ -247,10 +247,10 @@ def test(cfg):
                 one_hot_label = Variable(data['category'])
                 classifier.category_vec = one_hot_label.cuda()
 
-            if cfg['multi_loss']:
-                logits, gf = classifier(points)
-            else:
-                logits = classifier(points)
+            #if cfg['multi_loss']:
+                #logits, gf = classifier(points)
+            #else:
+            logits = classifier(points)
             logits = logits.view(-1, num_classes)
 
             if len(cfg['loss']) == 2:
