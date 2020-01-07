@@ -53,7 +53,7 @@ def get_model(cfg):
             num_classes,
             #fov=3,
             batch_size=int(cfg['batch_size']),
-            k=5,
+            k=7,
             aggr='max',
             pool_op=global_max_pool,
             same_size=cfg['same_size'])
@@ -428,7 +428,7 @@ def update_metrics(metrics, prediction, target):
 
 
 def log_avg_metrics(writer, metrics, prefix, epoch):
-    for k, v in metrics.iteritems():
+    for k, v in metrics.items():
         if type(v) == list:
             v = torch.tensor(v)
         writer.add_scalar('%s/epoch_%s' % (prefix, k), v.mean().item(), epoch)

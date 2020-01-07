@@ -7,7 +7,7 @@ import configparser
 import warnings
 import ipdb
 
-from train_dsl import train
+from train_dsl_cleaned import train
 from test_dsl import test
 
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ import lovasz_losses as L
 from cluster_losses import CSimLoss, DistLoss, HLoss
 from tensorboardX import SummaryWriter
 from torchvision import transforms
-from train_dsl import get_model
+from train_dsl_cleaned import get_model
 import torch_geometric.transforms as T
 from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
