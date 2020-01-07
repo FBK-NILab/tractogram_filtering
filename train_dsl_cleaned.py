@@ -101,7 +101,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         ### reorganize the batch in term of streamlines
         points = get_gbatch_sample(sample_batched, int(cfg['fixed_size']),
                                    cfg['same_size'])
-        target = points['gt']
+        target = points['y']
 
         points, target = points.to('cuda'), target.to('cuda')
 
@@ -134,17 +134,17 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         ### compute performance
         update_metrics(metrics, pred_choice, target)
 
-        print('[%d: %d/%d] train loss: %f acc: %f iou: %f' \
-            % (epoch, i_batch, num_batch, loss.item(), metrics['acc'][-1], metrics['iou'][-1]))
+        print('[%d: %d/%d] train loss: %f acc: %f' \
+            % (epoch, i_batch, num_batch, loss.item(), metrics['acc'][-1]))
 
         n_iter += 1
 
     ep_loss = ep_loss / (i_batch + 1)
     writer.add_scalar('train/epoch_loss', ep_loss, epoch)
 
-    log_avg_metrics(writer, metrics, 'val', epoch)
+    log_avg_metrics(writer, metrics, 'train', epoch)
 
-    return metrics, ep_loss, n_iter
+    return ep_loss, n_iter
 
 
 def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
@@ -162,11 +162,12 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
         print('\n\n')
 
         metrics_val = initialize_metrics()
+        ep_loss = 0
 
         for i, data in enumerate(val_dataloader):
             points = get_gbatch_sample(data, int(cfg['fixed_size']),
                                        cfg['same_size'])
-            target = points['gt']
+            target = points['y']
 
             points, target = points.to('cuda'), target.to('cuda')
 
@@ -179,8 +180,8 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             loss = F.nll_loss(pred, target.long())
             ep_loss += loss
 
-            print('val min / max class pred', pred_choice.max().item())
-            print('val min class pred ', pred_choice.min().item())
+            print('val min / max class pred %d / %d' % (
+                pred_choice.min().item(), pred_choice.max().item()))
             print('# class pred ', len(torch.unique(pred_choice)))
 
             ### compute performance
@@ -192,7 +193,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
-        epoch_score = metrics_val['acc'].mean().item()
+        epoch_score = torch.tensor(metrics_val['acc']).mean().item()
         print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
 
@@ -312,7 +313,7 @@ def get_dataset(cfg, trans, train=True):
     dataset = ds.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
                               transform=transforms.Compose(trans),
-                              return_edges=False,
+                              return_edges=True,
                               load_one_full_subj=False)
 
     dataloader = gDataLoader(dataset,
@@ -362,7 +363,7 @@ def get_lr(optimizer):
         return float(param_group['lr'])
 
 
-def get_gbatch_sample(sample, sample_size, same_size):
+def get_gbatch_sample(sample, sample_size, same_size, return_name=False):
     data_list = []
     name_list = []
     for i, d in enumerate(sample):
@@ -375,11 +376,12 @@ def get_gbatch_sample(sample, sample_size, same_size):
         #points.batch = points.bvec.copy()
         points.batch = points.bvec.clone()
         del points.bvec
-    target = points['y']
     if same_size:
         points['lengths'] = points['lengths'][0].item()
 
-    return {'points': points, 'gt': target, 'name': name_list}
+    if return_name:
+        return points, name_list
+    return points
 
 
 def print_net_graph(classifier, loss, logdir):
@@ -425,8 +427,10 @@ def update_metrics(metrics, prediction, target):
     metrics['iou'].append(iou)
 
 
-def log_avg_metrics(metrics, writer, prefix, epoch):
-    for k, v in metrics.itertitems():
+def log_avg_metrics(writer, metrics, prefix, epoch):
+    for k, v in metrics.iteritems():
+        if type(v) == list:
+            v = torch.tensor(v)
         writer.add_scalar('%s/epoch_%s' % (prefix, k), v.mean().item(), epoch)
 
 
