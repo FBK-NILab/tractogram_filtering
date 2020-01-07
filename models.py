@@ -1,8 +1,10 @@
 from __future__ import print_function
-import os
-import sys
+
 import copy
 import math
+import os
+import sys
+
 import numpy as np
 #import pointnet_trials as pnt
 import torch
@@ -10,15 +12,20 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.parallel
 import torch.utils.data
-from torch.autograd import Variable
 import torch_geometric.transforms as T
-from torch_geometric.nn import global_max_pool
-from torch_geometric.nn import global_mean_pool
-from torch_geometric.utils import normalized_cut
-from torch_geometric.nn import DynamicEdgeConv, GCNConv, NNConv, graclus, EdgeConv, GATConv, SplineConv
+from torch.autograd import Variable
 #from pointnet_mgf import max_mod
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN, Dropout
-from torch_geometric.utils import add_self_loops
+from torch.nn import BatchNorm1d as BN
+from torch.nn import Dropout
+from torch.nn import Linear as Lin
+from torch.nn import ReLU
+from torch.nn import Sequential as Seq
+from torch_cluster import knn_graph
+from torch_geometric.nn import (DynamicEdgeConv, EdgeConv, GATConv, GCNConv,
+                                NNConv, SplineCon, global_max_pool,
+                                global_mean_pool, graclus)
+from torch_geometric.utils import add_self_loops, normalized_cut
+
 
 def MLP(channels, batch_norm=True):
     return Seq(*[
@@ -59,6 +66,19 @@ def get_graph_feature(x, k=20, idx=None):
     feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2)
 
     return feature
+
+
+class DynamicEdgeConvCosine(DynamicEdgeConv):
+
+    def forward(self, x, batch=None):
+        """"""
+        edge_index = knn_graph(x,
+                               self.k,
+                               batch,
+                               loop=False,
+                               flow=self.flow,
+                               cosine=True)
+        return super(DynamicEdgeConvCosine, self).forward(x, edge_index)
 
 class PNptg(torch.nn.Module):
 
@@ -390,7 +410,7 @@ class BiLSTM(torch.nn.Module):
         self.emb_size = embedding_size
         self.h_size = hidden_size
         self.mlp = MLP([input_size, embedding_size])
-        self.lstm = nn.LSTM(embedding_size, hidden_size, 
+        self.lstm = nn.LSTM(embedding_size, hidden_size,
                             bidirectional=False, batch_first=True)
         self.lin = Seq(
             MLP([hidden_size, 256]), Dropout(0.5),
@@ -402,7 +422,7 @@ class BiLSTM(torch.nn.Module):
                 torch.randn(2, 2, self.h_size))
 
     def forward(self, data):
-        # expected input has fixed size objects in batches 
+        # expected input has fixed size objects in batches
         bs = data.batch.max() + 1
         # embedding of th single points
         x = self.mlp(data.x)
@@ -448,7 +468,7 @@ class DECSeq6(torch.nn.Module):
         self.bn0 = nn.BatchNorm1d(32)
         self.conv0 = nn.Sequential(
             nn.Conv1d(input_size, 32, kernel_size=fov),nn.ReLU())
-            #self.bn0, nn.ReLU())
+        #self.bn0, nn.ReLU())
         self.conv1 = DynamicEdgeConv(MLP([2 * 32, 64, 64, 64]), k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
@@ -463,7 +483,7 @@ class DECSeq6(torch.nn.Module):
         # inverting the labels in the second half of edgde_index
         # in order to account for the flipped streamlines (in the batch size)
         # eidx[:, :eidx.size(1) // 2] = eidx[:, eidx.size(1) // 2:].flip(1)
-        eidx = eidx[:, :eidx.size(1) // 2] 
+        eidx = eidx[:, :eidx.size(1) // 2]
         x = x.view(batch_size, -1, x.size(1))
         x = x.permute(0,2,1).contiguous()
         x = self.conv0(x)
@@ -506,6 +526,26 @@ class DECSeq(torch.nn.Module):
         super(DECSeq, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(
+            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            Lin(256, n_classes))
+
+    def forward(self, data):
+        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        x1 = self.conv1(pos, eidx)
+        x2 = self.conv2(x1, batch)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
+
+class DECSeqCos(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+        super(DECSeq, self).__init__()
+        self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
+        self.conv2 = DynamicEdgeConvCosine(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
 
         self.mlp = Seq(
