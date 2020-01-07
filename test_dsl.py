@@ -384,24 +384,24 @@ def test(cfg):
                 else:
                     sl_idx = np.where(obj_pred.data.cpu().view(-1).numpy() == 1)[0]
                     pred_buffer[sample_name] = sl_idx.tolist()
-            if cfg['save_softmax_out']:
-                if cfg['model'] in 'pointnet_mgfml':
-                    if sample_name not in sm_buffer.keys():
-                        sm_buffer[sample_name] = []
-                    if classifier.feat.multi_feat > 1:
-                        sm_buffer[sample_name].append(
-                            classifier.feat.mf.softmax_out.cpu().numpy())
-                if cfg['model'] == 'pointnet_mgfml':
-                    for l in classifier.layers:
-                        sm_buffer[sample_name].append(
-                                l.mf.softmax_out.cpu().numpy())
-                sm2_buffer[sample_name] = probas.cpu().numpy()
+            #if cfg['save_softmax_out']:
+            #    if cfg['model'] in 'pointnet_mgfml':
+            #        if sample_name not in sm_buffer.keys():
+            #            sm_buffer[sample_name] = []
+            #        if classifier.feat.multi_feat > 1:
+            #            sm_buffer[sample_name].append(
+            #                classifier.feat.mf.softmax_out.cpu().numpy())
+            #    if cfg['model'] == 'pointnet_mgfml':
+            #        for l in classifier.layers:
+            #            sm_buffer[sample_name].append(
+            #                    l.mf.softmax_out.cpu().numpy())
+            #    sm2_buffer[sample_name] = probas.cpu().numpy()
             #if cfg['save_gf']:
                 #   gf_buffer[sample_name] = np.unique(
                 #           classifier.feat.globalfeat.data.cpu().squeeze().numpy(), axis = 0)
                 #gf_buffer[sample_name] = classifier.globalfeat
-            if cfg['save_embedding'] and consumed:
-                emb_buffer[sample_name] = obj_embedding
+            #if cfg['save_embedding'] and consumed:
+            #    emb_buffer[sample_name] = obj_embedding
 
 
             if consumed:
