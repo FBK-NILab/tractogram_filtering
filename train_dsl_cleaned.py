@@ -118,7 +118,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
 
         loss = F.nll_loss(pred, target.long())
 
-        ep_loss += loss
+        ep_loss += loss.item()
 
         if cfg['print_bwgraph']:
             print_net_graph(classifier, loss, writer.logdir)
@@ -162,7 +162,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
         print('\n\n')
 
         metrics_val = initialize_metrics()
-        ep_loss = 0
+        ep_loss = 0.
 
         for i, data in enumerate(val_dataloader):
             points = get_gbatch_sample(data, int(cfg['fixed_size']),
@@ -175,10 +175,10 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             logits = classifier(points)
 
             pred = F.softmax(logits, dim=-1).view(-1, num_classes)
-            pred_choice = pred.data.max(1)[1].int().cpu()
+            pred_choice = pred.data.max(1)[1].int()
 
             loss = F.nll_loss(pred, target.long())
-            ep_loss += loss
+            ep_loss += loss.item()
 
             print('val min / max class pred %d / %d' % (
                 pred_choice.min().item(), pred_choice.max().item()))
@@ -187,9 +187,9 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             ### compute performance
             update_metrics(metrics_val, pred_choice, target)
 
-            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f iou: %f' %
+            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f' %
                   ((epoch, i, len(val_dataloader), loss.item(),
-                    metrics_val['acc'][-1], metrics_val['iou'][-1])))
+                    metrics_val['acc'][-1])))
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
