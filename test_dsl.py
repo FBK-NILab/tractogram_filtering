@@ -288,14 +288,14 @@ def test(cfg):
             #print('pred shape:',pred.shape)
             #print('pred choice:',pred_choice)
             #print('pred choice shape:',pred_choice.shape)
-            if visualized < int(cfg['viz_clusters']):
-                visualized += 1
-                colors = torch.from_numpy(get_spaced_colors(n_gf))
-                sm_out = classifier.feat.mf.softmax_out[0,:,:].max(1)[1].squeeze().int()
-                writer.add_mesh('latent clustering', points, colors[sm_out.tolist()].unsqueeze(0))
-                if 'bg' in data.keys():
-                    bg_msk = data['bg']*-1
-                    writer.add_mesh('bg_mask', points, colors[bg_msk.tolist()].unsqueeze(0))
+            #if visualized < int(cfg['viz_clusters']):
+            #    visualized += 1
+            #    colors = torch.from_numpy(get_spaced_colors(n_gf))
+            #    sm_out = classifier.feat.mf.softmax_out[0,:,:].max(1)[1].squeeze().int()
+            #    writer.add_mesh('latent clustering', points, colors[sm_out.tolist()].unsqueeze(0))
+            #    if 'bg' in data.keys():
+            #        bg_msk = data['bg']*-1
+            #        writer.add_mesh('bg_mask', points, colors[bg_msk.tolist()].unsqueeze(0))
 
 
             if split_obj:
