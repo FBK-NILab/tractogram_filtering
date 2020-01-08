@@ -256,7 +256,7 @@ def train(cfg):
         # update bn decay
         if cfg['bn_decay'] and epoch != 0 and epoch % int(
                 cfg['bn_decay_step']) == 0:
-            update_bn_decay(cfg, classifier)
+            update_bn_decay(cfg, classifier, epoch)
 
         loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer, writer,
                                 epoch, n_iter)
@@ -369,7 +369,7 @@ def get_lr(optimizer):
         return float(param_group['lr'])
 
 
-def update_bn_decay(cfg, classifier):
+def update_bn_decay(cfg, classifier, epoch):
     # inspired by pointnet charlesq34 implementation
     bnd_0 = float(cfg['bn_decay_init'])
     bnd_gamma = float(cfg['bn_decay_gamma'])
