@@ -17,9 +17,9 @@ from torch_geometric.nn import global_max_pool
 from torchvision import transforms
 
 import datasets as ds
-from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeq2, DECSeq3, DECSeq5,
-                    DECSeq6, DGCNNSeq, GCNConvNet, GCNemb, NNConvNet, NNemb,
-                    PNbatch, PNemb, PNptg, PointNetPyg, ST_loss)
+from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeq2, DECSeq3,
+                    DECSeq5, DECSeq6, DGCNNSeq, GCNConvNet, GCNemb, NNConvNet,
+                    NNemb, PNbatch, PNemb, PNptg, PointNetPyg, ST_loss)
 from tensorboardX import SummaryWriter
 
 
@@ -180,8 +180,8 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             loss = F.nll_loss(pred, target.long())
             ep_loss += loss.item()
 
-            print('val min / max class pred %d / %d' % (
-                pred_choice.min().item(), pred_choice.max().item()))
+            print('val min / max class pred %d / %d' %
+                  (pred_choice.min().item(), pred_choice.max().item()))
             print('# class pred ', len(torch.unique(pred_choice)))
 
             ### compute performance
@@ -253,14 +253,20 @@ def train(cfg):
     current_lr = float(cfg['learning_rate'])
     for epoch in range(n_epochs + 1):
 
-        loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer,
-                                         writer, epoch, n_iter)
+        # update bn decay
+        if cfg['bn_decay'] and epoch != 0 and epoch % int(
+                cfg['bn_decay_step']) == 0:
+            update_bn_decay(cfg, classifier)
+
+        loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer, writer,
+                                epoch, n_iter)
 
         ### validation during training
         if epoch % int(cfg['val_freq']) == 0 and cfg['val_in_train']:
             best_epoch, best_pred = val_ep(cfg, val_dataloader, classifier,
                                            writer, epoch, best_epoch, best_pred)
 
+        # update lr
         if cfg['lr_type'] == 'step' and current_lr >= float(cfg['min_lr']):
             lr_scheduler.step()
         if cfg['lr_type'] == 'plateau':
@@ -361,6 +367,20 @@ def get_lr_scheduler(cfg, optimizer):
 def get_lr(optimizer):
     for i, param_group in enumerate(optimizer.param_groups):
         return float(param_group['lr'])
+
+
+def update_bn_decay(cfg, classifier):
+    # inspired by pointnet charlesq34 implementation
+    bnd_0 = float(cfg['bn_decay_init'])
+    bnd_gamma = float(cfg['bn_decay_gamma'])
+    bnd_step = int(cfg['bn_decay_step'])
+
+    bn_momentum = bnd_0 * bnd_gamma**(epoch / bnd_step)
+    bn_momentum = 1 - min(0.99, 1 - bn_momentum)
+    print('updated bn momentum to %f' % bn_momentum)
+    for module in classifier.modules():
+        if type(module) == torch.nn.BatchNorm1d:
+            module.momentum = bn_momentum
 
 
 def get_gbatch_sample(sample, sample_size, same_size, return_name=False):
