@@ -47,13 +47,13 @@ def get_model(cfg):
                               fov=1,
                               dropout=0.5)
     if cfg['model'] == 'dec':
-        classifier = DEC(
+        classifier = DECSeq(
             input_size,
             int(cfg['embedding_size']),
             num_classes,
             #fov=3,
             batch_size=int(cfg['batch_size']),
-            k=5,
+            k=3,
             aggr='max',
             pool_op=global_max_pool,
             same_size=cfg['same_size'])
