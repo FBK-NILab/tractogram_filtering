@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import os
 import sys
 import argparse
 import configparser
 import warnings
-import ipdb
 
 from train_dsl_cleaned import train
 from test_dsl import test

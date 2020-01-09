@@ -21,7 +21,6 @@ from tensorboardX import SummaryWriter
 from torchvision import transforms
 from train_dsl_cleaned import get_model
 import torch_geometric.transforms as T
-from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
 
 def get_ncolors(n):
@@ -208,9 +207,9 @@ def test(cfg):
 
                 if len(dataset.remaining[j]) == 0:
                     consumed = True
-                    
+
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
-             
+
             #print(points)
             #if len(points.shape()) == 2:
                 #points = points.unsqueeze(0)

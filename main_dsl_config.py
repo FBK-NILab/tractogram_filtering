@@ -2,7 +2,7 @@
 ########### model ###########
 model = dec
 batch_norm = y
-bn_decay = y
+bn_decay = n
 bn_decay_init = 0.5
 bn_decay_step = 90
 bn_decay_gamma = 0.5
@@ -33,8 +33,7 @@ val_in_train = y
 val_freq = 20
 
 ########### general ###########
-load_all_once = y
-n_workers = 8
+n_workers = 6
 model_dir = models
 save_model = y
 seed = 10

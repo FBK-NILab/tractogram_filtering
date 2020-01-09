@@ -23,7 +23,6 @@ from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
-from nilab.load_trk import load_streamlines
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 from dipy.tracking.streamline import length
 
@@ -97,7 +96,7 @@ class HCP20Dataset(gDataset):
                     gts = torch.tensor(gts).long()
             else:
                 gts = None
-           
+
             assert split_obj == True
             self.remaining[0] = np.arange(len(streamlines)).tolist()
             name = T_file.split('/')[-1].rsplit('.', 1)[0]
@@ -122,10 +121,10 @@ class HCP20Dataset(gDataset):
         return self.data_fold[idx]
 
     def get_one_streamline(self):
-        while len(self.remaining[0]) > 0: 
+        while len(self.remaining[0]) > 0:
             idx = self.remaining[0][0]
             print(idx)
-            self.remaining[0] = self.remaining[0][1:] 
+            self.remaining[0] = self.remaining[0][1:]
 
             l = self.full_subj[1][idx]
             stream = self.full_subj[0][idx]
@@ -156,7 +155,7 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_12', 'sub-%s' % sub)
+        trk_dir = os.path.join('/home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
         T_file = os.path.join(trk_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
@@ -297,6 +296,8 @@ class RndSampling(object):
         self.prop_vector = prop_vector
 
     def __call__(self, sample):
+        np.random.seed(np.uint32(torch.initial_seed()))
+
         pts, gt = sample['points'], sample['gt']
 
         n = pts.shape[0]
