@@ -13,7 +13,7 @@ knngraph = 5
 ########## training ###########
 n_epochs = 1000
 optimizer = adam
-accumulation_interval = 5
+accumulation_interval = n
 # optimizer alternatives:
 # sgd, sgd_momentum, adam
 lr_type = step
