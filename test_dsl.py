@@ -475,26 +475,26 @@ def test(cfg):
     #            pickle.dump(
     #                value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    if cfg['save_gf']:
+    #if cfg['save_gf']:
         #os.system('rm -r %s/gf_test*' % writer.logdir)
-        gf_dir = writer.logdir + '/gf_test_%d' % epoch
-        if not os.path.exists(gf_dir):
-            os.makedirs(gf_dir)
-        i = 0
-        for filename, value in gf_buffer.items():
-            if i == 3:
-                break
-            with open(os.path.join(gf_dir, filename) + '.pkl', 'wb') as f:
-                pickle.dump(value, f, protocol=pickle.HIGHEST_PROTOCOL)
+    #    gf_dir = writer.logdir + '/gf_test_%d' % epoch
+    #    if not os.path.exists(gf_dir):
+    #        os.makedirs(gf_dir)
+    #    i = 0
+    #    for filename, value in gf_buffer.items():
+    #        if i == 3:
+    #            break
+    #        with open(os.path.join(gf_dir, filename) + '.pkl', 'wb') as f:
+    #            pickle.dump(value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-    if cfg['save_embedding']:
-        print('saving embedding')
-        emb_dir = writer.logdir + '/embedding_test_%d' % epoch
-        if not os.path.exists(emb_dir):
-            os.makedirs(emb_dir)
-        for filename, value in emb_buffer.iteritems():
-            np.save(os.path.join(emb_dir, filename), value.cpu().numpy())
+    #if cfg['save_embedding']:
+    #    print('saving embedding')
+    #    emb_dir = writer.logdir + '/embedding_test_%d' % epoch
+    #    if not os.path.exists(emb_dir):
+    #        os.makedirs(emb_dir)
+    #    for filename, value in emb_buffer.iteritems():
+    #        np.save(os.path.join(emb_dir, filename), value.cpu().numpy())
 
     if cfg['with_gt']:
         print('TEST ACCURACY: %f' % torch.mean(mean_val_acc).item())
