@@ -461,19 +461,19 @@ def test(cfg):
                 pickle.dump(
                     value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    if cfg['save_softmax_out']:
-        os.system('rm -r %s/sm_out_test*' % writer.logdir)
-        sm_dir = writer.logdir + '/sm_out_test_%d' % epoch
-        if not os.path.exists(sm_dir):
-            os.makedirs(sm_dir)
-        for filename, value in sm_buffer.iteritems():
-            with open(os.path.join(sm_dir, filename) + '_sm_1.pkl', 'wb') as f:
-                pickle.dump(
-                    value, f, protocol=pickle.HIGHEST_PROTOCOL)
-        for filename, value in sm2_buffer.iteritems():
-            with open(os.path.join(sm_dir, filename) + '_sm_2.pkl', 'wb') as f:
-                pickle.dump(
-                    value, f, protocol=pickle.HIGHEST_PROTOCOL)
+    #if cfg['save_softmax_out']:
+    #    os.system('rm -r %s/sm_out_test*' % writer.logdir)
+    #    sm_dir = writer.logdir + '/sm_out_test_%d' % epoch
+    #    if not os.path.exists(sm_dir):
+    #        os.makedirs(sm_dir)
+    #    for filename, value in sm_buffer.iteritems():
+    #        with open(os.path.join(sm_dir, filename) + '_sm_1.pkl', 'wb') as f:
+    #            pickle.dump(
+    #                value, f, protocol=pickle.HIGHEST_PROTOCOL)
+    #    for filename, value in sm2_buffer.iteritems():
+    #        with open(os.path.join(sm_dir, filename) + '_sm_2.pkl', 'wb') as f:
+    #            pickle.dump(
+    #                value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     if cfg['save_gf']:
         #os.system('rm -r %s/gf_test*' % writer.logdir)
