@@ -156,7 +156,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
     num_classes = int(cfg['n_classes'])
 
     # set classifier in eval mode
-    # classifier.eval()
+    classifier.eval()
 
     with torch.no_grad():
         print('\n\n')
