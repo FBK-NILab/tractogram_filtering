@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = pn_geom
 batch_norm = y
 bn_decay = y
 bn_decay_init = 0.5
