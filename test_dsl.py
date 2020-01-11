@@ -318,7 +318,7 @@ def test(cfg):
                 #print('points:',points['streamlines'])
                 #print('points shape:',points['streamlines'].shape)
                 #print('streamlines:',
-                #data_dir = cfg['dataset_dir']
+                data_dir = cfg['dataset_dir']
                 #streamlines, head, leng, idxs = load_streamlines(data['dir']+'/'+data['name']+'.trk')
                 #print('tract:',len(streamlines))
                 #print('pred:',obj_pred_choice)
@@ -328,9 +328,9 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_pred = obj_pred_choice.cpu().numpy()
-                #np.save(data['dir']+'/y_pred_pointnet',y_pred)
+                np.save(data['dir']+'/y_pred_dec_16pts_k5_FINAL',y_pred)
                 y_test = obj_target.cpu().numpy()
-                #np.save(data['dir']+'/y_test_pointnet',y_test)
+                np.save(data['dir']+'/y_test_dec_16pts_k5_FINAL',y_test)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
