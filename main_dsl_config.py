@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = blstm
 batch_norm = y
 bn_decay = n
 bn_decay_init = 0.5
