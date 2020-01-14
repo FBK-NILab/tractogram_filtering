@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
 from torchvision import transforms
+from torch_geometric.nn import global_max_pool
 
 import datasets as ds
 from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeqSelf, DECSeq2, DECSeq3,
@@ -52,9 +53,11 @@ def get_model(cfg):
             num_classes,
             dropout=cfg['dropout'],
             #fov=3,
-            k=int(cfg['k_dec']),
+            #k=int(cfg['k_dec']),
+            k=5,
             aggr='max',
-            pool_op=cfg['pool_op'])
+            pool_op=global_max_pool)
+            #pool_op=cfg['pool_op'])
         #bn=True)
     if cfg['model'] == 'nnc':
         classifier = NNC(input_size,
