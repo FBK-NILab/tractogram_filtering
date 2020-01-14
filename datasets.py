@@ -73,6 +73,7 @@ class HCP20Dataset(gDataset):
             self.remaining = [[] for _ in range(len(subjects))]
         self.split_obj = split_obj
         if self.load_one_full_subj:
+            print('loading one full subject')
             #sub = subjects[0]
             sub = self.subjects[0]
             print(sub)
@@ -114,7 +115,11 @@ class HCP20Dataset(gDataset):
             return self.get_one_streamline()
         fs = self.fold_size
         if fs is None:
-            return self.getitem(idx)
+            #print(self.subjects[idx])
+            #t0 = time.time()
+            item = self.getitem(idx)
+            #print('get item time: {}'.format(time.time()-t0))
+            return item
 
         fs_0 = (self.n_fold * fs)
         idx = fs_0 + (idx % fs)
@@ -145,6 +150,7 @@ class HCP20Dataset(gDataset):
             return sample
 
     def load_fold(self):
+        print('loading fold')
         fs = self.fold_size
         fs_0 = self.n_fold * fs
         #t0 = time.time()
@@ -154,16 +160,16 @@ class HCP20Dataset(gDataset):
 
     def getitem(self, idx):
         sub = self.subjects[idx]
-        #print('sub:', sub)
+        #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
-        label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
-
-        with open(label_file, 'rb') as f:
-            gt = pickle.load(f)
-        gt = np.array(gt) if type(gt) == list else gt
+        #print('\tload lazy T %f' % (time.time()-t0))
+        #t0 = time.time()
+        gt = np.load(label_file)
+        #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
                 self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
@@ -180,7 +186,7 @@ class HCP20Dataset(gDataset):
         #t0 = time.time()
         if self.transform:
             sample = self.transform(sample)
-        #print('time sampling %f' % (time.time()-t0))
+        #print('\ttime sampling %f' % (time.time()-t0))
 
         if self.split_obj:
             self.remaining[idx] -= set(sample['points'])
@@ -205,7 +211,7 @@ class HCP20Dataset(gDataset):
             #                                        container='array_flat')
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-        #print('time loading selected streamlines %f' % (time.time()-t0))
+        #print('\ttime loading selected streamlines %f' % (time.time()-t0))
 
         #t0 = time.time()
         sample['points'] = self.build_graph_sample(streams,
@@ -213,7 +219,7 @@ class HCP20Dataset(gDataset):
                     torch.from_numpy(sample['gt']) if self.with_gt else None)
         #sample['tract'] = streamlines
         #print('sample:',sample['points'])
-        #print('time building graph %f' % (time.time()-t0))
+        #print('\ttime building graph %f' % (time.time()-t0))
         return sample
 
     def build_graph_sample(self, streams, lengths, gt=None):
