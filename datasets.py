@@ -171,6 +171,7 @@ class HCP20Dataset(gDataset):
         #gt = np.load(label_file)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
+        gt = np.array(gt)
         #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
@@ -367,7 +368,7 @@ class RndSampling(object):
             chosen_idx = np.array(chosen_idx)
         else:
             chosen_idx = np.random.choice(range(n), self.output_size)
-        print(chosen_idx)
+        
         out_gt = gt[chosen_idx] if len(gt) > 1 else gt
         return {'points': pts[chosen_idx], 'gt': out_gt}
 
