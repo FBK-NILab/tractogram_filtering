@@ -585,7 +585,7 @@ class DECSeqSelf(torch.nn.Module):
         return out
 
 class DECSeq(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, dropout=True, k=5, pool_op='max'):
+    def __init__(self, input_size, embedding_size, n_classes, dropout=True, k=5, aggr='max',pool_op='max'):
         super(DECSeq, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
