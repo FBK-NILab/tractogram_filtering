@@ -2,7 +2,7 @@
 ########### model ###########
 model = dec
 batch_norm = y
-dropout = y
+dropout = n
 spatial_tn = n
 knngraph = 5
 k_dec = 5
