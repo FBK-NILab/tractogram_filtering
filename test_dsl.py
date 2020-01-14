@@ -88,7 +88,6 @@ def test(cfg):
     elif cfg['dataset'] == 'hcp20_graph':
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
-                                  act=cfg['act'],
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
@@ -242,9 +241,6 @@ def test(cfg):
             #new_k = points['lengths'].item()*(5/16)
             #print('new k:',new_k,'rounded k:',int(round(new_k)))
             #classifier.conv2.k = int(round(new_k))
-            if cfg['multi_category']:
-                one_hot_label = Variable(data['category'])
-                classifier.category_vec = one_hot_label.cuda()
 
             #if cfg['multi_loss']:
                 #logits, gf = classifier(points)
@@ -412,40 +408,9 @@ def test(cfg):
 
 
 
-        if cfg['multi_category']:
-            macro_iou = torch.ones(num_classes) * -1
-            macro_prec = torch.ones(num_classes) * -1
-            macro_recall = torch.ones(num_classes) * -1
-            micro_iou = torch.ones(int(cfg['multi_category'])) * -1
-            micro_prec = torch.ones(int(cfg['multi_category'])) * -1
-            micro_recall = torch.ones(int(cfg['multi_category'])) * -1
-            s = 0
-            for cat,p in enumerate(cfg['num_parts'].split()):
-                idx = (mean_val_iou[:,-1] == cat).nonzero()
-                if len(idx) == 0:
-                    s += int(p)
-                    continue
-                multicat_iou = mean_val_iou[idx,s:s+int(p)].mean(0)
-                multicat_prec = mean_val_prec[idx,s:s+int(p)].mean(0)
-                multicat_recall = mean_val_recall[idx,s:s+int(p)].mean(0)
-                micro_iou[cat] = multicat_iou.mean()
-                micro_prec[cat] = multicat_prec.mean()
-                micro_recall[cat] = multicat_recall.mean()
-                macro_iou[s:s+int(p)] = multicat_iou
-                macro_prec[s:s+int(p)] = multicat_prec
-                macro_recall[s:s+int(p)] = multicat_recall
-                s += int(p)
-            macro_iou = macro_iou[macro_iou != -1.].mean()
-            macro_prec = macro_prec[macro_prec != -1.].mean()
-            macro_recall = macro_recall[macro_recall != -1.].mean()
-            writer.add_text('MultiCategory macro-IoU', str(macro_iou.cpu().numpy().astype(np.float16)), epoch)
-            writer.add_text('MultiCategory micro-IoU', str(micro_iou.cpu().numpy().astype(np.float16)), epoch)
-            writer.add_text('MultiCategory micro-Precision', str(micro_prec.cpu().numpy().astype(np.float16)), epoch)
-            writer.add_text('MultiCategory micro-Recall', str(micro_recall.cpu().numpy().astype(np.float16)), epoch)
-        else:
-            macro_iou = torch.mean(mean_val_iou)
-            macro_prec = torch.mean(mean_val_prec)
-            macro_recall = torch.mean(mean_val_recall)
+        macro_iou = torch.mean(mean_val_iou)
+        macro_prec = torch.mean(mean_val_prec)
+        macro_recall = torch.mean(mean_val_recall)
 
         epoch_iou = macro_iou.item()
 
@@ -503,34 +468,33 @@ def test(cfg):
         mean_val_dsc = mean_val_prec * mean_val_recall * 2 / (mean_val_prec + mean_val_recall)
         final_scores_file = writer.logdir + '/final_scores_test_%d.txt' % epoch
         scores_file = writer.logdir + '/scores_test_%d.txt' % epoch
-        if not cfg['multi_category']:
-            print('saving scores')
-            with open(scores_file, 'w') as f:
-                f.write('acc\n')
-                f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
-                f.write('prec\n')
-                f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
-                f.write('recall\n')
-                f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
-                f.write('dsc\n')
-                f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
-                f.write('iou\n')
-                f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
-            with open(final_scores_file, 'w') as f:
-                f.write('acc\n')
-                f.write('%f\n' % mean_val_acc.mean())
-                f.write('%f\n' % mean_val_acc.std())
-                f.write('prec\n')
-                f.write('%f\n' % mean_val_prec.mean())
-                f.write('%f\n' % mean_val_prec.std())
-                f.write('recall\n')
-                f.write('%f\n' % mean_val_recall.mean())
-                f.write('%f\n' % mean_val_recall.std())
-                f.write('dsc\n')
-                f.write('%f\n' % mean_val_dsc.mean())
-                f.write('%f\n' % mean_val_dsc.std())
-                f.write('iou\n')
-                f.write('%f\n' % mean_val_iou.mean())
-                f.write('%f\n' % mean_val_iou.std())
+        print('saving scores')
+        with open(scores_file, 'w') as f:
+            f.write('acc\n')
+            f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
+            f.write('prec\n')
+            f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
+            f.write('recall\n')
+            f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
+            f.write('dsc\n')
+            f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
+            f.write('iou\n')
+            f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
+        with open(final_scores_file, 'w') as f:
+            f.write('acc\n')
+            f.write('%f\n' % mean_val_acc.mean())
+            f.write('%f\n' % mean_val_acc.std())
+            f.write('prec\n')
+            f.write('%f\n' % mean_val_prec.mean())
+            f.write('%f\n' % mean_val_prec.std())
+            f.write('recall\n')
+            f.write('%f\n' % mean_val_recall.mean())
+            f.write('%f\n' % mean_val_recall.std())
+            f.write('dsc\n')
+            f.write('%f\n' % mean_val_dsc.mean())
+            f.write('%f\n' % mean_val_dsc.std())
+            f.write('iou\n')
+            f.write('%f\n' % mean_val_iou.mean())
+            f.write('%f\n' % mean_val_iou.std())
 
     print('\n\n')

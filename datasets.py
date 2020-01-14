@@ -24,6 +24,7 @@ from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
 from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
+from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
 
 
@@ -155,11 +156,9 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        trk_dir = os.path.join('/home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-        T_file = os.path.join(trk_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
-        #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
-        #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+        label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
+        label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
 
         with open(label_file, 'rb') as f:
@@ -176,6 +175,7 @@ class HCP20Dataset(gDataset):
             #if self.with_gt:
             #sample['gt'] = gt
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+        #print(sample['name'])
 
         #t0 = time.time()
         if self.transform:
@@ -188,10 +188,8 @@ class HCP20Dataset(gDataset):
             sample['obj_full_size'] = T.header['nb_streamlines']
             #sample['streamlines'] = T.streamlines
 
-        #t0 = time.time()
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
         sample['dir'] = sub_dir
-        #print(sample['name'])
 
         n = len(sample['points'])
         #t0 = time.time()
@@ -202,9 +200,14 @@ class HCP20Dataset(gDataset):
             streams.reshape(n, l_max, -1)
             sample['points'] = torch.from_numpy(streams)
         else:
+            #streams, _, lengths, _ = load_streamlines(T_file,
+            #                                        idxs=sample['points'].tolist(),
+            #                                        container='array_flat')
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
+        #print('time loading selected streamlines %f' % (time.time()-t0))
 
+        #t0 = time.time()
         sample['points'] = self.build_graph_sample(streams,
                     lengths,
                     torch.from_numpy(sample['gt']) if self.with_gt else None)
@@ -214,7 +217,6 @@ class HCP20Dataset(gDataset):
         return sample
 
     def build_graph_sample(self, streams, lengths, gt=None):
-        #print('time loading selected streamlines %f' % (time.time()-t0))
         #t0 = time.time()
         #print('time numpy split %f' % (time.time()-t0))
         ### create graph structure

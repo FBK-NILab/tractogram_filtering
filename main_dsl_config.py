@@ -7,8 +7,9 @@ bn_decay_init = 0.5
 bn_decay_step = 90
 bn_decay_gamma = 0.5
 dropout = y
-spatial_tn = 2
+spatial_tn = n
 knngraph = 5
+k_dec = 5
 
 ########## training ###########
 n_epochs = 1000
@@ -18,7 +19,7 @@ accumulation_interval = n
 # sgd, sgd_momentum, adam
 lr_type = step
 learning_rate = 1e-3
-min_lr = 1e-6
+min_lr = 5e-5
 lr_ep_step = 90
 lr_gamma = 0.7
 momentum = 0.9
@@ -50,16 +51,18 @@ print_bwgraph = n
 [HCP20]
 ########### data ###########
 dataset = hcp20_graph
-dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+#dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 fixed_size = 8000
-val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+#val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
-act = y
 data_dim = 3
 embedding_size = 40
 fold_size = 2
+return_edges = y
 
 batch_size = 2
 repeat_sampling = 3
@@ -67,12 +70,11 @@ shuffling = y
 rnd_sampling = y
 standardization = n
 n_classes = 2
-multi_category = n
 ignore_class = 0
 same_size = y
 
-#experiment_name = decseq1_loss_nll-data_hcp20_resampled16_full_nogradacc_
-experiment_name = decseq1_loss-nll_data-hcp20_12pts_k3_fs8000_nobug
+experiment_name = decseq_self_loss_nll-data_hcp20_resampled16_k5_fs8000
+#experiment_name = pngeom2_bn_loss-nll_data-hcp20_coords_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
