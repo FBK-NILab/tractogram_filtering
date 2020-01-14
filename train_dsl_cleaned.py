@@ -55,7 +55,8 @@ def get_model(cfg):
             #k=int(cfg['k_dec']),
             k=5,
             aggr='max',
-            pool_op=cfg['pool_op'])
+            pool_op=global_max_pool)
+            #pool_op=cfg['pool_op'])
         #bn=True)
     if cfg['model'] == 'nnc':
         classifier = NNC(input_size,
