@@ -416,7 +416,7 @@ class NNConvNet(torch.nn.Module):
         return x
 
 class DEC(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, aggr='max', k=5, pool_op='max', same_size=False):
         super(DEC, self).__init__()
         self.k = k
         self.conv1 = DynamicEdgeConv(MLP([2 * 3, 64, 64, 64]), self.k, aggr)
@@ -476,7 +476,7 @@ class BiLSTM(torch.nn.Module):
 
 
 class DECSeq7(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, aggr='max', k=5, pool_op='max', same_size=False):
         super(DECSeq5, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
@@ -499,7 +499,7 @@ class DECSeq7(torch.nn.Module):
 
 
 class DECSeq6(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, pool_op='max', same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, fov=1, aggr='max', k=5, pool_op='max', same_size=False):
         super(DECSeq6, self).__init__()
         self.fov = fov
         self.bn0 = nn.BatchNorm1d(32)
@@ -562,7 +562,7 @@ class DECSeq5(torch.nn.Module):
         return out
 
 class DECSeqSelf(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, aggr='max', k=5, pool_op='max', same_size=False):
         super(DECSeqSelf, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
@@ -612,7 +612,7 @@ class DECSeq(torch.nn.Module):
         return out
 
 class DECSeqCos(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, aggr='max', k=5, pool_op='max', same_size=False):
         super(DECSeqCos, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConvCosine(MLP([2 * 64, 128]), k, aggr)
