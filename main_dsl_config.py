@@ -1,8 +1,8 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = pn_geom
 batch_norm = y
-dropout = n
+dropout = y
 spatial_tn = n
 knngraph = 5
 k_dec = 5
