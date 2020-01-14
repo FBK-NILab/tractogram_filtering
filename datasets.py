@@ -171,6 +171,7 @@ class HCP20Dataset(gDataset):
         #gt = np.load(label_file)
         with open(label_file, 'rb') as f:
             gt = pickle.load(f)
+        print(gt)
         #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
