@@ -77,7 +77,7 @@ def get_model(cfg):
         classifier = PNptg2(input_size,
                            int(cfg['embedding_size']),
                            num_classes,
-                           batch_size=int(cfg['batch_size']),
+                           #batch_size=int(cfg['batch_size']),
                            same_size=cfg['same_size'])
     return classifier
 
