@@ -87,15 +87,15 @@ class PNptg2(torch.nn.Module):
                  input_size,
                  embedding_size,
                  n_classes,
-                 batch_size=1,
-                 pool_op=global_max_pool,
+                 pool_op='max',
                  same_size=False):
         super(PNptg2, self).__init__()
         self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.fc = MLP([1024, 512, 256, 128, embedding_size])
         #self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024, 512, 256, embedding_size])
         self.fc_cls = nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
         self.embedding = None
 
     def forward(self, gdata):
@@ -114,12 +114,13 @@ class PNptg(torch.nn.Module):
                  embedding_size,
                  n_classes,
                  batch_size=1,
-                 pool_op=global_max_pool,
+                 pool_op='max',
                  same_size=False):
         super(PNptg, self).__init__()
         self.pn = PNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -220,7 +221,8 @@ class PointNetPyg(torch.nn.Module):
         super(PointNetPyg, self).__init__()
         self.pn = PNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -289,12 +291,13 @@ class GCNConvNet(torch.nn.Module):
                 embedding_size,
                 n_classes,
                 batch_size=1,
-                pool_op=global_max_pool,
+                pool_op='max',
                 same_size=False):
         super(GCNConvNet, self).__init__()
         self.gcn = GCNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -310,7 +313,7 @@ class GCNConvNet(torch.nn.Module):
         return x
 
 class NNC1(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, pool_op='max', same_size=False):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*32))
         self.conv1_0 = NNConv(input_size, 32, nn1)
@@ -324,7 +327,8 @@ class NNC1(torch.nn.Module):
         self.conv3 = NNConv(64, embedding_size, nn5)
 
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -343,7 +347,7 @@ class NNC1(torch.nn.Module):
         return x
 
 class NNC(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, pool_op='max', same_size=False):
         super(NNC, self).__init__()
         nn1 = nn.Sequential(nn.Linear(1, 32), nn.ReLU(), nn.Linear(32, input_size*32))
         self.conv1_0 = NNConv(input_size, 32, nn1, aggr='max')
@@ -353,7 +357,8 @@ class NNC(torch.nn.Module):
         self.conv3 = NNConv(64, embedding_size, nn4, aggr='max')
 
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -389,12 +394,13 @@ class NNConvNet(torch.nn.Module):
                  embedding_size,
                  n_classes,
                  batch_size=1,
-                 pool_op=global_max_pool,
+                 pool_op='max',
                  same_size=False):
         super(NNConvNet, self).__init__()
         self.nnc = NNemb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        self.pool = pool_op
+        if pool_op == 'max':
+            self.pool = global_max_pool
         self.bs = batch_size
         self.emb_size = embedding_size
         self.same_size = same_size
@@ -410,12 +416,14 @@ class NNConvNet(torch.nn.Module):
         return x
 
 class DEC(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
         super(DEC, self).__init__()
         self.k = k
         self.conv1 = DynamicEdgeConv(MLP([2 * 3, 64, 64, 64]), self.k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), self.k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -426,7 +434,7 @@ class DEC(torch.nn.Module):
         x1 = self.conv1(pos, batch)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
@@ -468,11 +476,13 @@ class BiLSTM(torch.nn.Module):
 
 
 class DECSeq7(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
         super(DECSeq5, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -483,13 +493,13 @@ class DECSeq7(torch.nn.Module):
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, eidx)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
 
 class DECSeq6(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, fov=1, k=5, pool_op='max', same_size=False):
         super(DECSeq6, self).__init__()
         self.fov = fov
         self.bn0 = nn.BatchNorm1d(32)
@@ -499,6 +509,8 @@ class DECSeq6(torch.nn.Module):
         self.conv1 = DynamicEdgeConv(MLP([2 * 32, 64, 64, 64]), k, aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -520,19 +532,21 @@ class DECSeq6(torch.nn.Module):
         x1 = self.conv1(x0, batch)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
 
 
 class DECSeq5(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=4, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=4, aggr='max',pool_op='max', same_size=False):
         super(DECSeq5, self).__init__()
         self.k = k
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = EdgeConv(MLP([2 * 64, 128]), aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -543,16 +557,18 @@ class DECSeq5(torch.nn.Module):
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, eidx)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
 class DECSeqSelf(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
         super(DECSeqSelf, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -564,39 +580,45 @@ class DECSeqSelf(torch.nn.Module):
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
 class DECSeq(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, dropout=True, k=5, pool_op='max'):
         super(DECSeq, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
-        #self.mlp = Seq(
-        #    MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
-        #    Lin(256, n_classes))
-        self.mlp = Seq(
-            MLP([1024, 512]), MLP([512, 256]),
-            Lin(256, n_classes))
+        if dropout:
+            self.mlp = Seq(
+                MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+                Lin(256, n_classes))
+        else:
+            self.mlp = Seq(
+                MLP([1024, 512]), MLP([512, 256]),
+                Lin(256, n_classes))
 
     def forward(self, data):
         pos, batch, eidx = data.pos, data.batch, data.edge_index
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
 class DECSeqCos(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+    def __init__(self, input_size, embedding_size, n_classes, k=5, pool_op='max', same_size=False):
         super(DECSeqCos, self).__init__()
         self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
         self.conv2 = DynamicEdgeConvCosine(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
+        if pool_op == 'max':
+            self.pool = global_max_pool
 
         self.mlp = Seq(
             MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
@@ -607,7 +629,7 @@ class DECSeqCos(torch.nn.Module):
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, batch)
         out = self.lin1(torch.cat([x1, x2], dim=1))
-        out = global_max_pool(out, batch)
+        out = self.pool(out, batch)
         out = self.mlp(out)
         return out
 
@@ -620,7 +642,6 @@ class DECSeq2(torch.nn.Module):
                  fov=4,
                  k=5,
                  aggr='max',
-                 pool_op=global_max_pool,
                  bn=True):
         super(DECSeq2, self).__init__()
         pad = int(fov / 2)
@@ -687,7 +708,6 @@ class DECSeq3(torch.nn.Module):
                  fov=1,
                  k=5,
                  aggr='max',
-                 pool_op=global_max_pool,
                  bn=True):
         super(DECSeq3, self).__init__()
         pad = int(fov / 2)

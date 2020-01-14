@@ -13,7 +13,6 @@ import torch_geometric.transforms as T
 from torch.utils.data import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
-from torch_geometric.nn import global_max_pool
 from torchvision import transforms
 
 import datasets as ds
@@ -51,26 +50,25 @@ def get_model(cfg):
             input_size,
             int(cfg['embedding_size']),
             num_classes,
+            dropout=cfg['dropout'],
             #fov=3,
-            batch_size=int(cfg['batch_size']),
             k=int(cfg['k_dec']),
             aggr='max',
-            pool_op=global_max_pool,
-            same_size=cfg['same_size'])
+            pool_op=cfg['pool_op'])
         #bn=True)
     if cfg['model'] == 'nnc':
         classifier = NNC(input_size,
                          int(cfg['embedding_size']),
                          num_classes,
                          batch_size=int(cfg['batch_size']),
-                         pool_op=global_max_pool,
+                         pool_op=cfg['pool_op'],
                          same_size=cfg['same_size'])
     if cfg['model'] == 'gcn':
         classifier = GCNConvNet(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
                                 batch_size=int(cfg['batch_size']),
-                                pool_op=global_max_pool,
+                                pool_op=cfg['pool_op'],
                                 same_size=cfg['same_size'])
     elif cfg['model'] == 'pn_geom':
         classifier = PNptg2(input_size,
@@ -142,7 +140,6 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     writer.add_scalar('train/epoch_loss', ep_loss, epoch)
 
     log_avg_metrics(writer, metrics, 'train', epoch)
-
     return ep_loss, n_iter
 
 
