@@ -6,7 +6,7 @@ bn_decay = n
 bn_decay_init = 0.5
 bn_decay_step = 90
 bn_decay_gamma = 0.5
-dropout = y
+dropout = n
 spatial_tn = 2
 knngraph = 5
 
@@ -72,7 +72,7 @@ ignore_class = 0
 same_size = y
 
 #experiment_name = decseq1_loss_nll-data_hcp20_resampled16_full_nogradacc_
-experiment_name = SDEC_loss-nll_data-hcp20_16pts_k5_fs7000_nobug
+experiment_name = SDEC_loss-nll_data-hcp20_16pts_k5_fs7000_nobug_nodropout
 
 ####### ************************************************************************
 ####### ************************************************************************
