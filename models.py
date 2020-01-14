@@ -528,8 +528,11 @@ class DECSeq(torch.nn.Module):
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
 
+        #self.mlp = Seq(
+        #    MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+        #    Lin(256, n_classes))
         self.mlp = Seq(
-            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            MLP([1024, 512]), MLP([512, 256]),
             Lin(256, n_classes))
 
     def forward(self, data):
