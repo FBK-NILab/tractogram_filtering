@@ -168,10 +168,7 @@ class HCP20Dataset(gDataset):
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
-        #gt = np.load(label_file)
-        with open(label_file, 'rb') as f:
-            gt = pickle.load(f)
-        gt = np.array(gt)
+        gt = np.load(label_file)
         #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
