@@ -11,7 +11,7 @@ pool_op = max
 ########## training ###########
 n_epochs = 1000
 
-optimizer = adam # sgd, sgd_momentum, adam
+optimizer = adam
 accumulation_interval = n
 lr_type = step
 learning_rate = 1e-3
@@ -56,11 +56,11 @@ print_bwgraph = n
 [HCP20]
 ########### data ###########
 dataset = hcp20_graph
-dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-#dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 fixed_size = 8000
-val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-#val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
+val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
