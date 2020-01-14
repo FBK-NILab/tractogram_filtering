@@ -80,6 +80,33 @@ class DynamicEdgeConvCosine(DynamicEdgeConv):
                                cosine=True)
         return super(DynamicEdgeConv, self).forward(x, edge_index)
 
+
+class PNptg2(torch.nn.Module):
+
+    def __init__(self,
+                 input_size,
+                 embedding_size,
+                 n_classes,
+                 batch_size=1,
+                 pool_op=global_max_pool,
+                 same_size=False):
+        super(PNptg2, self).__init__()
+        self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024])
+        self.fc = MLP([1024, 512, 256, 128, embedding_size])
+        #self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024, 512, 256, embedding_size])
+        self.fc_cls = nn.Linear(embedding_size, n_classes)
+        self.pool = pool_op
+        self.embedding = None
+
+    def forward(self, gdata):
+        x, batch = gdata.x, gdata.batch
+        x = self.fc_enc(x)
+        emb = self.pool(x,batch)
+        self.embedding = x.data
+        x = self.fc(emb)
+        x = self.fc_cls(x)
+        return x
+
 class PNptg(torch.nn.Module):
 
     def __init__(self,
@@ -520,6 +547,26 @@ class DECSeq5(torch.nn.Module):
         out = self.mlp(out)
         return out
 
+class DECSeqSelf(torch.nn.Module):
+    def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):
+        super(DECSeqSelf, self).__init__()
+        self.conv1 = EdgeConv(MLP([2 * 3, 64, 64, 64]), aggr)
+        self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
+        self.lin1 = MLP([128 + 64, 1024])
+
+        self.mlp = Seq(
+            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            Lin(256, n_classes))
+
+    def forward(self, data):
+        pos, batch, eidx = data.pos, data.batch, data.edge_index
+        eidx, _ = add_self_loops(eidx,num_nodes=pos.size(0))
+        x1 = self.conv1(pos, eidx)
+        x2 = self.conv2(x1, batch)
+        out = self.lin1(torch.cat([x1, x2], dim=1))
+        out = global_max_pool(out, batch)
+        out = self.mlp(out)
+        return out
 
 class DECSeq(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, batch_size=1, k=5, aggr='max',pool_op=global_max_pool, same_size=False):

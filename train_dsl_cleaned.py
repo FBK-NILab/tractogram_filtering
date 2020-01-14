@@ -17,9 +17,9 @@ from torch_geometric.nn import global_max_pool
 from torchvision import transforms
 
 import datasets as ds
-from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeq2, DECSeq3,
+from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeqSelf, DECSeq2, DECSeq3,
                     DECSeq5, DECSeq6, DGCNNSeq, GCNConvNet, GCNemb, NNConvNet,
-                    NNemb, PNbatch, PNemb, PNptg, PointNetPyg, ST_loss)
+                    NNemb, PNbatch, PNemb, PNptg, PNptg2, PointNetPyg, ST_loss)
 from tensorboardX import SummaryWriter
 
 
@@ -53,7 +53,7 @@ def get_model(cfg):
             num_classes,
             #fov=3,
             batch_size=int(cfg['batch_size']),
-            k=3,
+            k=int(cfg['k_dec']),
             aggr='max',
             pool_op=global_max_pool,
             same_size=cfg['same_size'])
@@ -73,11 +73,10 @@ def get_model(cfg):
                                 pool_op=global_max_pool,
                                 same_size=cfg['same_size'])
     elif cfg['model'] == 'pn_geom':
-        classifier = PNptg(input_size,
+        classifier = PNptg2(input_size,
                            int(cfg['embedding_size']),
                            num_classes,
                            batch_size=int(cfg['batch_size']),
-                           pool_op=global_max_pool,
                            same_size=cfg['same_size'])
     return classifier
 
@@ -319,7 +318,7 @@ def get_dataset(cfg, trans, train=True):
     dataset = ds.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
                               transform=transforms.Compose(trans),
-                              return_edges=True,
+                              return_edges=cfg['return_edges'],
                               load_one_full_subj=False)
 
     dataloader = gDataLoader(dataset,
@@ -462,7 +461,8 @@ def dump_model(cfg, model, logdir, epoch, score, best=False):
     modeldir = os.path.join(logdir, cfg['model_dir'])
     if not os.path.exists(modeldir):
         os.makedirs(modeldir)
-    elif best:
-        os.system('rm %s/best_model*.pth' % modeldir)
+    else:
+        os.system('rm %s/%smodel*.pth' % (modeldir, prefix))
     torch.save(model.state_dict(),
-               '%s/%smodel_iou-%f_ep-%d.pth' % (modeldir, prefix, score, epoch))
+               '%s/%smodel_ep-%d_score-%f.pth' %
+                    (modeldir, prefix, epoch, score))
