@@ -57,10 +57,12 @@ print_bwgraph = n
 ########### data ###########
 dataset = hcp20_graph
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 fixed_size = 8000
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
