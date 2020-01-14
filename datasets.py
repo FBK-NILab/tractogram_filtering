@@ -156,17 +156,9 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #print('sub:', sub)
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-<<<<<<< HEAD
         T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
         label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
-=======
-        trk_dir = os.path.join('/home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16', 'sub-%s' % sub)
-        T_file = os.path.join(trk_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
-        #T_file = os.path.join(sub_dir, 'All_%s.trk' % (tract_type))
-        #label_file = os.path.join(sub_dir, 'All_%s_gt.pkl' % (tract_type))
->>>>>>> cbf478c0e46f7bbf0f33c56cd177ca7234cf7e2a
         T = nib.streamlines.load(T_file, lazy_load=True)
 
         with open(label_file, 'rb') as f:
