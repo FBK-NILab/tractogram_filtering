@@ -438,7 +438,7 @@ class BiLSTM(torch.nn.Module):
         self.h_size = hidden_size
         self.mlp = MLP([input_size, embedding_size])
         self.lstm = nn.LSTM(embedding_size, hidden_size,
-                            bidirectional=False, batch_first=True)
+                            bidirectional=True, batch_first=True)
         self.lin = Seq(
             MLP([hidden_size, 256]), Dropout(0.5),
             MLP([256, 128]), Dropout(0.5),
@@ -575,8 +575,11 @@ class DECSeq(torch.nn.Module):
         self.conv2 = DynamicEdgeConv(MLP([2 * 64, 128]), k, aggr)
         self.lin1 = MLP([128 + 64, 1024])
 
+        #self.mlp = Seq(
+        #    MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+        #    Lin(256, n_classes))
         self.mlp = Seq(
-            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            MLP([1024, 512]), MLP([512, 256]),
             Lin(256, n_classes))
 
     def forward(self, data):
