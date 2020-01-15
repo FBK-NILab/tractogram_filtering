@@ -103,7 +103,9 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
                                    cfg['same_size'])
         target = points['y']
         
-        print(points)
+        print(points['x'])
+        print(points['edge_index'])
+        print(points['y'])
         points, target = points.to('cuda'), target.to('cuda')
 
         ### initialize gradients
