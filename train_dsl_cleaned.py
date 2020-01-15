@@ -53,11 +53,11 @@ def get_model(cfg):
             num_classes,
             dropout=cfg['dropout'],
             #fov=3,
-            #k=int(cfg['k_dec']),
-            k=5,
+            k=int(cfg['k_dec']),
+            #k=5,
             aggr='max',
-            pool_op=global_max_pool)
-            #pool_op=cfg['pool_op'])
+            #pool_op=global_max_pool)
+            pool_op=cfg['pool_op'])
         #bn=True)
     if cfg['model'] == 'nnc':
         classifier = NNC(input_size,
