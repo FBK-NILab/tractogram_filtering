@@ -2,7 +2,7 @@
 ########### model ###########
 model = dec
 batch_norm = y
-dropout = n
+dropout = y
 spatial_tn = n
 knngraph = 5
 k_dec = 5
@@ -82,7 +82,7 @@ same_size = y
 
 #experiment_name = pngeom2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = decseq1_loss_nll-data_hcp20_resampled16_full_nogradacc_
-experiment_name = SDEC_loss-nll_data-hcp20_coords_k5_fs8000_nobug
+experiment_name = SDEC_loss-nll_data-hcp20_16pts_k5_fs8000_nobug_FINAL
 
 ####### ************************************************************************
 ####### ************************************************************************
