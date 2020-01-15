@@ -102,7 +102,8 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         points = get_gbatch_sample(sample_batched, int(cfg['fixed_size']),
                                    cfg['same_size'])
         target = points['y']
-
+        
+        print(points)
         points, target = points.to('cuda'), target.to('cuda')
 
         ### initialize gradients
