@@ -5,7 +5,7 @@ batch_norm = y
 dropout = y
 spatial_tn = n
 knngraph = 5
-k_dec = 15
+k_dec = 5
 pool_op = max
 
 ########## training ###########
@@ -59,7 +59,7 @@ dataset = hcp20_graph
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
-fixed_size = 6000
+fixed_size = 7000
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
 val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
