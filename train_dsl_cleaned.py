@@ -49,7 +49,7 @@ def get_model(cfg):
             input_size,
             int(cfg['embedding_size']),
             num_classes,
-            dropout=cfg['dropout'],
+            #dropout=cfg['dropout'],
             #fov=3,
             k=int(cfg['k_dec']),
             #k=5,
