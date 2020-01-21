@@ -83,7 +83,7 @@ class PNemb(torch.nn.Module):
     
 class GATConvNet(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes):
-        super(Net, self).__init__()
+        super(GATConvNet, self).__init__()
         self.conv1 = GATConv(input_size, 8, heads=8, dropout=0.6)
         # On the Pubmed dataset, use heads=8 in conv2.
         self.conv2 = GATConv(
