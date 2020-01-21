@@ -84,10 +84,9 @@ class PNemb(torch.nn.Module):
 class GATConvNet(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes):
         super(GATConvNet, self).__init__()
-        self.conv1 = GATConv(input_size, 64, heads=8, dropout=0.6)
-        self.conv2 = GATConv(64, 128, heads=1, concat=True, dropout=0.6)
-        self.conv3 = GATConv(128, 512, heads=1, concat=True, dropout=0.6)
-        self.conv4 = GATConv(512, 256, heads=1, concat=True, dropout=0.6)
+        self.conv1 = GATConv(input_size, 4, heads=8, dropout=0.6)
+        self.conv2 = GATConv(4*4, 16, heads=1, concat=True, dropout=0.6)
+        self.conv3 = GATConv(16*16, 256, heads=1, concat=True, dropout=0.6)
         self.conv5 = GATConv(256, embedding_size, heads=1, concat=True, dropout=0.6)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
 
@@ -98,8 +97,6 @@ class GATConvNet(torch.nn.Module):
         x = F.relu(self.conv2(x, data.edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = F.relu(self.conv3(x, data.edge_index))
-        x = F.dropout(x, p=0.6, training=self.training)
-        x = F.relu(self.conv4(x, data.edge_index))
         x = F.dropout(x, p=0.6, training=self.training)
         x = self.conv5(x, data.edge_index)
         x = global_max_pool(x,data.batch)
