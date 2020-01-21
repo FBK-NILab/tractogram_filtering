@@ -21,7 +21,7 @@ from torch.nn import Sequential as Seq
 
 from torch_cluster import knn_graph
 from torch_geometric.nn import (DynamicEdgeConv, EdgeConv, GATConv, GCNConv,
-                                NNConv, SplineConv, GATConv, global_max_pool,
+                                NNConv, SplineConv, global_max_pool,
                                 global_mean_pool, graclus)
 from torch_geometric.utils import add_self_loops, normalized_cut
 
@@ -106,29 +106,20 @@ class GATEmb(torch.nn.Module):
       return x
     
 class GATConvNet(torch.nn.Module):
-    def __init__(self,
-                input_size,
-                embedding_size,
-                n_classes,
-                batch_size=1,
-                pool_op='max',
-                same_size=False):
-        super(GATConvNet, self).__init__()
-        self.cheb = GATEmb(input_size, embedding_size)
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = GATConv(dataset.num_features, 8, heads=8, dropout=0.6)
+        # On the Pubmed dataset, use heads=8 in conv2.
+        self.conv2 = GATConv(
+            8 * 8, dataset.num_classes, heads=1, concat=True, dropout=0.6)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
-        if pool_op == 'max':
-            self.pool = global_max_pool
-        self.bs = batch_size
-        self.emb_size = embedding_size
-        self.same_size = same_size
-        self.embedding = None
 
-    def forward(self, gdata):
-        x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
-        x = self.cheb(x,edge_index)
-        emb = global_max_pool(x, batch)
-        x = emb.view(-1, self.emb_size)
-        self.embedding = x.data
+    def forward(self, data):
+        x = F.dropout(data.x, p=0.6, training=self.training)
+        x = F.elu(self.conv1(x, data.edge_index))
+        x = F.dropout(x, p=0.6, training=self.training)
+        x = self.conv2(x, data.edge_index)
+        x = global_max_pool(x,data.batch)
         x = self.fc(F.relu(x))
         return x
 
