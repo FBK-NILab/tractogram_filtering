@@ -21,7 +21,7 @@ from torch.nn import Sequential as Seq
 
 from torch_cluster import knn_graph
 from torch_geometric.nn import (DynamicEdgeConv, EdgeConv, GATConv, GCNConv,
-                                NNConv, SplineConv, ChebConv, global_max_pool,
+                                NNConv, SplineConv, GATConv, global_max_pool,
                                 global_mean_pool, graclus)
 from torch_geometric.utils import add_self_loops, normalized_cut
 
@@ -81,17 +81,17 @@ class PNemb(torch.nn.Module):
         x = self.conv3(x)
         return x
       
-class ChebEmb(torch.nn.Module):
+class GATEmb(torch.nn.Module):
     def __init__(self, input_size, n_classes):
-      super(ChebEmb, self).__init__()
-      self.conv1_0 = ChebConv(input_size, 64, 3)
-      self.conv1_1 = ChebConv(64, 64, 3)
-      self.conv2_0 = ChebConv(64, 64, 3)
-      self.conv2_1 = ChebConv(64, 128, 3)
-      self.conv2_2 = ChebConv(128,1024, 3)
-      self.conv2_3 = ChebConv(1024, 512, 3)
-      self.conv2_4 = ChebConv(512, 256, 3)
-      self.conv3 = ChebConv(256, n_classes, 3)
+      super(GATEmb, self).__init__()
+      self.conv1_0 = GATConv(input_size, 64)
+      self.conv1_1 = GATConv(64, 64)
+      self.conv2_0 = GATConv(64, 64)
+      self.conv2_1 = GATConv(64, 128)
+      self.conv2_2 = GATConv(128,1024)
+      self.conv2_3 = GATConv(1024, 512)
+      self.conv2_4 = GATConv(512, 256)
+      self.conv3 = GATConv(256, n_classes)
       
     def forward(self, x, edge_index):
       #edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
@@ -105,7 +105,7 @@ class ChebEmb(torch.nn.Module):
       x = self.conv3(x, edge_index)
       return x
     
-class ChebConvNet(torch.nn.Module):
+class GATConvNet(torch.nn.Module):
     def __init__(self,
                 input_size,
                 embedding_size,
@@ -113,8 +113,8 @@ class ChebConvNet(torch.nn.Module):
                 batch_size=1,
                 pool_op='max',
                 same_size=False):
-        super(ChebConvNet, self).__init__()
-        self.cheb = ChebEmb(input_size, embedding_size)
+        super(GATConvNet, self).__init__()
+        self.cheb = GATEmb(input_size, embedding_size)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
         if pool_op == 'max':
             self.pool = global_max_pool
