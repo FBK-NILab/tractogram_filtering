@@ -71,10 +71,6 @@ def get_model(cfg):
                                 batch_size=int(cfg['batch_size']),
                                 pool_op=cfg['pool_op'],
                                 same_size=cfg['same_size'])
-    if cfg['model'] == 'gat':
-        classifier = GATConvNet(input_size,
-                                int(cfg['embedding_size']),
-                                num_classes)
     elif cfg['model'] == 'pn_geom':
         classifier = PNptg2(input_size,
                            int(cfg['embedding_size']),
