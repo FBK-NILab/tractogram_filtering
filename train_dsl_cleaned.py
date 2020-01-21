@@ -17,7 +17,7 @@ from torchvision import transforms
 from torch_geometric.nn import global_max_pool
 
 import datasets as ds
-from models import (DEC, BiLSTM, DECSeq, GCNConvNet, GCNemb, PNemb, PNptg2, ChebEmb, ChebConvNet, ST_loss)
+from models import (DEC, BiLSTM, DECSeq, GCNConvNet, GCNemb, PNemb, PNptg2, GATEmb, GATConvNet, ST_loss)
 from tensorboardX import SummaryWriter
 
 
@@ -71,8 +71,8 @@ def get_model(cfg):
                                 batch_size=int(cfg['batch_size']),
                                 pool_op=cfg['pool_op'],
                                 same_size=cfg['same_size'])
-    if cfg['model'] == 'cheb':
-        classifier = ChebConvNet(input_size,
+    if cfg['model'] == 'gat':
+        classifier = GATConvNet(input_size,
                                  int(cfg['embedding_size']),
                                  num_classes,
                                  batch_size=int(cfg['batch_size']),
