@@ -21,7 +21,7 @@ from torch.nn import Sequential as Seq
 
 from torch_cluster import knn_graph
 from torch_geometric.nn import (DynamicEdgeConv, EdgeConv, GATConv, GCNConv,
-                                NNConv, SplineConv, global_max_pool,
+                                NNConv, SplineConv, ChebConv, global_max_pool,
                                 global_mean_pool, graclus)
 from torch_geometric.utils import add_self_loops, normalized_cut
 
@@ -79,6 +79,57 @@ class PNemb(torch.nn.Module):
         x = F.relu(self.conv2_3(x))
         x = F.relu(self.conv2_4(x))
         x = self.conv3(x)
+        return x
+      
+class ChebEmb(torch.nn.Module):
+    def __init__(self, input_size, n_classes):
+      super(ChebEmb, self).__init__()
+      self.conv1_0 = ChebConv(input_size, 64, 3)
+      self.conv1_1 = ChebConv(64, 64, 3)
+      self.conv2_0 = ChebConv(64, 64, 3)
+      self.conv2_1 = ChebConv(64, 128, 3)
+      self.conv2_2 = ChebConv(128,1024, 3)
+      self.conv2_3 = ChebConv(1024, 512, 3)
+      self.conv2_4 = ChebConv(512, 256, 3)
+      self.conv3 = ChebConv(256, n_classes, 3)
+      
+    def forward(self, x, edge_index):
+      #edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
+      x = F.relu(self.conv1_0(x, edge_index))
+      x = F.relu(self.conv1_1(x, edge_index))
+      x = F.relu(self.conv2_0(x, edge_index))
+      x = F.relu(self.conv2_1(x, edge_index))
+      x = F.relu(self.conv2_2(x, edge_index))
+      x = F.relu(self.conv2_3(x, edge_index))
+      x = F.relu(self.conv2_4(x, edge_index))
+      x = self.conv3(x, edge_index)
+      return x
+    
+class ChebConvNet(torch.nn.Module):
+    def __init__(self,
+                input_size,
+                embedding_size,
+                n_classes,
+                batch_size=1,
+                pool_op='max',
+                same_size=False):
+        super(ChebConvNet, self).__init__()
+        self.cheb = ChebEmb(input_size, embedding_size)
+        self.fc = torch.nn.Linear(embedding_size, n_classes)
+        if pool_op == 'max':
+            self.pool = global_max_pool
+        self.bs = batch_size
+        self.emb_size = embedding_size
+        self.same_size = same_size
+        self.embedding = None
+
+    def forward(self, gdata):
+        x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
+        x = self.cheb(x,edge_index)
+        emb = global_max_pool(x, batch)
+        x = emb.view(-1, self.emb_size)
+        self.embedding = x.data
+        x = self.fc(F.relu(x))
         return x
 
 class GCNemb(torch.nn.Module):
