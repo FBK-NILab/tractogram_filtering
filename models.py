@@ -80,38 +80,14 @@ class PNemb(torch.nn.Module):
         x = F.relu(self.conv2_4(x))
         x = self.conv3(x)
         return x
-      
-class GATEmb(torch.nn.Module):
-    def __init__(self, input_size, n_classes):
-      super(GATEmb, self).__init__()
-      self.conv1_0 = GATConv(input_size, 64)
-      self.conv1_1 = GATConv(64, 64)
-      self.conv2_0 = GATConv(64, 64)
-      self.conv2_1 = GATConv(64, 128)
-      self.conv2_2 = GATConv(128,1024)
-      self.conv2_3 = GATConv(1024, 512)
-      self.conv2_4 = GATConv(512, 256)
-      self.conv3 = GATConv(256, n_classes)
-      
-    def forward(self, x, edge_index):
-      #edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
-      x = F.relu(self.conv1_0(x, edge_index))
-      x = F.relu(self.conv1_1(x, edge_index))
-      x = F.relu(self.conv2_0(x, edge_index))
-      x = F.relu(self.conv2_1(x, edge_index))
-      x = F.relu(self.conv2_2(x, edge_index))
-      x = F.relu(self.conv2_3(x, edge_index))
-      x = F.relu(self.conv2_4(x, edge_index))
-      x = self.conv3(x, edge_index)
-      return x
     
 class GATConvNet(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, embedding_size, n_classes):
         super(Net, self).__init__()
-        self.conv1 = GATConv(dataset.num_features, 8, heads=8, dropout=0.6)
+        self.conv1 = GATConv(input_size, 8, heads=8, dropout=0.6)
         # On the Pubmed dataset, use heads=8 in conv2.
         self.conv2 = GATConv(
-            8 * 8, dataset.num_classes, heads=1, concat=True, dropout=0.6)
+            8 * 8, embedding_size, heads=1, concat=True, dropout=0.6)
         self.fc = torch.nn.Linear(embedding_size, n_classes)
 
     def forward(self, data):
