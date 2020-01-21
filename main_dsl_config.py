@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = gat
 batch_norm = y
 dropout = y
 spatial_tn = n
