@@ -17,7 +17,7 @@ from torchvision import transforms
 from torch_geometric.nn import global_max_pool
 
 import datasets as ds
-from models import (DEC, BiLSTM, DECSeq, GCNConvNet, GCNemb, PNemb, PNptg2, GATConvNet, ST_loss)
+from models import (DEC, BiLSTM, DECSeq, GCNConvNet, GCNemb, PNemb, PNptg2, ST_loss)
 from tensorboardX import SummaryWriter
 
 
