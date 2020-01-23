@@ -58,7 +58,7 @@ print_bwgraph = n
 dataset = hcp20_graph
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
-dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_new
 fixed_size = 8000
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
@@ -82,7 +82,7 @@ same_size = y
 
 #experiment_name = pngeom2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = decseq1_loss_nll-data_hcp20_resampled16_full_nogradacc_
-experiment_name = dec_loss-nll_data-hcp20_16pts_fs8000_nobug
+experiment_name = seqDEC_loss-nll_data-hcp20_16pts_k5_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
