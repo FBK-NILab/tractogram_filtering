@@ -56,81 +56,50 @@ class PNptg2(torch.nn.Module):
         x = self.fc(emb)
         x = self.fc_cls(x)
         return x
-
-class PNemb(torch.nn.Module):
-
-    def __init__(self, input_size, n_classes):
-        super(PNemb, self).__init__()
-        self.conv1_0 = nn.Linear(input_size, 64)
-        self.conv1_1 = nn.Linear(64, 64)
-        self.conv2_0 = nn.Linear(64, 64)
-        self.conv2_1 = nn.Linear(64, 128)
-        self.conv2_2 = nn.Linear(128, 1024)
-        self.conv2_3 = nn.Linear(1024, 512)
-        self.conv2_4 = nn.Linear(512, 256)
-        self.conv3 = nn.Linear(256, n_classes)
-
-    def forward(self, x):
-        x = F.relu(self.conv1_0(x))
-        x = F.relu(self.conv1_1(x))
-        x = F.relu(self.conv2_0(x))
-        x = F.relu(self.conv2_1(x))
-        x = F.relu(self.conv2_2(x))
-        x = F.relu(self.conv2_3(x))
-        x = F.relu(self.conv2_4(x))
-        x = self.conv3(x)
-        return x
-
-class GCNemb(torch.nn.Module):
-    def __init__(self, input_size, n_classes):
-        super(GCNemb, self).__init__()
-        self.conv1_0 = GCNConv(input_size, 64, improved=False)
-        self.conv1_1 = GCNConv(64, 64, improved=False)
-        self.conv2_0 = GCNConv(64, 64, improved=False)
-        self.conv2_1 = GCNConv(64, 128, improved=False)
-        self.conv2_2 = GCNConv(128,1024, improved=False)
-        self.conv2_3 = GCNConv(1024, 512, improved=False)
-        self.conv2_4 = GCNConv(512, 256, improved=False)
-        self.conv3 = GCNConv(256, n_classes, improved=False)
-
-    def forward(self, x, edge_index):
-        edge_index, _ = add_self_loops(edge_index,num_nodes=x.size(0))
-        x = F.relu(self.conv1_0(x, edge_index))
-        x = F.relu(self.conv1_1(x, edge_index))
-        x = F.relu(self.conv2_0(x, edge_index))
-        x = F.relu(self.conv2_1(x, edge_index))
-        x = F.relu(self.conv2_2(x, edge_index))
-        x = F.relu(self.conv2_3(x, edge_index))
-        x = F.relu(self.conv2_4(x, edge_index))
-        x = self.conv3(x, edge_index)
-        return x
+      
+class GCN(GCNConv):
+  def forward(self, data):
+    return super(GCN, self).forward(data.x, data.edge_index)
 
 class GCNConvNet(torch.nn.Module):
     def __init__(self,
                 input_size,
                 embedding_size,
                 n_classes,
-                batch_size=1,
                 pool_op='max',
                 same_size=False):
         super(GCNConvNet, self).__init__()
-        self.gcn = GCNemb(input_size, embedding_size)
-        self.fc = torch.nn.Linear(embedding_size, n_classes)
-        if pool_op == 'max':
-            self.pool = global_max_pool
-        self.bs = batch_size
-        self.emb_size = embedding_size
-        self.same_size = same_size
-        self.embedding = None
-
+        channels = [input_size, 64, 64, 64, 128, 1024]
+        self.convs = nn.ModuleList()
+        batch_norm = True
+        for i in range(1, len(channels)):
+            if batch_norm:
+                self.convs.append(
+                    Seq(GCN(channels[i - 1], channels[i]), ReLU(),
+                        BN(channels[i])))
+            else:
+                self.convs.append(
+                    Seq(GCN(channels[i - 1], channels[i]), ReLU()))
+                
+            if pool_op == 'max':
+                self.pool = global_max_pool
+            self.mlp = MLP([1024, 512, 256, embedding_size])
+            self.fc = torch.nn.Linear(embedding_size, n_classes)
+            self.emb_size = embedding_size
+            self.same_size = same_size
+            self.embedding = None
+            
     def forward(self, gdata):
-        x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
-        x = self.gcn(x,edge_index)
-        emb = self.pool(x, batch)
-        x = emb.view(-1, self.emb_size)
-        self.embedding = x.data
-        x = self.fc(F.relu(x))
-        return x
+      x, edge_index, batch = gdata.x, gdata.edge_index, gdata.batch
+      edge_index, _ = add_self_loops(edge_index, num_nodes = x.size(0))
+      data = gdata.clone()
+      for gcn in self.convs:
+        data.x = gcn(data)
+      x = self.pool(data.x, batch)
+      x = self.mlp(x)
+      self.embedding = x.data
+      x = self.fc(x)
+      return x
 
 class DEC(torch.nn.Module):
     def __init__(self, input_size, embedding_size, n_classes, aggr='max', k=5, pool_op='max', same_size=False):
