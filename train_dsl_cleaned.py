@@ -45,11 +45,11 @@ def get_model(cfg):
                               fov=1,
                               dropout=0.5)
     if cfg['model'] == 'dec':
-        classifier = DECSeq(
+        classifier = DEC(
             input_size,
             int(cfg['embedding_size']),
             num_classes,
-            dropout=cfg['dropout'],
+            #dropout=cfg['dropout'],
             #fov=3,
             k=int(cfg['k_dec']),
             #k=5,
