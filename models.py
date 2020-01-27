@@ -118,7 +118,7 @@ class DEC(torch.nn.Module):
             self.pool = global_max_pool
 
         self.mlp = Seq(
-            MLP([1024, 512]), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+            MLP([1024, 512]), MLP([512, 256]),
             Lin(256, n_classes))
 
     def forward(self, data):
