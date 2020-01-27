@@ -46,10 +46,10 @@ class PNptg2(torch.nn.Module):
                  pool_op='max',
                  same_size=False):
         super(PNptg2, self).__init__()
-        self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024])
+        self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024], batch_norm=True)
         if pool_op == 'max':
             self.pool = global_max_pool
-        self.fc = MLP([1024, 512, 256, 128, embedding_size])
+        self.fc = MLP([1024, 512, 256, 128, embedding_size], batch_norm=True)
         #self.fc_enc = MLP([input_size, 64, 64, 64, 128, 1024, 512, 256, embedding_size])
         self.fc_cls = nn.Linear(embedding_size, n_classes)
         self.embedding = None
