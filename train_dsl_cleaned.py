@@ -220,7 +220,10 @@ def train(cfg):
     trans_train = []
     trans_val = []
     if cfg['rnd_sampling']:
-        trans_train.append(ds.RndSampling(sample_size, maintain_prop=False))
+        trans_train.append(
+            ds.RndSampling(sample_size, 
+                           maintain_prop=False,
+                           prop_vector=[1,1]))
         trans_val.append(ds.RndSampling(sample_size, maintain_prop=False))
 
     dataset, dataloader = get_dataset(cfg, trans=trans_train)
