@@ -82,7 +82,7 @@ same_size = y
 
 #experiment_name = pngeom2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = decseq1_loss_nll-data_hcp20_resampled16_full_nogradacc_
-experiment_name = GCN_loss-nll_data-hcp20_16pts_fs8000
+experiment_name = GCN_balanced_sampling_loss-nll_data-hcp20_16pts_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
