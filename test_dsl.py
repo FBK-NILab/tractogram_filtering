@@ -295,7 +295,7 @@ def test(cfg):
 
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
-                obj_target[data['obj_idxs']] = target.int()
+                #obj_target[data['obj_idxs']] = target.int()
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
