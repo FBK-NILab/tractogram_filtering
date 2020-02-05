@@ -305,6 +305,11 @@ def test(cfg):
                 if cfg['save_embedding']:
                     obj_embedding = classifier.embedding.squeeze()
 
+            if consumed:
+                data_dir = cfg['dataset_dir']
+                y_pred = obj_pred_choice.cpu().numpy()
+                np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
+            
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
                 #    loss_cluster = cluster_loss_fn(gf.squeeze(3))
