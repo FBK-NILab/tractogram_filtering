@@ -166,7 +166,7 @@ class HCP20Dataset(gDataset):
         label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
         #label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
-        #T = nib.streamlines.load(T_file, lazy_load=True)
+        T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
         #gt = np.load(label_file)
