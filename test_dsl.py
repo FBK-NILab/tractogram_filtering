@@ -308,7 +308,7 @@ def test(cfg):
             if consumed:
                 data_dir = cfg['dataset_dir']
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
+                np.save(data['dir']+'/y_pred_sDEC_16pts_fs8000_balanced_sampling_APSS',y_pred)
             
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
