@@ -184,14 +184,16 @@ class DECSeq(torch.nn.Module):
                 Lin(256, n_classes))
 
     def forward(self, data):
+        print(data.x,data.x.shape)
         pos, batch, eidx = data.pos, data.batch, data.edge_index
         x1 = self.conv1(pos, eidx)
         x2 = self.conv2(x1, batch)
-        print(x2)
+        print(x2,x2.shape)
         out = self.lin1(torch.cat([x1, x2], dim=1))
+        print(out,out.shape)
         #out = self.pool(out, batch)
         out = global_max_pool(out,batch)
-        print(out)
+        print(out,out.shape)
         out = self.mlp(out)
         return out
 
