@@ -259,9 +259,6 @@ def test(cfg):
                     pred = F.log_softmax(logits, dim=-1)
                     pred = pred.view(-1,num_classes)
                     probas = torch.exp(pred.data)
-                    data_dir = cfg['dataset_dir']
-                    y_prob = obj_probas.cpu().numpy()
-                    np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
                     pred_choice = pred.data.max(1)[1].int()
                     if cfg['with_gt']:
                         loss_seg = F.nll_loss(pred, target.long())
@@ -330,6 +327,10 @@ def test(cfg):
                 #print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
+                y_prob = probas.cpu().numpy()
+                np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
+                print(probas)
+                print(obj_pred_choice)
                 #y_pred = obj_pred_choice.cpu().numpy()
                 #np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
                 #y_test = obj_target.cpu().numpy()
