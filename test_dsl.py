@@ -246,9 +246,7 @@ def test(cfg):
                 #logits, gf = classifier(points)
             #else:
             logits = classifier(points)
-            print(logits)
             logits = logits.view(-1, num_classes)
-            print(logits)
             if len(cfg['loss']) == 2:
                 if epoch <= int(cfg['switch_loss_epoch']):
                     loss_type = cfg['loss'][0]
@@ -259,13 +257,12 @@ def test(cfg):
 
                 if loss_type == 'nll':
                     pred = F.log_softmax(logits, dim=-1)
-                    print(pred)
                     pred = pred.view(-1,num_classes)
-                    print(pred)
                     probas = torch.exp(pred.data)
-                    print(probas)
+                    data_dir = cfg['dataset_dir']
+                    y_prob = obj_probas.cpu().numpy()
+                    np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
                     pred_choice = pred.data.max(1)[1].int()
-                    print(pred_choice)
                     if cfg['with_gt']:
                         loss_seg = F.nll_loss(pred, target.long())
                 elif loss_type == 'LLh':
