@@ -176,7 +176,7 @@ class DECSeq(torch.nn.Module):
 
         if dropout:
             self.mlp = Seq(
-                MLP([1024, 512], batch_norm=True), Dropout(0.5), MLP([512, 256]), Dropout(0.5),
+                MLP([1024, 512], batch_norm=True), Dropout(0.5), MLP([512, 256],batch_norm=True), Dropout(0.5),
                 Lin(256, n_classes))
         else:
             self.mlp = Seq(
