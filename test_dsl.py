@@ -263,6 +263,7 @@ def test(cfg):
                     pred = pred.view(-1,num_classes)
                     print(pred)
                     probas = torch.exp(pred.data)
+                    print(probas)
                     pred_choice = pred.data.max(1)[1].int()
                     print(pred_choice)
                     if cfg['with_gt']:
