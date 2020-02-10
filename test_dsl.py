@@ -246,8 +246,9 @@ def test(cfg):
                 #logits, gf = classifier(points)
             #else:
             logits = classifier(points)
+            print(logits)
             logits = logits.view(-1, num_classes)
-
+            print(logits)
             if len(cfg['loss']) == 2:
                 if epoch <= int(cfg['switch_loss_epoch']):
                     loss_type = cfg['loss'][0]
@@ -305,10 +306,10 @@ def test(cfg):
                 if cfg['save_embedding']:
                     obj_embedding = classifier.embedding.squeeze()
 
-            if consumed:
-                data_dir = cfg['dataset_dir']
-                y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_sDEC_16pts_fs8000_balanced_sampling_APSS',y_pred)
+            #if consumed:
+            #    data_dir = cfg['dataset_dir']
+            #    y_pred = obj_pred_choice.cpu().numpy()
+            #    np.save(data['dir']+'/y_pred_sDEC_16pts_fs8000_balanced_sampling_APSS',y_pred)
             
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
@@ -328,10 +329,10 @@ def test(cfg):
                 #print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
-                y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
-                y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_GCN_16pts_fs8000_balanced_sampling',y_test)
+                #y_pred = obj_pred_choice.cpu().numpy()
+                #np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
+                #y_test = obj_target.cpu().numpy()
+                #np.save(data['dir']+'/y_test_GCN_16pts_fs8000_balanced_sampling',y_test)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
