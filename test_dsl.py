@@ -259,9 +259,12 @@ def test(cfg):
 
                 if loss_type == 'nll':
                     pred = F.log_softmax(logits, dim=-1)
+                    print(pred)
                     pred = pred.view(-1,num_classes)
+                    print(pred)
                     probas = torch.exp(pred.data)
                     pred_choice = pred.data.max(1)[1].int()
+                    print(pred_choice)
                     if cfg['with_gt']:
                         loss_seg = F.nll_loss(pred, target.long())
                 elif loss_type == 'LLh':
