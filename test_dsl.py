@@ -200,6 +200,7 @@ def test(cfg):
                 if new_obj_read:
                     obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
+                    obj_prob = torch.zeros((data['obj_full_size'],2),dtype=torch.float).cuda()
                     new_obj_read = False
                     #if cfg['save_embedding']:
                         #obj_embedding = torch.empty((data['obj_full_size'], int(cfg['embedding_size']))).cuda()
@@ -295,6 +296,7 @@ def test(cfg):
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
+                obj_prob[data['obj_idxs']] = probas
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
@@ -327,9 +329,9 @@ def test(cfg):
                 #print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
-                y_prob = probas.cpu().numpy()
+                y_prob = obj_prob.cpu().numpy()
                 np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
-                print(probas)
+                print(y_prob,y_prob.shape)
                 print(obj_pred_choice)
                 #y_pred = obj_pred_choice.cpu().numpy()
                 #np.save(data['dir']+'/y_pred_GCN_16pts_fs8000_balanced_sampling',y_pred)
