@@ -330,7 +330,7 @@ def test(cfg):
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 y_prob = obj_prob.cpu().numpy()
-                np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
+                #np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
                 print(y_prob,y_prob.shape)
                 print(obj_pred_choice)
                 #y_pred = obj_pred_choice.cpu().numpy()
