@@ -159,9 +159,9 @@ class HCP20Dataset(gDataset):
         #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
-        sub = self.subjects[idx]
+        #sub = self.subjects[idx]
         #t0 = time.time()
-        sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+        #sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         #T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         T_file = '/home/pa/AF_left_model.trk'
         #label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
