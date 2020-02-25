@@ -307,10 +307,11 @@ def test(cfg):
                     obj_embedding = classifier.embedding.squeeze()
 
             if consumed:
+                
             #    data_dir = cfg['dataset_dir']
             #    y_pred = obj_pred_choice.cpu().numpy()
             #    np.save(data['dir']+'/y_pred_sDEC_16pts_fs8000_balanced_sampling_APSS',y_pred)
-                 data_dir = '/home/pa/data'
+                data_dir = '/home/pa/data'
                 #data_dir = cfg['dataset_dir']
                 #streamlines, head, leng, idxs = load_streamlines(data['dir']+'/'+data['name']+'.trk')
                 #print('tract:',len(streamlines))
@@ -322,10 +323,10 @@ def test(cfg):
                 print('val min class pred ', obj_pred_choice.min().item())
                 #y_prob = obj_prob.cpu().numpy()
                 #np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
-                 print(y_prob,y_prob.shape)
-                 print(obj_pred_choice)
-                 y_pred = obj_pred_choice.cpu().numpy()
-                 np.save(data['dir']+'/y_pred_AF_bundle',y_pred)
+                print(y_prob,y_prob.shape)
+                print(obj_pred_choice)
+                y_pred = obj_pred_choice.cpu().numpy()
+                np.save(data['dir']+'/y_pred_AF_bundle',y_pred)
             
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
