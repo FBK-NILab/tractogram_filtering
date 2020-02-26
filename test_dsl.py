@@ -326,7 +326,7 @@ def test(cfg):
                 #print(y_prob,y_prob.shape)
                 print(obj_pred_choice)
                 y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_SLF_L_model',y_pred)
+                np.save(data['dir']+'/y_pred_orig_AF_L',y_pred)
             
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
