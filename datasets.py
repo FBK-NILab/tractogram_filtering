@@ -163,7 +163,7 @@ class HCP20Dataset(gDataset):
         #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
         #T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
-        T_file = '/home/pa/AF_left_model.trk'
+        T_file = '/home/pa/.dipy/bundle_atlas_hcp842/Atlast_80_Bundles/bundles/CC.trk'
         #label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
         #label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
         #label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
