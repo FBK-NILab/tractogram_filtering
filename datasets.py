@@ -92,7 +92,7 @@ class HCP20Dataset(gDataset):
             ]
             if with_gt:
                 label_file = os.path.join(sub_dir,
-                                          'sub-%s_var-GIN_labels.pkl' % (sub))
+                                          'sub-%s_var-HCP_labels.pkl' % (sub))
                 with open(label_file, 'rb') as f:
                     gts = pickle.load(f)
                     gts = torch.tensor(gts).long()
@@ -170,7 +170,7 @@ class HCP20Dataset(gDataset):
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
-        #gt = np.load(label_file)
+        gt = np.load(label_file)
         #with open(label_file, 'rb') as f:
         #    gt = pickle.load(f)
         #gt = np.array(gt)
