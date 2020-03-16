@@ -17,9 +17,7 @@ from torchvision import transforms
 from torch_geometric.nn import global_max_pool
 
 import datasets as ds
-from models import (DEC, NNC, BiLSTM, DECSeq, DECSeqCos, DECSeqSelf, DECSeq2, DECSeq3,
-                    DECSeq5, DECSeq6, DGCNNSeq, GCNConvNet, GCNemb, NNConvNet,
-                    NNemb, PNbatch, PNemb, PNptg, PNptg2, PointNetPyg, ST_loss)
+from models import (DEC, BiLSTM, DECSeq, GCNConvNet, PNptg2, ST_loss)
 from tensorboardX import SummaryWriter
 
 
@@ -53,11 +51,11 @@ def get_model(cfg):
             num_classes,
             dropout=cfg['dropout'],
             #fov=3,
-            #k=int(cfg['k_dec']),
-            k=5,
+            k=int(cfg['k_dec']),
+            #k=5,
             aggr='max',
-            pool_op=global_max_pool)
-            #pool_op=cfg['pool_op'])
+            #pool_op=global_max_pool)
+            pool_op=cfg['pool_op'])
         #bn=True)
     if cfg['model'] == 'nnc':
         classifier = NNC(input_size,
@@ -70,7 +68,6 @@ def get_model(cfg):
         classifier = GCNConvNet(input_size,
                                 int(cfg['embedding_size']),
                                 num_classes,
-                                batch_size=int(cfg['batch_size']),
                                 pool_op=cfg['pool_op'],
                                 same_size=cfg['same_size'])
     elif cfg['model'] == 'pn_geom':
@@ -102,7 +99,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         points = get_gbatch_sample(sample_batched, int(cfg['fixed_size']),
                                    cfg['same_size'])
         target = points['y']
-
+        
         points, target = points.to('cuda'), target.to('cuda')
 
         ### initialize gradients
@@ -223,7 +220,10 @@ def train(cfg):
     trans_train = []
     trans_val = []
     if cfg['rnd_sampling']:
-        trans_train.append(ds.RndSampling(sample_size, maintain_prop=False))
+        trans_train.append(
+            ds.RndSampling(sample_size, 
+                           maintain_prop=False,
+                           prop_vector=[1,1]))
         trans_val.append(ds.RndSampling(sample_size, maintain_prop=False))
 
     dataset, dataloader = get_dataset(cfg, trans=trans_train)

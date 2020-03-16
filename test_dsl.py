@@ -200,6 +200,7 @@ def test(cfg):
                 if new_obj_read:
                     obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
+                    obj_prob = torch.zeros((data['obj_full_size'],2),dtype=torch.float).cuda()
                     new_obj_read = False
                     #if cfg['save_embedding']:
                         #obj_embedding = torch.empty((data['obj_full_size'], int(cfg['embedding_size']))).cuda()
@@ -247,7 +248,6 @@ def test(cfg):
             #else:
             logits = classifier(points)
             logits = logits.view(-1, num_classes)
-
             if len(cfg['loss']) == 2:
                 if epoch <= int(cfg['switch_loss_epoch']):
                     loss_type = cfg['loss'][0]
@@ -296,6 +296,7 @@ def test(cfg):
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
+                obj_prob[data['obj_idxs']] = probas
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
@@ -305,6 +306,28 @@ def test(cfg):
                 if cfg['save_embedding']:
                     obj_embedding = classifier.embedding.squeeze()
 
+            if consumed:
+                
+            #    data_dir = cfg['dataset_dir']
+            #    y_pred = obj_pred_choice.cpu().numpy()
+            #    np.save(data['dir']+'/y_pred_sDEC_16pts_fs8000_balanced_sampling_APSS',y_pred)
+                data_dir = '/home/pa/data'
+                #data_dir = cfg['dataset_dir']
+                #streamlines, head, leng, idxs = load_streamlines(data['dir']+'/'+data['name']+'.trk')
+                #print('tract:',len(streamlines))
+                #print('pred:',obj_pred_choice)
+                #print('taget:',obj_target)
+                #print('pred shape:',obj_pred_choice.shape)
+                #print('target shape:',obj_target.shape)
+                print('val max class red ', obj_pred_choice.max().item())
+                print('val min class pred ', obj_pred_choice.min().item())
+                #y_prob = obj_prob.cpu().numpy()
+                #np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
+                #print(y_prob,y_prob.shape)
+                print(obj_pred_choice)
+                y_pred = obj_pred_choice.cpu().numpy()
+                np.save(data['dir']+'/y_pred_sDEC_ILF_L',y_pred)
+            
             if cfg['with_gt'] and consumed:
                 #if cfg['multi_loss']:
                 #    loss_cluster = cluster_loss_fn(gf.squeeze(3))
@@ -314,7 +337,8 @@ def test(cfg):
                 #print('points:',points['streamlines'])
                 #print('points shape:',points['streamlines'].shape)
                 #print('streamlines:',
-                data_dir = cfg['dataset_dir']
+                data_dir = '/home/pa/data'
+                #data_dir = cfg['dataset_dir']
                 #streamlines, head, leng, idxs = load_streamlines(data['dir']+'/'+data['name']+'.trk')
                 #print('tract:',len(streamlines))
                 #print('pred:',obj_pred_choice)
@@ -323,10 +347,14 @@ def test(cfg):
                 #print('target shape:',obj_target.shape)
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
-                y_pred = obj_pred_choice.cpu().numpy()
-                np.save(data['dir']+'/y_pred_sDEC_k5_16pts_nodropout',y_pred)
-                y_test = obj_target.cpu().numpy()
-                np.save(data['dir']+'/y_test_sDEC_k5_16pts_nodropout',y_test)
+                #y_prob = obj_prob.cpu().numpy()
+                #np.save(data['dir']+'/y_probas_sDEC_16pts_fs8000_balanced_sampling',y_prob)
+                #print(y_prob,y_prob.shape)
+                #print(obj_pred_choice)
+                #y_pred = obj_pred_choice.cpu().numpy()
+                #np.save(data_dir+'/y_pred_CC_bundle',y_pred)
+                #y_test = obj_target.cpu().numpy()
+                #np.save(data['dir']+'/y_test_GCN_16pts_fs8000_balanced_sampling',y_test)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))

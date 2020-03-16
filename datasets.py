@@ -92,7 +92,7 @@ class HCP20Dataset(gDataset):
             ]
             if with_gt:
                 label_file = os.path.join(sub_dir,
-                                          'sub-%s_var-GIN_labels.pkl' % (sub))
+                                          'sub-%s_var-HCP_labels.pkl' % (sub))
                 with open(label_file, 'rb') as f:
                     gts = pickle.load(f)
                     gts = torch.tensor(gts).long()
@@ -162,13 +162,18 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_permuted.trk' % (sub))
+        #T_file = '/home/pa/orig_ILF_L.trk'
         label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
-        label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        #label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
+        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
         gt = np.load(label_file)
+        #with open(label_file, 'rb') as f:
+        #    gt = pickle.load(f)
+        #gt = np.array(gt)
         #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
