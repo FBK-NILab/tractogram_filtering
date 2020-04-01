@@ -171,8 +171,6 @@ class HCP20Dataset(gDataset):
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
         gt = np.load(label_file)
-        print(len(gt))
-        print(T.header['nb_streamlines'])
         #with open(label_file, 'rb') as f:
         #    gt = pickle.load(f)
         #gt = np.array(gt)
