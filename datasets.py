@@ -172,7 +172,7 @@ class HCP20Dataset(gDataset):
         #t0 = time.time()
         gt = np.load(label_file)
         print(len(gt))
-        print(len(T))
+        print(len(T.streamlines))
         #with open(label_file, 'rb') as f:
         #    gt = pickle.load(f)
         #gt = np.array(gt)
