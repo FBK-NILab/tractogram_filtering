@@ -166,11 +166,13 @@ class HCP20Dataset(gDataset):
         #T_file = '/home/pa/orig_ILF_L.trk'
         label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], 'merge_shuffle_trk' ,'sub-%s' % sub)
         #label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.pkl' % (sub))
-        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
+        label_file = os.path.join(sub_dir, 'sub-%s_var-HCP_labels_SUB.npy' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
         gt = np.load(label_file)
+        print(len(gt))
+        print(len(T))
         #with open(label_file, 'rb') as f:
         #    gt = pickle.load(f)
         #gt = np.array(gt)
