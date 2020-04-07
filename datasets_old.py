@@ -9,7 +9,7 @@ from tqdm import tqdm
 import json
 from plyfile import PlyData, PlyElement
 import h5py
-f
+
 from torch.utils.data import Dataset
 import csv
 import pickle
