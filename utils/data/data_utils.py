@@ -36,10 +36,10 @@ def get_dataset(cfg, trans, train=True):
 
 def get_transforms(cfg, train=True):
     trans = []
-    if cfg['pc_centering']:
-        trans.append(PointCloudCentering())
-    if cfg['pc_normalization']:
-        trans.append(PointCloudNormalization())
+    #if cfg['pc_centering']:
+    #    trans.append(PointCloudCentering())
+    #if cfg['pc_normalization']:
+    #    trans.append(PointCloudNormalization())
     if cfg['rnd_sampling']:
         if train:
             trans.append(RndSampling(cfg['fixed_size'], maintain_prop=False))
