@@ -19,7 +19,6 @@ def get_dataset(cfg, trans, train=True):
 
     dataset = ds.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
-                              same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
                               return_edges=cfg['return_edges'],
                               load_one_full_subj=False)
