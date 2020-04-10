@@ -68,19 +68,8 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         update_metrics(metrics, pred_choice, target)
         running_acc = torch.tensor(metrics['acc']).mean().item()
 
-        if cfg['verbose']:
-            print('[%d: %d%d] train loss: %f acc: %f' \
-                % (epoch, i_batch, num_batch, loss.item(), metrics['acc'][-1]))
-        else:
-            print_prefix = '\r[%d: %d%d] train loss: ' % (epoch, i_batch,
-                                                          num_batch)
-            sys.stdout.write('%s %.4f acc: %.4f ep_loss: %.4f ep_acc: %.4f ' \
-                % (print_prefix, loss.item(), metrics['acc'][-1], running_ep_loss, running_acc))
-            if ep_loss_dict is not None:
-                sys.stdout.write(' '.join([
-                    '%s=%.4f' % (k, v / (i_batch + 1))
-                    for k, v in ep_loss_dict.iteritems()
-                ]))
+        print('[%d: %d/%d] train loss: %f acc: %f' \
+            % (epoch, i_batch, num_batch, loss.item(), metrics['acc'][-1]))
 
         n_iter += 1
 
@@ -92,10 +81,12 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     return ep_loss, n_iter
 
 
-def val_ep(cfg, val_dataloader, classifier, writer, epoch):
+def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
+           best_score):
     '''
     run the validation phase when called
     '''
+    best = False
     num_classes = int(cfg['n_classes'])
 
     # set classifier in eval mode
@@ -119,35 +110,41 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch):
 
             pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             pred_choice = pred.data.max(1)[1].int()
-            loss = F.nll_loss(pred, target.long())
 
+            loss = F.nll_loss(pred, target.long())
             ep_loss += loss.item()
+
+            print('val min / max class pred %d / %d' %
+                  (pred_choice.min().item(), pred_choice.max().item()))
+            print('# class pred ', len(torch.unique(pred_choice)))
 
             ### compute performance
             update_metrics(metrics_val, pred_choice, target)
 
-            if cfg['verbose']:
-                print('val min / max class pred %d / %d' %
-                      (pred_choice.min().item(), pred_choice.max().item()))
-                print('# class pred ', len(torch.unique(pred_choice)))
-
-                print('VALIDATION [%d: %d%d] val loss: %f acc: %f' %
-                      ((epoch, i, len(dataloader), loss.item(),
-                      metrics_val['acc'][-1])))
-            else:
-                sys.stdout.write(
-                    '\rVALIDATION [%d: %d/%d] val loss: %f acc: %f' %
-                    ((epoch, i, len(dataloader), loss.item(),
-                      metrics_val['acc'][-1]))
-                )
+            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f' %
+                  ((epoch, i, len(val_dataloader), loss.item(),
+                    metrics_val['acc'][-1])))
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
         epoch_score = torch.tensor(metrics_val['acc']).mean().item()
-        print('\nVALIDATION ACCURACY: %f' % epoch_score)
+        print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
 
-        return epoch_score
+        if epoch_score > best_score:
+            best_score = epoch_score
+            best_epoch = epoch
+            best = True
+
+        if cfg['save_model']:
+            dump_model(cfg,
+                       classifier,
+                       writer.logdir,
+                       epoch,
+                       epoch_score,
+                       best=best)
+
+        return best_epoch, best_score
 
 
 def train(cfg):
@@ -162,10 +159,10 @@ def train(cfg):
     trans_val = []
     if cfg['rnd_sampling']:
         trans_train.append(
-            ds.RndSampling(sample_size,
-                           maintain_prop=False,
-                           prop_vector=[1, 1]))
-        trans_val.append(ds.RndSampling(sample_size, maintain_prop=False))
+            RndSampling(sample_size,
+                        maintain_prop=False,
+                        prop_vector=[1, 1]))
+        trans_val.append(RndSampling(sample_size, maintain_prop=False))
 
     dataset, dataloader = get_dataset(cfg, trans=trans_train)
     val_dataset, val_dataloader = get_dataset(cfg, trans=trans_val, train=False)
@@ -190,36 +187,23 @@ def train(cfg):
     cfg['num_batch'] = num_batch
 
     n_iter = 0
-    best_score = 0
+    best_pred = 0
+    best_epoch = 0
     current_lr = float(cfg['learning_rate'])
-
     for epoch in range(n_epochs + 1):
-
-        loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer, writer,
-                                epoch, n_iter)
-
-        ### validation during training
-        if epoch % int(cfg['val_freq']) == 0 or epoch == n_epochs and cfg['val_in_train']:
-            best = False
-            val_score = val_ep(cfg, val_dataloader, classifier, writer, epoch)
-            if val_score >= best_score:
-                best = True
-                best_score = val_score
-
-        if cfg['save_model']:
-            dump_model(cfg,
-                       classifier,
-                       optimizer,
-                       loss,
-                       epoch,
-                       val_score,
-                       writer.logdir,
-                       best=best)
 
         # update bn decay
         if cfg['bn_decay'] and epoch != 0 and epoch % int(
                 cfg['bn_decay_step']) == 0:
             update_bn_decay(cfg, classifier, epoch)
+
+        loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer, writer,
+                                epoch, n_iter)
+
+        ### validation during training
+        if epoch % int(cfg['val_freq']) == 0 and cfg['val_in_train']:
+            best_epoch, best_pred = val_ep(cfg, val_dataloader, classifier,
+                                           writer, epoch, best_epoch, best_pred)
 
         # update lr
         if cfg['lr_type'] == 'step' and current_lr >= float(cfg['min_lr']):
