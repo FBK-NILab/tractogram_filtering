@@ -45,10 +45,10 @@ def get_transforms(cfg, train=True):
             trans.append(RndSampling(cfg['fixed_size'], maintain_prop=False))
         else:
             trans.append(FixedRndSampling(cfg['fixed_size']))
-    if train and cfg['pc_rot']:
-        trans.append(PointCloudRotation())
-    if train and cfg['pc_jitter']:
-        trans.append(PointCloudJittering(cfg['pc_jitter']))
+    #if train and cfg['pc_rot']:
+    #    trans.append(PointCloudRotation())
+    #if train and cfg['pc_jitter']:
+    #    trans.append(PointCloudJittering(cfg['pc_jitter']))
 
     print(trans)
     return trans
