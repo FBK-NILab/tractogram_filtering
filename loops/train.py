@@ -14,7 +14,7 @@ from utils.train_utils import (compute_loss, create_tb_logger, dump_code,
                                dump_model, get_lr, get_lr_scheduler,
                                get_optimizer, initialize_loss_dict, log_losses,
                                update_bn_decay, set_lr)
-
+from utils.data.transforms import RndSampling
 
 def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     '''
@@ -158,9 +158,17 @@ def train(cfg):
     cfg['loss'] = cfg['loss'].split(' ')
 
     #### DATA LOADING
-    dataset, dataloader = get_dataset(cfg, trans=get_transforms(cfg))
-    val_dataset, val_dataloader = get_dataset(cfg, trans=get_transforms(cfg, train=False), train=False)
-    
+    trans_train = []
+    trans_val = []
+    if cfg['rnd_sampling']:
+        trans_train.append(
+            ds.RndSampling(sample_size,
+                           maintain_prop=False,
+                           prop_vector=[1, 1]))
+        trans_val.append(ds.RndSampling(sample_size, maintain_prop=False))
+
+    dataset, dataloader = get_dataset(cfg, trans=trans_train)
+    val_dataset, val_dataloader = get_dataset(cfg, trans=trans_val, train=False)
     # summary for tensorboard
     writer = create_tb_logger(cfg)
     dump_code(cfg, writer.logdir)
