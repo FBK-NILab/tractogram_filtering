@@ -2,7 +2,7 @@ import torch
 from torchvision import transforms
 from torch.utils.data.dataloader import DataLoader 
 from torch_geometric.data import Batch as gBatch
-from torch_geometric.data import DataLoader as gDataLoader
+from torch_geometric.data import DataListLoader as gDataLoader
 
 import datasets as ds
 from .transforms import *
