@@ -159,7 +159,7 @@ class HCP20Dataset(gDataset):
     def getitem(self, idx):
         sub = self.subjects[idx]
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_SUB2MNI.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         gt = self.labels[idx]
         if self.split_obj:
