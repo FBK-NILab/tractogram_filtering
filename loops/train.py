@@ -32,7 +32,6 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     metrics = initialize_metrics()
     
     for i_batch, sample_batched in enumerate(dataloader):
-        print(sample_batched)
         sample_batched = sample_batched.to('cuda')
         target = sample_batched['y']
 
