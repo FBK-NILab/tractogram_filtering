@@ -117,7 +117,6 @@ def dump_model(cfg, model, logdir, epoch, score, best=False):
         prefix = 'best_'
 
     modeldir = os.path.join(logdir, cfg['model_dir'])
-    print(modeldir)
     if not os.path.exists(modeldir):
         os.makedirs(modeldir)
     else:
