@@ -4,7 +4,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataLoader as gDataLoader
 
-import datasets as ds
+from datasets import hcp20
 from .transforms import *
 
 def get_dataset(cfg, trans, train=True):
@@ -17,7 +17,7 @@ def get_dataset(cfg, trans, train=True):
         batch_size = int(cfg['batch_size'])
         shuffling = cfg['shuffling']
 
-    dataset = ds.HCP20Dataset(sub_list,
+    dataset = hcp20.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
                               same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
