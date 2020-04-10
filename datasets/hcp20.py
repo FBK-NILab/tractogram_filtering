@@ -28,10 +28,12 @@ from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
 import functools
 
+
 class HCP20Dataset(gDataset):
     def __init__(self,
                  sub_file,
                  root_dir,
+                 #k=4,
                  same_size=False,
                  act=True,
                  fold_size=None,
@@ -45,8 +47,8 @@ class HCP20Dataset(gDataset):
                  load_one_full_subj=True,
                  standardize=False,
                  centering=False,
-                 permute=False,
-                 labels_dir='streamlines_resampled_16_new'):
+                 labels_dir='streamlines_resampled_16_gt20mm',
+                 permute=False):
         """
         Args:
             root_dir (string): root directory of the dataset.
@@ -57,6 +59,7 @@ class HCP20Dataset(gDataset):
         with open(sub_file) as f:
             subjects = [s.strip() for s in f.readlines()]
         self.subjects = subjects
+        #self.k = k
         self.transform = transform
         self.distance = distance
         self.fold_size = fold_size
@@ -82,14 +85,19 @@ class HCP20Dataset(gDataset):
         if with_gt:
             self.labels = []
             for sub in subjects:
-                label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir, 'sub-%s' % sub)
-                label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
+                label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir ,'sub-%s' % sub)
+                label_file = os.path.join(label_sub_dir, 'sub-%s_var-GIN_labels.npy' % (sub))
                 self.labels.append(np.load(label_file))
         if self.load_one_full_subj:
             print('loading one full subject')
+            #sub = subjects[0]
             sub = self.subjects[0]
+            print(sub)
             sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
+            print(sub_dir)
             T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
+            #T_file = glob.glob('%s/*GIN_full_tract.trk' % sub_dir)[0]
+            print(T_file)
             T = nib.streamlines.load(T_file, lazy_load=True)
             hdr = nib.streamlines.load(T_file, lazy_load=True).header
             idxs = np.arange(hdr['nb_streamlines']).tolist()
@@ -100,7 +108,7 @@ class HCP20Dataset(gDataset):
             ]
             if with_gt:
                 label_file = os.path.join(sub_dir,
-                                          'sub-%s_var-HCP_labels.pkl' % (sub))
+                                          'sub-%s_var-GIN_labels.pkl' % (sub))
                 with open(label_file, 'rb') as f:
                     gts = pickle.load(f)
                     gts = torch.tensor(gts).long()
@@ -123,7 +131,10 @@ class HCP20Dataset(gDataset):
             return self.get_one_streamline()
         fs = self.fold_size
         if fs is None:
+            #print(self.subjects[idx])
+            #t0 = time.time()
             item = self.getitem(idx)
+            #print('get item time: {}'.format(time.time()-t0))
             return item
 
         fs_0 = (self.n_fold * fs)
@@ -134,16 +145,19 @@ class HCP20Dataset(gDataset):
     def get_one_streamline(self):
         while len(self.remaining[0]) > 0:
             idx = self.remaining[0][0]
+            print(idx)
             self.remaining[0] = self.remaining[0][1:]
 
             l = self.full_subj[1][idx]
             stream = self.full_subj[0][idx]
             gt = self.full_subj[2][idx]
+            #gt = torch.tensor(self.full_subj[2][idx])
 
             gsample = self.build_graph_sample(
                 stream, [l], gt)
 
             sample = {'points': gsample, 'gt': gt}
+            #sample['points'] = self.build_graph_sample(stream, [l], gt)
             sample['obj_idxs'] = [idx]
             sample['obj_full_size'] = len(self)
             sample['name'] = self.full_subj[3]
@@ -155,15 +169,21 @@ class HCP20Dataset(gDataset):
         print('loading fold')
         fs = self.fold_size
         fs_0 = self.n_fold * fs
+        #t0 = time.time()
         print('Loading fold')
         self.data_fold = [self.getitem(i) for i in range(fs_0, fs_0 + fs)]
+        #print('time needed: %f' % (time.time()-t0))
 
     def getitem(self, idx):
         sub = self.subjects[idx]
+        #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
+        #print('\tload lazy T %f' % (time.time()-t0))
+        #t0 = time.time()
         gt = self.labels[idx]
+        #print('\tload gt %f' % (time.time()-t0))
         if self.split_obj:
             if len(self.remaining[idx]) == 0:
                 self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
@@ -171,20 +191,28 @@ class HCP20Dataset(gDataset):
             if self.with_gt:
                 sample['gt'] = gt[list(self.remaining[idx])]
         else:
+            #sample = {'points': np.arange(T.header['nb_streamlines'])}
+            #if self.with_gt:
+            #sample['gt'] = gt
             sample = {'points': np.arange(T.header['nb_streamlines']), 'gt': gt}
+        #print(sample['name'])
 
+        #t0 = time.time()
         if self.transform:
             sample = self.transform(sample)
+        #print('\ttime sampling %f' % (time.time()-t0))
 
         if self.split_obj:
             self.remaining[idx] -= set(sample['points'])
             sample['obj_idxs'] = sample['points'].copy()
             sample['obj_full_size'] = T.header['nb_streamlines']
+            #sample['streamlines'] = T.streamlines
 
         sample['name'] = T_file.split('/')[-1].rsplit('.', 1)[0]
         sample['dir'] = sub_dir
 
         n = len(sample['points'])
+        #t0 = time.time()
         if self.same_size:
             streams, lengths = load_selected_streamlines_uniform_size(T_file,
                                                     sample['points'].tolist())
@@ -193,46 +221,62 @@ class HCP20Dataset(gDataset):
                 streams_centered -= streams_centered.mean(axis=1)[:,None,:]
                 streams = streams_centered.reshape(-1,3)
             if self.permute:
+                # import ipdb; ipdb.set_trace()
                 streams_perm = self.permute_pts(
                     streams.reshape(-1, lengths[0], 3))
                 streams = streams_perm.reshape(-1, 3)
         else:
+            #streams, _, lengths, _ = load_streamlines(T_file,
+            #                                        idxs=sample['points'].tolist(),
+            #                                        container='array_flat')
             streams, lengths = load_selected_streamlines(T_file,
                                                     sample['points'].tolist())
-
+            #print('\ttime loading selected streamlines %f' % (time.time()-t0))
             if self.centering:
                 streams_centered = self.center_sl_list(
                     np.split(streams, np.cumsum(lengths))[:-1])
                 streams = np.vstack(streams_centered)
-            
+
             if self.permute:
                 streams_perm = self.permute_pts(
                     np.split(streams, np.cumsum(lengths))[:-1])
                 streams = streams_perm.reshape(-1, 3)
-                
+        
         if self.standardize:
             stats_file = glob.glob(sub_dir + '/*_stats.npy')[0]
             mu, sigma, M, m = np.load(stats_file)
             streams = (streams - mu) / sigma
 
+
+
+        #t0 = time.time()
         sample['points'] = self.build_graph_sample(streams,
                     lengths,
                     torch.from_numpy(sample['gt']) if self.with_gt else None)
+        #sample['tract'] = streamlines
+        #print('sample:',sample['points'])
+        #print('\ttime building graph %f' % (time.time()-t0))
         return sample
 
     def center_sl_list(self, sl_list):
         centers = np.array(map(functools.partial(np.mean, axis=0), sl_list))
-        return map(np.subtract, sl_list, centers)    
+        return map(np.subtract, sl_list, centers)
 
     def permute_pts(self, sl_list):
         perm_sl_list = []
         for sl in sl_list:
             perm_idx = torch.randperm(len(sl)).tolist()
-            perm_sl_list.append(sl[perm_idxs])
+            perm_sl_list.append(sl[perm_idx])
         return np.array(perm_sl_list)
 
+
     def build_graph_sample(self, streams, lengths, gt=None):
+        #t0 = time.time()
+        #print('time numpy split %f' % (time.time()-t0))
+        ### create graph structure
+        #sls_lengths = torch.from_numpy(sls_lengths)
         lengths = torch.from_numpy(lengths).long()
+        #print('sls lengths:',sls_lengths)
         batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
         batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
         slices = batch_slices[1:-1]
@@ -240,8 +284,11 @@ class HCP20Dataset(gDataset):
         l = streams.shape[0]
         graph_sample = gData(x=streams,
                              lengths=lengths,
+                             #sls_lengths=sls_lengths,
                              bvec=batch_vec,
                              pos=streams)
+        #                     bslices=batch_slices)
+        #edges = torch.empty((2, 2*l - 2*n), dtype=torch.long)
         if self.return_edges:
             e1 = set(np.arange(0,l-1)) - set(slices.numpy()-1)
             e2 = set(np.arange(1,l)) - set(slices.numpy())

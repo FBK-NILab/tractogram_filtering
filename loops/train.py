@@ -32,8 +32,13 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     metrics = initialize_metrics()
     
     for i_batch, sample_batched in enumerate(dataloader):
-        sample_batched = sample_batched.to('cuda')
-        target = sample_batched['y']
+
+        ### reorganize the batch in term of streamlines
+        points = get_gbatch_sample(sample_batched, int(cfg['fixed_size']),
+                                   cfg['same_size'])
+        target = points['y']
+
+        points, target = points.to('cuda'), target.to('cuda')
 
         ### initialize gradients
         if not cfg['accumulation_interval'] or i_batch == 0:
@@ -102,10 +107,12 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch):
         metrics_val = initialize_metrics()
         ep_loss = 0.
 
-        for i, data in enumerate(dataloader):
-            
-            data = data.to('cuda')
-            target = data['y']
+        for i, data in enumerate(val_dataloader):
+            points = get_gbatch_sample(data, int(cfg['fixed_size']),
+                                       cfg['same_size'])
+            target = points['y']
+
+            points, target = points.to('cuda'), target.to('cuda')
 
             ### forward
             logits = classifier(data)
@@ -177,9 +184,8 @@ def train(cfg):
     n_iter = 0
     best_score = 0
     current_lr = float(cfg['learning_rate'])
-    ep0 = 0
 
-    for epoch in range(ep0, ep0 + n_epochs + 1):
+    for epoch in range(n_epochs + 1):
 
         loss, n_iter = train_ep(cfg, dataloader, classifier, optimizer, writer,
                                 epoch, n_iter)
