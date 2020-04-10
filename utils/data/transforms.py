@@ -33,6 +33,7 @@ class RndSampling(object):
 
     def __call__(self, sample):
         np.random.seed(np.uint32(torch.initial_seed()))
+
         pts, gt = sample['points'], sample['gt']
 
         n = pts.shape[0]
@@ -51,10 +52,9 @@ class RndSampling(object):
                 prop = float(np.sum(gt == cl)) / n
                 k = np.round(self.output_size * prop)
                 remaining -= k
-                candidates = np.argwhere(gt == cl).reshape(-1)
-                tmp_idx = torch.randint(len(candidates),
-                                            (int(k),)).tolist()
-                chosen_idx += candidates[tmp_idx].tolist()
+                chosen_idx += np.random.choice(
+                    np.argwhere(gt == cl).reshape(-1),
+                    int(k)).reshape(-1).tolist()
 
             assert (self.output_size == len(chosen_idx))
             chosen_idx = np.array(chosen_idx)
@@ -70,10 +70,9 @@ class RndSampling(object):
                 if (gt == cl).sum() == 0:
                     continue
                 if cl == gt.max():
-                    candidates = np.argwhere(gt == cl).reshape(-1)
-                    tmp_idx = torch.randint(len(candidates),
-                                             (int(remaining),)).tolist()
-                    chosen_idx += candidates[tmp_idx].tolist()
+                    chosen_idx += np.random.choice(
+                        np.argwhere(gt == cl).reshape(-1),
+                        int(remaining)).reshape(-1).tolist()
                     break
                 if self.prop_vector[cl] != 1:
                     prop = self.prop_vector[cl]
@@ -86,9 +85,9 @@ class RndSampling(object):
                     k = np.round(out_size * prop)
 
                 remaining -= k
-                candidates = np.argwhere(gt == cl).reshape(-1)
-                tmp_idx = torch.randint(len(candidates), (int(k), )).tolist()
-                chosen_idx += candidates[tmp_idx].tolist()
+                chosen_idx += np.random.choice(
+                    np.argwhere(gt == cl).reshape(-1),
+                    int(k)).reshape(-1).tolist()
 
             assert (self.output_size == len(chosen_idx))
             chosen_idx = np.array(chosen_idx)
