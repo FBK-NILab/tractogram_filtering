@@ -186,8 +186,7 @@ def train(cfg):
                                 epoch, n_iter)
 
         ### validation during training
-        if epoch % int(cfg['val_freq']) == 0 
-                or epoch == n_epochs and cfg['val_in_train']:
+        if epoch % int(cfg['val_freq']) == 0 or epoch == n_epochs and cfg['val_in_train']:
             best = False
             val_score = val_ep(cfg, val_dataloader, classifier, writer, epoch)
             if val_score >= best_score:
