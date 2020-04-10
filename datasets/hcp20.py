@@ -47,7 +47,7 @@ class HCP20Dataset(gDataset):
                  load_one_full_subj=True,
                  standardize=False,
                  centering=False,
-                 labels_dir='streamlines_resampled_16_gt20mm',
+                 labels_dir='streamlines_resampled_16_new',
                  permute=False):
         """
         Args:
@@ -178,7 +178,7 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-GIN_full_tract.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract.trk' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
