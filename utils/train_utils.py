@@ -107,7 +107,7 @@ def compute_loss(cfg, logits, target, classifier, loss_dict=None):
 def log_losses(loss_dict, writer, epoch, n_iters, prefix='train'):
     if loss_dict is None:
         return
-    for loss_type, value in loss_dict.iteritems():
+    for loss_type, value in loss_dict.items():
         ep_loss = value / n_iters
         writer.add_scalar('%s/%s' % (prefix, loss_type), ep_loss, epoch)
 
