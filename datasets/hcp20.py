@@ -45,8 +45,8 @@ class HCP20Dataset(gDataset):
                  load_one_full_subj=True,
                  standardize=False,
                  centering=False,
-                 labels_dir='streamlines_resampled_16_new'
-                 permute=False):
+                 permute=False,
+                 labels_dir='streamlines_resampled_16_new'):
         """
         Args:
             root_dir (string): root directory of the dataset.
