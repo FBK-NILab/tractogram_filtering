@@ -31,7 +31,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
     ep_loss_dict = initialize_loss_dict(cfg)
     metrics = initialize_metrics()
 
-    for i_batch, sample_batched in enumerate(dataloader.items()):
+    for i_batch, sample_batched in enumerate(dataloader):
 
         sample_batched = sample_batched.to('cuda')
         target = sample_batched['y']
