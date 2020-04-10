@@ -11,7 +11,7 @@ from tensorboardX import SummaryWriter
 from torch import optim
 
 from losses.entropy_loss import NLLLoss
-from general_utils import save_dict_to_file
+from .general_utils import save_dict_to_file
 
 def create_tb_logger(cfg):
     if cfg['experiment_name'] != 'default':
