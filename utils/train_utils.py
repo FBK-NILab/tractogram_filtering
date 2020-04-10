@@ -84,8 +84,8 @@ def initialize_loss_dict(cfg):
     loss_dict = {}
     loss_dict['nll'] = 0. 
 
-    if not cfg['multi_loss']:
-        return loss_dict
+    #if not cfg['multi_loss']:
+    #    return loss_dict
     
     return loss_dict
 

@@ -20,7 +20,7 @@ def get_model(cfg):
             input_size,
             int(cfg['embedding_size']),
             num_classes,
-            dropout=cfg['dropout'],
+            #dropout=cfg['dropout'],
             k=int(cfg['k']),
             aggr='max',
             pool_op=cfg['pool_op'])
@@ -29,7 +29,7 @@ def get_model(cfg):
             input_size,
             int(cfg['embedding_size']),
             num_classes,
-            dropout=cfg['dropout'],
+            #dropout=cfg['dropout'],
             k=int(cfg['k']),
             aggr='max',
             pool_op=cfg['pool_op'])
