@@ -32,7 +32,7 @@ def get_cfg_value(value):
 
 def set_exp_name(cfg, modelname, dataname):
     exp = cfg['experiment_name']
-    exp = exp.replace('DATE', str(data.today()))
+    exp = exp.replace('DATE', str(date.today()))
     exp = exp.replace('MODEL', modelname.lower())
     exp += '_data-{}'.format(dataname.lower())
     cfg['experiment_name'] = exp
