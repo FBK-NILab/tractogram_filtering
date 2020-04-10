@@ -70,6 +70,8 @@ class HCP20Dataset(gDataset):
         self.load_one_full_subj = load_one_full_subj
         self.same_size = same_size
         self.standardize = standardize
+        self.centering = centering
+        self.permute = permute
         if fold_size is not None:
             self.load_fold()
         if train:
