@@ -17,7 +17,7 @@ def get_dataset(cfg, trans, train=True):
         batch_size = int(cfg['batch_size'])
         shuffling = cfg['shuffling']
 
-    dataset = hcp20.HCP20Dataset(sub_list,
+    dataset = ds.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
                               same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
