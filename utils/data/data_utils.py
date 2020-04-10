@@ -5,7 +5,7 @@ from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataLoader as gDataLoader
 
 import datasets as ds
-from transforms import *
+from .transforms import *
 
 def get_dataset(cfg, trans, train=True):
     if not train:
