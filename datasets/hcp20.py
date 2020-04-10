@@ -86,7 +86,7 @@ class HCP20Dataset(gDataset):
             self.labels = []
             for sub in subjects:
                 label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir ,'sub-%s' % sub)
-                label_file = os.path.join(label_sub_dir, 'sub-%s_var-GIN_labels.npy' % (sub))
+                label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
                 self.labels.append(np.load(label_file))
         if self.load_one_full_subj:
             print('loading one full subject')
@@ -108,7 +108,7 @@ class HCP20Dataset(gDataset):
             ]
             if with_gt:
                 label_file = os.path.join(sub_dir,
-                                          'sub-%s_var-GIN_labels.pkl' % (sub))
+                                          'sub-%s_var-HCP_labels.pkl' % (sub))
                 with open(label_file, 'rb') as f:
                     gts = pickle.load(f)
                     gts = torch.tensor(gts).long()
