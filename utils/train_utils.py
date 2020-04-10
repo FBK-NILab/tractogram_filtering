@@ -111,23 +111,19 @@ def log_losses(loss_dict, writer, epoch, n_iters, prefix='train'):
         ep_loss = value / n_iters
         writer.add_scalar('%s/%s' % (prefix, loss_type), ep_loss, epoch)
 
-def dump_model(cfg, model, optimizer, loss, epoch, score, logdir, best=False):
+def dump_model(cfg, model, logdir, epoch, score, best=False):
     prefix = ''
-    if best and cfg['overwrite']:
+    if best:
         prefix = 'best_'
 
     modeldir = os.path.join(logdir, cfg['model_dir'])
     if not os.path.exists(modeldir):
         os.makedirs(modeldir)
-    elif cfg['overwrite']:
+    else:
         os.system('rm %s/%smodel*.pth' % (modeldir, prefix))
-        os.system('rm %s/%sstatus*.pth' % (modeldir, prefix))
-    torch.save(
-        {
-            'epoch': epoch,
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss': loss,
-        }, '%s/%sstatus_ep-%d_score-%f.pth' % (modeldir, prefix, epoch, score))
+    torch.save(model.state_dict(),
+               '%s/%smodel_ep-%d_score-%f.pth' %
+                    (modeldir, prefix, epoch, score))
 
 def dump_code(cfg, logdir):
     config_file = os.path.join(logdir, 'config.txt')
