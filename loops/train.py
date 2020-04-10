@@ -45,7 +45,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
             optimizer.zero_grad()
 
         ### forward
-        logits = classifier(sample_batched)
+        logits = classifier(points)
         ### minimize the loss
 
         pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
@@ -115,7 +115,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch):
             points, target = points.to('cuda'), target.to('cuda')
 
             ### forward
-            logits = classifier(data)
+            logits = classifier(points)
 
             pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             pred_choice = pred.data.max(1)[1].int()
