@@ -160,8 +160,13 @@ def train(cfg):
     if cfg['rnd_sampling']:
         trans_train.append(
             RndSampling(sample_size,
+<<<<<<< HEAD
                         maintain_prop=False,
                         prop_vector=[1, 1]))
+=======
+                           maintain_prop=False,
+                           prop_vector=[1, 1]))
+>>>>>>> 2d79e624a9b455941e06af90d8e19d11f21f43d2
         trans_val.append(RndSampling(sample_size, maintain_prop=False))
 
     dataset, dataloader = get_dataset(cfg, trans=trans_train)
