@@ -4,7 +4,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataLoader as gDataLoader
 
-from datasets import hcp20
+import datasets as ds
 from .transforms import *
 
 def get_dataset(cfg, trans, train=True):
