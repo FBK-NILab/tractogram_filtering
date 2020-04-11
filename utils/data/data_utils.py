@@ -13,6 +13,7 @@ def get_dataset(cfg, trans, split_obj=False, train=True, test=False):
         batch_size = 1
         shuffling = False
     if test:
+        print('test')updat
         sub_list = cfg['sub_list_test']
         batch_size = 1
         shuffling = False
