@@ -7,9 +7,13 @@ from torch_geometric.data import DataListLoader as gDataLoader
 import datasets as ds
 from .transforms import *
 
-def get_dataset(cfg, trans, split_obj=False, train=True):
-    if not train:
+def get_dataset(cfg, trans, split_obj=False, train=True, test=False):
+    if not train and not test:
         sub_list = cfg['sub_list_val']
+        batch_size = 1
+        shuffling = False
+    if test:
+        sub_list = cfg['sub_list_test']
         batch_size = 1
         shuffling = False
     else:
@@ -23,11 +27,18 @@ def get_dataset(cfg, trans, split_obj=False, train=True):
                               return_edges=cfg['return_edges'],
                               load_one_full_subj=False)
 
-    dataloader = gDataLoader(dataset,
-                             batch_size=batch_size,
-                             shuffle=False,
-                             num_workers=int(cfg['n_workers']),
-                             pin_memory=True)
+    if train:
+        dataloader = gDataLoader(dataset,
+                                 batch_size=batch_size,
+                                 shuffle=False,
+                                 num_workers=int(cfg['n_workers']),
+                                 pin_memory=True)
+        
+    if test:
+        dataloader = gDataLoader(dataset,
+                                 batch_size=batch_size,
+                                 shuffle=False,
+                                 num_workers=0)
 
     print("Dataset %s loaded, found %d samples" %
           (cfg['dataset'], len(dataset)))
