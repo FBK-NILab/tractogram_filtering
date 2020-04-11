@@ -6,7 +6,7 @@ import sys
 import numpy as np 
 import torch
 import torch.nn.functional as F 
-from torch_geometric.data import gBatch
+from torch_geometric.data import Batch as gBatch
 from torch.utils.data import DataLoader
 
 from tensorboardX import SummaryWriter
