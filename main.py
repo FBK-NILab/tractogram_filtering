@@ -135,7 +135,7 @@ if __name__ == '__main__':
             sys.exit('Missing argument --exp')
         cfg['exp_path'] = args.exp
         if args.weights:
-            cfg['weigths_path'] = args.weights
+            cfg['weights_path'] = args.weights
         else:
             cfg['weights_path'] = ''
         #if args.sub_list:
