@@ -25,6 +25,7 @@ def get_dataset(cfg, trans, split_obj=False, train=True, test=False):
                               cfg['dataset_dir'],
                               transform=transforms.Compose(trans),
                               return_edges=cfg['return_edges'],
+                              split_obj=split_obj,
                               load_one_full_subj=False)
 
     if train:
