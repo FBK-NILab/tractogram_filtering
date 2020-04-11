@@ -17,7 +17,7 @@ def create_tb_logger(cfg):
     if cfg['experiment_name'] != 'default':
         for ext in range(100):
             exp_name = cfg['experiment_name'] + '_%d' % ext
-            logdir = 'runs/%s%s' % (cfg['dataset'], exp_name)
+            logdir = 'runs/%s/%s' % (cfg['dataset'], exp_name)
             if not os.path.exists(logdir):
                 writer = SummaryWriter(logdir=logdir)
                 break
