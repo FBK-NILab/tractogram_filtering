@@ -138,8 +138,8 @@ if __name__ == '__main__':
             cfg['weigths_path'] = args.weights
         else:
             cfg['weights_path'] = ''
-        if args.sub_list:
-            cfg['sub_list_test'] = args.sub_list
+        #if args.sub_list:
+        #    cfg['sub_list_test'] = args.sub_list
         if args.root_dir:
             cfg['val_dataset_dir'] = args.root_dir
         if args.with_gt:
