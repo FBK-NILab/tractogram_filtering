@@ -24,13 +24,7 @@ def create_tb_logger(cfg):
         else:
             writer = SummaryWriter()
 
-    tb_log_name = glob.glob('%s/events*' % logdir)[0].rsplit('/', 1)[1]
-    tb_log_dir = 'tb_logs/%s' % exp_name
-    os.system('mkdir -p %s' % tb_log_dir)
-    os.system('ln -sr %s/%s %s/%s ' %
-              (logdir, tb_log_name, tb_log_dir, tb_log_name))
-
-    os.system('cp main_dsl_config.py %s/config.txt' % (writer.logdir))
+    cfg['experiment_name] = writer.logdir
 
     return writer
 
@@ -127,11 +121,21 @@ def dump_model(cfg, model, logdir, epoch, score, best=False):
         os.makedirs(modeldir)
     else:
         os.system('rm %s/%smodel*.pth' % (modeldir, prefix))
+        os.system('rm %s/%sstatus*.pth' % (modeldir, prefix))
     torch.save(model.state_dict(),
                '%s/%smodel_ep-%d_score-%f.pth' %
                     (modeldir, prefix, epoch, score))
+    torch.save(
+        {
+            'epoch': epoch,
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss,
+        }, '%s%sstatus_ep-%d_score-%f.pth' % (modeldir, prefix, epoch, score))        
 
 def dump_code(cfg, logdir):
+    config_file = os.path.join(logdir, 'config.txt')
+    save_dict_to_file(cfg, config_file)
+    
     codedir = os.path.join(logdir, 'train_code/.')
     if not os.path.exists(codedir):
         os.makedirs(codedir)
