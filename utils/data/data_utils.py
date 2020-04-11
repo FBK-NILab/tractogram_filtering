@@ -7,7 +7,7 @@ from torch_geometric.data import DataLoader as gDataLoader
 import datasets as ds
 from .transforms import *
 
-def get_dataset(cfg, trans, train=True):
+def get_dataset(cfg, trans, split_obj=False, train=True):
     if not train:
         sub_list = cfg['sub_list_val']
         batch_size = 1
@@ -26,7 +26,7 @@ def get_dataset(cfg, trans, train=True):
 
     dataloader = gDataLoader(dataset,
                              batch_size=batch_size,
-                             shuffle=shuffling,
+                             shuffle=False,
                              num_workers=int(cfg['n_workers']),
                              pin_memory=True)
 
