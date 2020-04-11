@@ -108,8 +108,11 @@ def test(cfg):
 
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
             
-            points = get_gbatch_sample(data['points'], sample_size, cfg['same_size'])
-            
+            points = gBatch().from_data_list([data['points']])
+            #points = data['points']
+            if 'bvec' in points.keys:
+                points.batch = points.bvec.clone()
+                del points.bvec            
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
