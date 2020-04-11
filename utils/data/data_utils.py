@@ -2,7 +2,7 @@ import torch
 from torchvision import transforms
 from torch.utils.data.dataloader import DataLoader 
 from torch_geometric.data import Batch as gBatch
-from torch_geometric.data import DataLoader as gDataLoader
+from torch_geometric.data import DataListLoader as gDataLoader
 
 import datasets as ds
 from .transforms import *
@@ -19,7 +19,6 @@ def get_dataset(cfg, trans, split_obj=False, train=True):
 
     dataset = ds.HCP20Dataset(sub_list,
                               cfg['dataset_dir'],
-                              same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
                               return_edges=cfg['return_edges'],
                               load_one_full_subj=False)
@@ -56,16 +55,14 @@ def get_transforms(cfg, train=True):
 def get_gbatch_sample(sample, sample_size, same_size, return_name=False):
     data_list = []
     name_list = []
-    ori_batch = []
     for i, d in enumerate(sample):
         if 'bvec' in d['points'].keys:
             d['points'].bvec += sample_size * i
         data_list.append(d['points'])
         name_list.append(d['name'])
-        ori_batch.append([i] * sample_size)
     points = gBatch().from_data_list(data_list)
-    points.ori_batch = torch.tensor(ori_batch).flatten().long()
     if 'bvec' in points.keys:
+        #points.batch = points.bvec.copy()
         points.batch = points.bvec.clone()
         del points.bvec
     if same_size:
@@ -73,4 +70,4 @@ def get_gbatch_sample(sample, sample_size, same_size, return_name=False):
 
     if return_name:
         return points, name_list
-    return points    
+    return points 
