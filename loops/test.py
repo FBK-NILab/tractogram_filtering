@@ -29,7 +29,7 @@ def test(cfg):
     cfg['loss'] = cfg['loss'].split(' ')
     batch_size = 1
     cfg['batch_size'] = batch_size
-    epoch = eval(cfg['n_epochs'])
+    epoch = eval(str(cfg['n_epochs']))
     #n_gf = int(cfg['num_gf'])
     input_size = int(cfg['data_dim'])
 
