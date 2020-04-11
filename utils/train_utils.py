@@ -24,7 +24,7 @@ def create_tb_logger(cfg):
         else:
             writer = SummaryWriter()
 
-    cfg['experiment_name] = writer.logdir
+    cfg['experiment_name'] = writer.logdir
 
     return writer
 
