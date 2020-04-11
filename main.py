@@ -121,7 +121,7 @@ if __name__ == '__main__':
         print_cfg(cfg)
         train(cfg)
         args.exp = cfg['experiment_name']
-        args.weights = glob.glob('%s/models/best_*' % args.exp)[0]
+        args.weights = glob.glob('%s/models/best_*' % args.exp)
 
         if cfg['val_dataset_dir']:
             cfg['dataset_dir'] = cfg['val_dataset_dir']
