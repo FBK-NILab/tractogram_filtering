@@ -39,7 +39,7 @@ def test(cfg):
     if cfg['standardization']:
         trans_val.append(SampleStandardization())
 
-    dataset, dataloader = get_dataset(cfg, trans=trans_val, split_obj=True, train=False)
+    dataset, dataloader = get_dataset(cfg, trans=trans_val, split_obj=True, train=False, test=True)
 
     print("Validation dataset loaded, found %d samples" % (len(dataset)))
 
