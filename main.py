@@ -81,8 +81,8 @@ if __name__ == '__main__':
     
     if args.config:
         cfg_parser.read(args.config)
-    elif args.exp:
-        cfg_parser.read(args.exp + '/config.txt')
+    #elif args.exp:
+    #    cfg_parser.read(args.exp + '/config.txt')
     else:
         cfg_parser.read([
             'configs/main_config.ini', 'configs/model_config.ini',
