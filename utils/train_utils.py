@@ -17,14 +17,20 @@ def create_tb_logger(cfg):
     if cfg['experiment_name'] != 'default':
         for ext in range(100):
             exp_name = cfg['experiment_name'] + '_%d' % ext
-            logdir = 'runs/%s/%s' % (cfg['dataset'], exp_name)
+            logdir = 'runs/%s' % exp_name
             if not os.path.exists(logdir):
                 writer = SummaryWriter(logdir=logdir)
                 break
         else:
             writer = SummaryWriter()
 
-    cfg['experiment_name'] = writer.logdir
+    tb_log_name = glob.glob('%s/events*' % logdir)[0].rsplit('/', 1)[1]
+    tb_log_dir = 'tb_logs/%s' % exp_name
+    os.system('mkdir -p %s' % tb_log_dir)
+    os.system('ln -sr %s/%s %s/%s ' %
+              (logdir, tb_log_name, tb_log_dir, tb_log_name))
+
+    os.system('cp main_dsl_config.py %s/config.txt' % (writer.logdir))
 
     return writer
 
@@ -126,9 +132,6 @@ def dump_model(cfg, model, logdir, epoch, score, best=False):
                     (modeldir, prefix, epoch, score))
 
 def dump_code(cfg, logdir):
-    config_file = os.path.join(logdir, 'config.txt')
-    save_dict_to_file(cfg, config_file)
-
     codedir = os.path.join(logdir, 'train_code/.')
     if not os.path.exists(codedir):
         os.makedirs(codedir)
