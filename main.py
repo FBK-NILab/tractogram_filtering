@@ -50,10 +50,19 @@ if __name__ == '__main__':
     else:
         cfg_parser.read('main_dsl_config.py')
     cfg = {}
+    cfg[args.var] = {}
     for name, value in cfg_parser.items('DEFAULT'):
-        cfg[name] = get_cfg_value(value)
+        if value == 'y':
+            value = True
+        elif value == 'n':
+            value = False
+        cfg[args.var][name] = value
     for name, value in cfg_parser.items(args.var):
-        cfg[name] = get_cfg_value(value)
+        if value == 'y':
+            value = True
+        elif value == 'n':
+            value = False
+        cfg[args.var][name] = value
     cfg['opt'] = args.opt
 
     # TODO: set seed
@@ -84,3 +93,4 @@ if __name__ == '__main__':
             cfg[args.var]['save_pred'] = False
         print_cfg(cfg[args.var])
         test(cfg[args.var])
+
