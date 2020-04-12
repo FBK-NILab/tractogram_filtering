@@ -43,7 +43,6 @@ def test(cfg):
     if cfg['dataset'] == 'hcp20_graph':
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
-                                  act=cfg['act'],
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
