@@ -18,12 +18,11 @@ import nibabel as nib
 import glob
 import time
 from torch_geometric.transforms import Distance, AddSelfLoops
-
+from utils.data.selective_loader import load_selected_streamlines, load_selected_streamlines_uniform_size
 from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
-from selective_loader import load_selected_streamlines,load_selected_streamlines_uniform_size
 from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
 import functools
