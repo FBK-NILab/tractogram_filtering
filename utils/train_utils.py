@@ -129,7 +129,7 @@ def dump_model(cfg, model, logdir, epoch, score, best=False):
         os.system('rm %s/%smodel*.pth' % (modeldir, prefix))
     torch.save(model.state_dict(),
                '%s/%smodel_ep-%d_score-%f.pth' %
-                    (modeldir, prefix, epoch, score))
+                    (modeldir, prefix, epoch, score))    
 
 def dump_code(cfg, logdir):
     codedir = os.path.join(logdir, 'train_code/')

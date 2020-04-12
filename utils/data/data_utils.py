@@ -12,6 +12,11 @@ def get_dataset(cfg, trans, train=True):
         sub_list = cfg['sub_list_val']
         batch_size = 1
         shuffling = False
+    if test:
+        print('test')
+        sub_list = cfg['sub_list_test']
+        batch_size = 1
+        shuffling = False
     else:
         sub_list = cfg['sub_list_train']
         batch_size = int(cfg['batch_size'])
@@ -22,6 +27,7 @@ def get_dataset(cfg, trans, train=True):
                               same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
                               return_edges=cfg['return_edges'],
+                              split_obj=split_obj,
                               load_one_full_subj=False)
 
     dataloader = gDataLoader(dataset,
