@@ -5,7 +5,7 @@ batch_norm = y
 dropout = n
 spatial_tn = n
 knngraph = 5
-k_dec = 5
+k = 5
 pool_op = max
 
 ########## training ###########
