@@ -48,7 +48,7 @@ if __name__ == '__main__':
     elif args.config:
         cfg_parser.read(args.config)
     else:
-        cfg_parser.read('main_dsl_config.py')
+        cfg_parser.read('configs/main_dsl_config.py')
     cfg = {}
     cfg[args.var] = {}
     for name, value in cfg_parser.items('DEFAULT'):
