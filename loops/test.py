@@ -22,7 +22,7 @@ from utils.train_utils import (compute_loss, create_tb_logger, dump_code,
                                dump_model, get_lr, get_lr_scheduler,
                                get_optimizer, initialize_loss_dict, log_losses,
                                update_bn_decay, set_lr)
-from utils.data.transforms import RndSampling, TestSampling, SampleStandardizationh
+from utils.data.transforms import RndSampling, TestSampling, SampleStandardization
 
 def test(cfg):
     num_classes = int(cfg['n_classes'])
