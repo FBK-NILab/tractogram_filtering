@@ -142,6 +142,9 @@ def test(cfg):
 
             logits = classifier(points)
             logits = logits.view(-1, num_classes)
+            
+            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+            pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
