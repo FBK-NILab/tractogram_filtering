@@ -70,12 +70,14 @@ def update_metrics(metrics, prediction, target):
     prediction = prediction.data.int().cpu()
     target = target.data.int().cpu()
 
-    tp = ((prediction == 1) * (target == 1)).sum().item() + 1e-5
+    correct = prediction.eq(target).sum().item()
+    acc = correct / float(target.size(0))
+
+    tp = torch.mul(prediction, target).sum().item() + 0.00001
     fp = prediction.gt(target).sum().item()
     fn = prediction.lt(target).sum().item()
-    tn = ((prediction == 0) * (target == 0)).sum().item()
+    tn = correct - tp
 
-    acc = float(tp + tn) / (tp + fp + fn + tn)
     iou = float(tp) / (tp + fp + fn)
     prec = float(tp) / (tp + fp)
     recall = float(tp) / (tp + fn)

@@ -142,7 +142,9 @@ class TestSampling(object):
         if self.output_size > len(range(n)):
             chosen_idx = range(n)
         else:
-            chosen_idx = np.random.choice(range(n), self.output_size).tolist()
+            chosen_idx = np.random.choice(range(n),
+                                          self.output_size,
+                                          replace=False).tolist()
         out_sample = {'points': sl[chosen_idx]}
 
         if 'gt' in sample.keys():

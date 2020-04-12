@@ -3,15 +3,16 @@ import os
 import pickle
 import sys
 
-import numpy as np 
+import numpy as np
 import torch
-import torch.nn.functional as F 
-from torch_geometric.data import gBatch
+import torch.nn.functional as F
+from torch_geometric.data import Batch as gBatch
 from torch.utils.data import DataLoader
 
 from tensorboardX import SummaryWriter
 from torchvision import transforms
 
+import datasets as ds
 from utils.data.data_utils import (get_dataset, get_gbatch_sample,
                                    get_transforms)
 from utils.general_utils import (initialize_metrics, log_avg_metrics,
@@ -21,7 +22,7 @@ from utils.train_utils import (compute_loss, create_tb_logger, dump_code,
                                dump_model, get_lr, get_lr_scheduler,
                                get_optimizer, initialize_loss_dict, log_losses,
                                update_bn_decay, set_lr)
-from utils.data.transforms import RndSampling, TestSampling, SampleStandardization
+from utils.data.transforms import RndSampling, TestSampling, SampleStandardizationh
 
 def test(cfg):
     num_classes = int(cfg['n_classes'])
@@ -39,8 +40,20 @@ def test(cfg):
     if cfg['standardization']:
         trans_val.append(SampleStandardization())
 
-    dataset, dataloader = get_dataset(cfg, trans=trans_val, split_obj=True, train=False)
+    if cfg['dataset'] == 'hcp20_graph':
+        dataset = ds.HCP20Dataset(cfg['sub_list_test'],
+                                  cfg['dataset_dir'],
+                                  act=cfg['act'],
+                                  transform=transforms.Compose(trans_val),
+                                  with_gt=cfg['with_gt'],
+                                  #distance=T.Distance(norm=True,cat=False),
+                                  return_edges=True,
+                                  split_obj=True,
+                                  train=False,
+                                  load_one_full_subj=False)
 
+    dataloader = DataLoader(dataset, batch_size=batch_size,
+                            shuffle=False, num_workers=0)
     print("Validation dataset loaded, found %d samples" % (len(dataset)))
 
     for ext in range(100):
@@ -95,6 +108,7 @@ def test(cfg):
         new_obj_read = True
         sls_count = 1
         while j < len(dataset):
+        #while sls_count <= len(dataset):
             data = dataset[j]
 
             if split_obj:
@@ -108,7 +122,12 @@ def test(cfg):
 
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
 
+            #print(points)
+            #if len(points.shape()) == 2:
+                #points = points.unsqueeze(0)
+            #print(data)
             points = gBatch().from_data_list([data['points']])
+            #points = data['points']
             if 'bvec' in points.keys:
                 points.batch = points.bvec.clone()
                 del points.bvec
@@ -118,6 +137,8 @@ def test(cfg):
                 target = target.view(-1, 1)[:, 0]
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
+            #if cfg['model'] == 'pointnet_cls':
+                #points = points.view(len(data['obj_idxs']), -1, input_size)
             points = points.to('cuda')
 
             logits = classifier(points)
@@ -126,6 +147,8 @@ def test(cfg):
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target.int()
+                #if cfg['save_embedding']:
+                #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
                 obj_data = points
                 obj_pred_choice = pred_choice
@@ -136,6 +159,7 @@ def test(cfg):
             if cfg['with_gt'] and consumed:
                 print('val max class red ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
+                #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 acc = correct.item()/float(obj_target.size(0))
 
@@ -173,6 +197,7 @@ def test(cfg):
         epoch_iou = macro_iou.item()
 
     if cfg['save_pred']:
+        #os.system('rm -r %s/predictions_test*' % writer.logdir)
         pred_dir = writer.logdir + '/predictions_test_%d' % epoch
         if not os.path.exists(pred_dir):
             os.makedirs(pred_dir)
