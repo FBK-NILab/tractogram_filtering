@@ -30,7 +30,7 @@ def create_tb_logger(cfg):
     os.system('ln -sr %s/%s %s/%s ' %
               (logdir, tb_log_name, tb_log_dir, tb_log_name))
 
-    os.system('cp main_dsl_config.py %s/config.txt' % (writer.logdir))
+    os.system('cp configs/main_dsl_config.py %s/config.txt' % (writer.logdir))
 
     return writer
 
