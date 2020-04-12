@@ -1,15 +1,15 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = sdec
 batch_norm = y
 dropout = n
 spatial_tn = n
 knngraph = 5
-k_dec = 5
+k = 5
 pool_op = max
 
 ########## training ###########
-n_epochs = 1000
+n_epochs = 50
 
 optimizer = adam
 accumulation_interval = n
@@ -57,12 +57,12 @@ print_bwgraph = n
 ########### data ###########
 dataset = hcp20_graph
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
-#dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_new
 fixed_size = 8000
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
-val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
-#val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16
+#val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
+val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_new
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
@@ -82,8 +82,8 @@ ignore_class = 0
 same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
-experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-#experiment_name = sdec_glob-gat-oriknn_kglob25_loss-nll_data-hcp20_16pts_fs8000
+#experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
+experiment_name = sdec_loss-nll_data-hcp20_16pts_fs8000_50ep
 
 ####### ************************************************************************
 ####### ************************************************************************

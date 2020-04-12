@@ -22,7 +22,7 @@ from utils.train_utils import (compute_loss, create_tb_logger, dump_code,
                                dump_model, get_lr, get_lr_scheduler,
                                get_optimizer, initialize_loss_dict, log_losses,
                                update_bn_decay, set_lr)
-from utils.data.transforms import RndSampling, TestSampling, SampleStandardizationh
+from utils.data.transforms import RndSampling, TestSampling, SampleStandardization
 
 def test(cfg):
     num_classes = int(cfg['n_classes'])
@@ -43,7 +43,6 @@ def test(cfg):
     if cfg['dataset'] == 'hcp20_graph':
         dataset = ds.HCP20Dataset(cfg['sub_list_test'],
                                   cfg['dataset_dir'],
-                                  act=cfg['act'],
                                   transform=transforms.Compose(trans_val),
                                   with_gt=cfg['with_gt'],
                                   #distance=T.Distance(norm=True,cat=False),
@@ -143,6 +142,9 @@ def test(cfg):
 
             logits = classifier(points)
             logits = logits.view(-1, num_classes)
+            
+            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+            pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred_choice
@@ -215,34 +217,33 @@ def test(cfg):
         mean_val_dsc = mean_val_prec * mean_val_recall * 2 / (mean_val_prec + mean_val_recall)
         final_scores_file = writer.logdir + '/final_scores_test_%d.txt' % epoch
         scores_file = writer.logdir + '/scores_test_%d.txt' % epoch
-        if not cfg['multi_category']:
-            print('saving scores')
-            with open(scores_file, 'w') as f:
-                f.write('acc\n')
-                f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
-                f.write('prec\n')
-                f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
-                f.write('recall\n')
-                f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
-                f.write('dsc\n')
-                f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
-                f.write('iou\n')
-                f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
-            with open(final_scores_file, 'w') as f:
-                f.write('acc\n')
-                f.write('%f\n' % mean_val_acc.mean())
-                f.write('%f\n' % mean_val_acc.std())
-                f.write('prec\n')
-                f.write('%f\n' % mean_val_prec.mean())
-                f.write('%f\n' % mean_val_prec.std())
-                f.write('recall\n')
-                f.write('%f\n' % mean_val_recall.mean())
-                f.write('%f\n' % mean_val_recall.std())
-                f.write('dsc\n')
-                f.write('%f\n' % mean_val_dsc.mean())
-                f.write('%f\n' % mean_val_dsc.std())
-                f.write('iou\n')
-                f.write('%f\n' % mean_val_iou.mean())
-                f.write('%f\n' % mean_val_iou.std())
+        print('saving scores')
+        with open(scores_file, 'w') as f: 
+          f.write('acc\n')
+          f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
+          f.write('prec\n')
+          f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
+          f.write('recall\n')
+          f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
+          f.write('dsc\n')
+          f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
+          f.write('iou\n')
+          f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
+        with open(final_scores_file, 'w') as f:
+          f.write('acc\n')
+          f.write('%f\n' % mean_val_acc.mean())
+          f.write('%f\n' % mean_val_acc.std())
+          f.write('prec\n')
+          f.write('%f\n' % mean_val_prec.mean())
+          f.write('%f\n' % mean_val_prec.std())
+          f.write('recall\n')
+          f.write('%f\n' % mean_val_recall.mean())
+          f.write('%f\n' % mean_val_recall.std())
+          f.write('dsc\n')
+          f.write('%f\n' % mean_val_dsc.mean())
+          f.write('%f\n' % mean_val_dsc.std())
+          f.write('iou\n')
+          f.write('%f\n' % mean_val_iou.mean())
+          f.write('%f\n' % mean_val_iou.std())
 
     print('\n\n')
