@@ -71,7 +71,7 @@ def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
     streams = apply_affine(aff, streams)
    
     if return_scalars:
-        streams = np.hstack(streams, scalars)   
+        streams = np.hstack((streams, scalars))   
 
     return streams, lengths[idxs]
 
