@@ -7,7 +7,7 @@ from time import time
 from nibabel.affines import apply_affine
 from nibabel.streamlines.trk import get_affine_trackvis_to_rasmm
 
-def load_selected_streamlines(trk_fn, idxs=None):
+def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
@@ -48,6 +48,7 @@ def load_selected_streamlines(trk_fn, idxs=None):
 
     n_floats = lengths * point_size  # better because it skips properties, if they exist
     streams = np.empty((lengths[idxs].sum(), 3), dtype=np.float32)
+    scalars = np.empty((lengths[idxs].sum(), n_scalars), dtype=np.float32) if n_scalars > 0 else None
     j = 0
     with open(trk_fn, 'rb') as f:
         for idx in idxs:
@@ -57,8 +58,9 @@ def load_selected_streamlines(trk_fn, idxs=None):
             # Parse the floats:
             s = np.fromfile(f, np.float32, n_floats[idx])
             s.resize(lengths[idx], point_size)
-            # remove scalars if present:
+
             if n_scalars > 0:
+                scalars[j:j+lengths[idx], :] = s[:, 3:]
                 s = s[:, :3]
 
             streams[j:j+lengths[idx], :] = s
@@ -67,10 +69,13 @@ def load_selected_streamlines(trk_fn, idxs=None):
     # apply affine
     aff = get_affine_trackvis_to_rasmm(lazy_trk.header)
     streams = apply_affine(aff, streams)
+   
+    if return_scalars:
+        streams = np.hstack(streams, scalars)   
 
     return streams, lengths[idxs]
 
-def load_selected_streamlines_uniform_size(trk_fn, idxs=None):
+def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=True):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
@@ -99,6 +104,7 @@ def load_selected_streamlines_uniform_size(trk_fn, idxs=None):
 
     n_floats = lengths * point_size  # better because it skips properties, if they exist
     streams = np.empty((lengths[idxs].sum(), 3), dtype=np.float32)
+    scalars = np.empty((lengths[idxs].sum(), n_scalars), dtype=np.float32) if n_scalars > 0 else None
     j = 0
     with open(trk_fn, 'rb') as f:
         for idx in idxs:
@@ -108,14 +114,18 @@ def load_selected_streamlines_uniform_size(trk_fn, idxs=None):
             # Parse the floats:
             s = np.fromfile(f, np.float32, n_floats[idx])
             s.resize(lengths[idx], point_size)
-            # remove scalars if present:
-            if n_scalars > 0:
-                s = s[:, :3]
 
+            if n_scalars > 0:
+                scalars[j:j+lengths[idx], :] = s[:, 3:]
+                s = s[:, :3]
+            
             streams[j:j+lengths[idx], :] = s
             j += lengths[idx]
     # apply affine
     aff = get_affine_trackvis_to_rasmm(lazy_trk.header)
     streams = apply_affine(aff, streams)
 
+    if return_scalars:
+        streams = np.hstack(streams, scalars)    
+    
     return streams, lengths[idxs]
