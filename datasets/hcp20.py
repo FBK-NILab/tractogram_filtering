@@ -46,7 +46,7 @@ class HCP20Dataset(gDataset):
                  load_one_full_subj=True,
                  standardize=False,
                  centering=False,
-                 labels_dir='streamlines_resampled_16_new',
+                 labels_dir='streamlines_enriched',
                  permute=False):
         """
         Args:
