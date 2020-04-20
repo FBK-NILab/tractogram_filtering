@@ -9,7 +9,7 @@ k = 5
 pool_op = max
 
 ########## training ###########
-n_epochs = 50
+n_epochs = 1000
 
 optimizer = adam
 accumulation_interval = n
@@ -83,7 +83,7 @@ same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-experiment_name = sdec_loss-nll_data-hcp20_16pts_fs8000_50ep
+experiment_name = sdec_loss-nll_data-hcp20_16pts_enriched_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
