@@ -66,7 +66,7 @@ val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_enrich
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
-data_dim = 4
+data_dim = 3
 embedding_size = 40
 fold_size = 2
 return_edges = y
@@ -83,7 +83,7 @@ same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-experiment_name = pointnet_loss-nll_data-hcp20_16pts_enriched_fs8000
+experiment_name = pointnet_loss-nll_data-hcp20_16pts_orig_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
