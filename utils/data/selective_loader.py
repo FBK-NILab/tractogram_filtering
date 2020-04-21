@@ -7,7 +7,7 @@ from time import time
 from nibabel.affines import apply_affine
 from nibabel.streamlines.trk import get_affine_trackvis_to_rasmm
 
-def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
+def load_selected_streamlines(trk_fn, idxs=None, return_scalars=False):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
@@ -75,7 +75,7 @@ def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
 
     return streams, lengths[idxs]
 
-def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=True):
+def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=False):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
