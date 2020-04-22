@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = sdec
+model = pn_geom
 batch_norm = y
 dropout = n
 spatial_tn = n
@@ -66,7 +66,7 @@ val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_enrich
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
-data_dim = 3
+data_dim = 4
 embedding_size = 40
 fold_size = 2
 return_edges = y
