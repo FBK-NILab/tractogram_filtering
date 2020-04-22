@@ -72,7 +72,7 @@ def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
    
     if return_scalars:
         streams = np.hstack((streams, scalars))   
-    print(streams[0])
+        
     return streams, lengths[idxs]
 
 def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=True):
@@ -127,5 +127,5 @@ def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=Tru
 
     if return_scalars:
         streams = np.hstack((streams, scalars))    
-    print(streams[0])
+        
     return streams, lengths[idxs]
