@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = pn_geom
+model = sdec
 batch_norm = y
 dropout = n
 spatial_tn = n
@@ -83,7 +83,7 @@ same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-experiment_name = sdec_loss-nll_data-hcp20_16pts_orig_fs8000
+experiment_name = sdec_loss-nll_data-hcp20_16pts_enriched_sub2mniT1_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
