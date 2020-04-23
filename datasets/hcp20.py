@@ -177,7 +177,7 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_T1sub2mni.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_SUB.trk' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()
