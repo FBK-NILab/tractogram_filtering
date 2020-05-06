@@ -30,7 +30,7 @@ def get_model(cfg):
             int(cfg['embedding_size']),
             num_classes,
             #dropout=cfg['dropout'],
-            k=int(cfg['k']),
+            k=5,
             aggr='max',
             pool_op=cfg['pool_op'])
     elif cfg['model'] == 'pn_geom':
