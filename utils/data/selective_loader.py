@@ -75,7 +75,7 @@ def load_selected_streamlines(trk_fn, idxs=None, return_scalars=True):
         
     return streams, lengths[idxs]
 
-def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=True):
+def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=False):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
