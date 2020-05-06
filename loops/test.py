@@ -138,6 +138,7 @@ def test(cfg):
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
+            print(points)
             points = points.to('cuda')
 
             logits = classifier(points)
