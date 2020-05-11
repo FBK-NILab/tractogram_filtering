@@ -53,7 +53,8 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
         #pred_choice = pred.data.max(1)[1].int()
 
-        loss = F.mse_loss(pred, target.long())
+        #loss = F.mse_loss(pred, target.long())
+        loss = F.mse_loss(pred,target)
 
         ep_loss += loss.item()
         running_ep_loss = ep_loss / (i_batch + 1)
