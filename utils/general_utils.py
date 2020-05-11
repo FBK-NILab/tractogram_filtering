@@ -72,8 +72,8 @@ def update_metrics(metrics, prediction, target):
     prediction = prediction.data.int().cpu()
     target = target.data.int().cpu()
 
-    abs_err = torch.sum(abs(target-prediction))
-    mserr = torch.sum((target-prediction)**2)
+    abs_err = torch.sum(abs(target-prediction)).mean()
+    mserr = torch.sum((target-prediction)**2).mean()
     #correct = prediction.eq(target).sum().item()
     #acc = correct / float(target.size(0))
 
