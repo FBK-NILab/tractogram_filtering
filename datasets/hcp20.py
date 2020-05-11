@@ -46,7 +46,7 @@ class HCP20Dataset(gDataset):
                  load_one_full_subj=True,
                  standardize=False,
                  centering=False,
-                 labels_dir='streamlines_enriched',
+                 labels_dir='sift2_CSD8',
                  permute=False):
         """
         Args:
