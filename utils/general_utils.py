@@ -69,11 +69,13 @@ def initialize_metrics():
     return metrics
 
 def update_metrics(metrics, prediction, target):
-    prediction = prediction.data.int().cpu()
-    target = target.data.int().cpu()
+    #prediction = prediction.data.int().cpu()
+    #target = target.data.int().cpu()
+    prediction = prediction.data.cpu()
+    target = target.data.cpu()
 
-    abs_err = abs(target-prediction)
-    mserr = (target-prediction)**2
+    abs_err = torch.mean(abs(target-prediction))
+    mserr = torch.mean((target-prediction)**2)
     #correct = prediction.eq(target).sum().item()
     #acc = correct / float(target.size(0))
 
