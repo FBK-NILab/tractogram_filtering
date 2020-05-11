@@ -55,7 +55,6 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
 
         #loss = F.mse_loss(pred, target.long())
         target = target.view(-1, num_classes)
-        print(pred,target)
         loss = F.mse_loss(pred,target.float())
         
         ep_loss += loss.item()
@@ -74,7 +73,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         update_metrics(metrics, pred, target)
         #running_acc = torch.tensor(metrics['acc']).mean().item()
 
-        print('[%d: %d/%d] train loss: %f acc: %f' \
+        print('[%d: %d/%d] train loss: %f mse: %f' \
             % (epoch, i_batch, num_batch, loss.item(), metrics['mse'][-1]))
 
         n_iter += 1
@@ -117,8 +116,9 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
 
             #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             #pred_choice = pred.data.max(1)[1].int()
-
-            loss = F.mse_loss(pred, target.long())
+            target = target.view(-1, num_classes)
+            loss = F.mse_loss(pred,target.float())
+           
             ep_loss += loss.item()
 
             print('val min / max class pred %d / %d' %
