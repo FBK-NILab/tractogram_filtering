@@ -70,7 +70,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
 
         ### compute performance
         #update_metrics(metrics, pred_choice, target)
-        update_metrics(metrics, pred, target)
+        update_metrics(metrics, pred, target.float())
         #running_acc = torch.tensor(metrics['acc']).mean().item()
 
         print('[%d: %d/%d] train loss: %f mse: %f' \
@@ -121,16 +121,17 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
            
             ep_loss += loss.item()
 
-            print('val min / max class pred %d / %d' %
-                  (pred_choice.min().item(), pred_choice.max().item()))
-            print('# class pred ', len(torch.unique(pred_choice)))
+            #print('val min / max class pred %d / %d' %
+            #      (pred_choice.min().item(), pred_choice.max().item()))
+            #print('# class pred ', len(torch.unique(pred_choice)))
 
             ### compute performance
-            update_metrics(metrics_val, pred_choice, target)
+            #update_metrics(metrics_val, pred_choice, target)
+            update_metrics(metrics_val, pred, target.float())
 
-            print('VALIDATION [%d: %d/%d] val loss: %f acc: %f' %
+            print('VALIDATION [%d: %d/%d] val loss: %f mse: %f' %
                   ((epoch, i, len(val_dataloader), loss.item(),
-                    metrics_val['acc'][-1])))
+                    metrics_val['mse'][-1])))
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
