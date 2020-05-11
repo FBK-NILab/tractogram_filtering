@@ -56,7 +56,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         #loss = F.mse_loss(pred, target.long())
         target = target.view(-1, num_classes)
         print(pred,target)
-        loss = F.mse_loss(pred,target)
+        loss = F.mse_loss(pred,target.float())
         
         ep_loss += loss.item()
         running_ep_loss = ep_loss / (i_batch + 1)
