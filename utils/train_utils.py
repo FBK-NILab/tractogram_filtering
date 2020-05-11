@@ -88,8 +88,8 @@ def update_bn_decay(cfg, classifier, epoch):
 
 def initialize_loss_dict(cfg):
     loss_dict = {}
-    loss_dict['nll'] = 0. 
-
+    #loss_dict['nll'] = 0. 
+    loss_dict['mse'] = 0.
     #if not cfg['multi_loss']:
     #    return loss_dict
     

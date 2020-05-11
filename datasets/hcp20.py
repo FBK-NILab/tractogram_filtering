@@ -85,7 +85,7 @@ class HCP20Dataset(gDataset):
             self.labels = []
             for sub in subjects:
                 label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir ,'sub-%s' % sub)
-                label_file = os.path.join(label_sub_dir, 'sub-%s_var-HCP_labels.npy' % (sub))
+                label_file = os.path.join(label_sub_dir, 'sub-%s_CSD8_weights.npy' % (sub))
                 self.labels.append(np.load(label_file))
         if self.load_one_full_subj:
             print('loading one full subject')
@@ -177,7 +177,7 @@ class HCP20Dataset(gDataset):
         sub = self.subjects[idx]
         #t0 = time.time()
         sub_dir = os.path.join(self.root_dir, 'sub-%s' % sub)
-        T_file = os.path.join(sub_dir, 'sub-%s_var-HCP_full_tract_SUB.trk' % (sub))
+        T_file = os.path.join(sub_dir, 'sub-%s_tract_MNI16.trk' % (sub))
         T = nib.streamlines.load(T_file, lazy_load=True)
         #print('\tload lazy T %f' % (time.time()-t0))
         #t0 = time.time()

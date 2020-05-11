@@ -59,10 +59,12 @@ def load_dict_from_file(filename):
 
 def initialize_metrics():
     metrics = {}
-    metrics['acc'] = []
-    metrics['iou'] = []
-    metrics['prec'] = []
-    metrics['recall'] = []
+    #metrics['acc'] = []
+    #metrics['iou'] = []
+    #metrics['prec'] = []
+    #metrics['recall'] = []
+    metrics['mse'] = []
+    metrics['abse'] = []
 
     return metrics
 
@@ -70,22 +72,26 @@ def update_metrics(metrics, prediction, target):
     prediction = prediction.data.int().cpu()
     target = target.data.int().cpu()
 
-    correct = prediction.eq(target).sum().item()
-    acc = correct / float(target.size(0))
+    abs_err = torch.sum(abs(target-prediction))
+    mserr = torch.sum((target-prediction)**2)
+    #correct = prediction.eq(target).sum().item()
+    #acc = correct / float(target.size(0))
 
-    tp = torch.mul(prediction, target).sum().item() + 0.00001
-    fp = prediction.gt(target).sum().item()
-    fn = prediction.lt(target).sum().item()
-    tn = correct - tp
+    #tp = torch.mul(prediction, target).sum().item() + 0.00001
+    #fp = prediction.gt(target).sum().item()
+    #fn = prediction.lt(target).sum().item()
+    #tn = correct - tp
 
-    iou = float(tp) / (tp + fp + fn)
-    prec = float(tp) / (tp + fp)
-    recall = float(tp) / (tp + fn)
+    #iou = float(tp) / (tp + fp + fn)
+    #prec = float(tp) / (tp + fp)
+    #recall = float(tp) / (tp + fn)
 
-    metrics['prec'].append(prec)
-    metrics['recall'].append(recall)
-    metrics['acc'].append(acc)
-    metrics['iou'].append(iou)
+    metrics['abse'].append(abs_err)
+    metrics['mse'].append(mserr)
+    #metrics['prec'].append(prec)
+    #metrics['recall'].append(recall)
+    #metrics['acc'].append(acc)
+    #metrics['iou'].append(iou)
 
 def log_avg_metrics(writer, metrics, prefix, epoch):
     for k, v in metrics.items():

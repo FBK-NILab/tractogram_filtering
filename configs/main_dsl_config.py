@@ -30,7 +30,7 @@ bn_decay_step = 90
 bn_decay_gamma = 0.5
 
 ########## loss ###########
-loss = nll
+#loss = nll
 nll_w = n
 
 ########### general ###########
@@ -58,15 +58,15 @@ print_bwgraph = n
 dataset = hcp20_graph
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
-dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_enriched
+dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/sift2_CSD8
 fixed_size = 8000
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/merge_shuffle_trk
 #val_dataset_dir = /home/pietro/datasets/ExTractor_PRIVATE/derivatives/streamlines_resampled_16_gt20mm
-val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/streamlines_enriched
+val_dataset_dir = /home/pa/data/ExTractor_PRIVATE/derivatives/sift2_CSD8
 sub_list_train = data/sub_list_HCP_train.txt
 sub_list_val = data/sub_list_HCP_val.txt
 sub_list_test = data/sub_list_HCP_test.txt
-data_dim = 4
+data_dim = 3
 embedding_size = 40
 fold_size = 2
 return_edges = y
@@ -77,13 +77,13 @@ shuffling = y
 rnd_sampling = y
 standardization = n
 centering = n
-n_classes = 2
+n_classes = 1
 ignore_class = 0
 same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-experiment_name = sdec_loss-nll_data-hcp20_16pts_enriched_sub2mniT1_fs8000
+experiment_name = sift_sdec_loss-mse_data-multilap_16pts_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************

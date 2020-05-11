@@ -45,13 +45,15 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
             optimizer.zero_grad()
 
         ### forward
-        logits = classifier(points)
+        #logits = classifier(points)
+        pred = classifier(points)
+        print(pred,preds.shape)
         ### minimize the loss
 
-        pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
-        pred_choice = pred.data.max(1)[1].int()
+        #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+        #pred_choice = pred.data.max(1)[1].int()
 
-        loss = F.nll_loss(pred, target.long())
+        loss = F.mse_loss(pred, target.long())
 
         ep_loss += loss.item()
         running_ep_loss = ep_loss / (i_batch + 1)
@@ -65,11 +67,12 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
             optimizer.step()
 
         ### compute performance
-        update_metrics(metrics, pred_choice, target)
-        running_acc = torch.tensor(metrics['acc']).mean().item()
+        #update_metrics(metrics, pred_choice, target)
+        update_metrics(metrics, pred, target)
+        #running_acc = torch.tensor(metrics['acc']).mean().item()
 
         print('[%d: %d/%d] train loss: %f acc: %f' \
-            % (epoch, i_batch, num_batch, loss.item(), metrics['acc'][-1]))
+            % (epoch, i_batch, num_batch, loss.item(), metrics['mse'][-1]))
 
         n_iter += 1
 
@@ -106,12 +109,13 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             points, target = points.to('cuda'), target.to('cuda')
 
             ### forward
-            logits = classifier(points)
+            #logits = classifier(points)
+            pred = classifier(points)
 
-            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
-            pred_choice = pred.data.max(1)[1].int()
+            #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+            #pred_choice = pred.data.max(1)[1].int()
 
-            loss = F.nll_loss(pred, target.long())
+            loss = F.mse_loss(pred, target.long())
             ep_loss += loss.item()
 
             print('val min / max class pred %d / %d' %
@@ -127,7 +131,8 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
-        epoch_score = torch.tensor(metrics_val['acc']).mean().item()
+        #epoch_score = torch.tensor(metrics_val['acc']).mean().item()
+        epoch_score = torch.tensor(metrics_val['mse']).mean().item()
         print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
 
