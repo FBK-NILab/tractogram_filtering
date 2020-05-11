@@ -70,7 +70,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
 
         ### compute performance
         #update_metrics(metrics, pred_choice, target)
-        update_metrics(metrics, pred, target.float())
+        update_metrics(metrics, pred.float(), target.float())
         #running_acc = torch.tensor(metrics['acc']).mean().item()
 
         print('[%d: %d/%d] train loss: %f mse: %f' \
@@ -127,7 +127,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
 
             ### compute performance
             #update_metrics(metrics_val, pred_choice, target)
-            update_metrics(metrics_val, pred, target.float())
+            update_metrics(metrics_val, pred.float(), target.float())
 
             print('VALIDATION [%d: %d/%d] val loss: %f mse: %f' %
                   ((epoch, i, len(val_dataloader), loss.item(),
