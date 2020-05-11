@@ -72,7 +72,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         #update_metrics(metrics, pred_choice, target)
         update_metrics(metrics, pred.float(), target.float())
         #running_acc = torch.tensor(metrics['acc']).mean().item()
-        print(loss[0])
+
         print('[%d: %d/%d] train loss: %f mse: %f' \
             % (epoch, i_batch, num_batch, loss.item(), metrics['mse'][-1]))
 
