@@ -24,7 +24,7 @@ class RndSampling(object):
             must be proportional to the number of examples of each class
     """
 
-    def __init__(self, output_size, maintain_prop=True, prop_vector=[]):
+    def __init__(self, output_size, maintain_prop=False, prop_vector=[]):
         assert isinstance(output_size, (int))
         assert isinstance(maintain_prop, (bool))
         self.output_size = output_size
