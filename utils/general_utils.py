@@ -97,7 +97,8 @@ def log_avg_metrics(writer, metrics, prefix, epoch):
     for k, v in metrics.items():
         if type(v) == list:
             v = torch.tensor(v)
-        writer.add_scalar('%s/epoch_%s' % (prefix, k), v.mean().item(), epoch)
+        #writer.add_scalar('%s/epoch_%s' % (prefix, k), v.mean().item(), epoch)
+        writer.add_scalar('%s/epoch_%s' % (prefix, k), v.float().mean().item(), epoch)
 
 def batched_cdist_l2(x1, x2):
     x1_norm = x1.pow(2).sum(dim=-1, keepdim=True)
