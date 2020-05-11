@@ -54,6 +54,8 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         #pred_choice = pred.data.max(1)[1].int()
 
         #loss = F.mse_loss(pred, target.long())
+        print(pred)
+        print(target)
         loss = F.mse_loss(pred,target)
 
         ep_loss += loss.item()
