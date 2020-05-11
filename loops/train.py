@@ -47,7 +47,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         ### forward
         #logits = classifier(points)
         pred = classifier(points)
-        print(pred,preds.shape)
+        #print(pred,preds.shape)
         ### minimize the loss
 
         #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
