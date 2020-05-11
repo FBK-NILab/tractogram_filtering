@@ -30,7 +30,7 @@ bn_decay_step = 90
 bn_decay_gamma = 0.5
 
 ########## loss ###########
-#loss = nll
+loss = mse
 nll_w = n
 
 ########### general ###########
