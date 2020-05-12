@@ -72,9 +72,8 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         #update_metrics(metrics, pred_choice, target)
         update_metrics(metrics, pred.float(), target.float())
         #running_acc = torch.tensor(metrics['acc']).mean().item()
-        print(metrics['mse'])
-        print('[%d: %d/%d] train loss: %f mse: %f' \
-            % (epoch, i_batch, num_batch, loss.item(), metrics['mse'][-1]))
+        print('[%d: %d/%d] train loss: %f mse: %f ase: %f' \
+            % (epoch, i_batch, num_batch, loss.item(), metrics['mse'][-1], metrics['abse'][-1]))
 
         n_iter += 1
 
@@ -129,15 +128,16 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             #update_metrics(metrics_val, pred_choice, target)
             update_metrics(metrics_val, pred.float(), target.float())
 
-            print('VALIDATION [%d: %d/%d] val loss: %f mse: %f' %
+            print('VALIDATION [%d: %d/%d] val loss: %f mse: %f ase: %f' %
                   ((epoch, i, len(val_dataloader), loss.item(),
-                    metrics_val['mse'][-1])))
+                    metrics_val['mse'][-1], metrics_val['abse'][-1])))
 
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
         #epoch_score = torch.tensor(metrics_val['acc']).mean().item()
         epoch_score = torch.tensor(metrics_val['mse']).float().mean().item()
-        print('VALIDATION ACCURACY: %f' % epoch_score)
+        print('VALIDATION LOSS: %f' % epoch_score)
+        #print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
 
         if epoch_score > best_score:
