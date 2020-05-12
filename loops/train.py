@@ -140,7 +140,8 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
         #print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
 
-        if epoch_score > best_score:
+        if epoch_score < best_score:
+        #if epoch_score > best_score:
             best_score = epoch_score
             best_epoch = epoch
             best = True
