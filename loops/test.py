@@ -116,8 +116,8 @@ def test(cfg):
                 if new_obj_read:
                     #obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     #obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
-                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.float64).cuda()
-                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.float64).cuda()
+                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.float32).cuda()
+                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.float32).cuda()
                     new_obj_read = False
 
                 if len(dataset.remaining[j]) == 0:
