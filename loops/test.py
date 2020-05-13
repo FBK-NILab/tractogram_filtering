@@ -173,11 +173,14 @@ def test(cfg):
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                mae = torch.nanmean(abs(obj_target.data.float().cpu() - obj_pred_choice.data.float().cpu())).float().item()
-                mse = torch.nanmean((obj_target.data.float().cpu() - obj_pred_choice.data.float().cpu())**2).float().item()
+                obj_pred = obj_pred_choice.cpu().numpy()
+                obj_target = obj_target.cpu().numpy()
+                mae = np.mean(abs(obj_target-obj_pred))
+                #mae = torch.mean(abs(obj_target.data.float().cpu() - obj_pred_choice.data.float().cpu())).float().item()
+                #mse = torch.mean((obj_target.data.float().cpu() - obj_pred_choice.data.float().cpu())**2).float().item()
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
-
+                print(mae)
                 #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
                 #fp = obj_pred_choice.gt(obj_target.data.int()).cpu().sum().item()
                 #fn = obj_pred_choice.lt(obj_target.data.int()).cpu().sum().item()
