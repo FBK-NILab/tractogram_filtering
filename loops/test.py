@@ -173,8 +173,8 @@ def test(cfg):
                 obj_pred_choice = obj_pred_choice.view(-1,1)
                 obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                mae = torch.mean(abs(obj_target.data - obj_pred_choice.data)).cpu()
-                mse = torch.mean((obj_target.data - obj_pred_choice.data**2)).cpu()
+                mae = torch.mean(abs(obj_target.data - obj_pred_choice.data)).cpu().item()
+                mse = torch.mean((obj_target.data - obj_pred_choice.data)**2).cpu().item()
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
 
