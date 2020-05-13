@@ -144,7 +144,6 @@ def test(cfg):
             points = points.to('cuda')
 
             pred = classifier(points)
-            print(pred)
             print(pred.view(-1))
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
@@ -170,8 +169,8 @@ def test(cfg):
                 print('val max class pred ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                mae = torch.mean(abs(obj_target.data - obj_pred_choice.data)).cpu()
-                mse = torch.mean((obj_target.data - obj_pred_choice.data)**2).cpu()
+                mae = torch.mean(abs(obj_target.data.float() - obj_pred_choice.data.float())).cpu()
+                mse = torch.mean((obj_target.data.float() - obj_pred_choice.data.float())**2).cpu()
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
 
