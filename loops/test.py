@@ -135,7 +135,7 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
-                #target = target.view(-1, 1)[:, 0]
+                target = target.view(-1, 1)[:, 0]
                 print(target)
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
@@ -152,9 +152,9 @@ def test(cfg):
             #pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
-                obj_pred_choice[data['obj_idxs']] = pred.view(-1)
+                obj_pred_choice[data['obj_idxs']] = pred.view(-1).data.float()
                 #obj_pred_choice[data['obj_idxs']] = pred_choice
-                obj_target[data['obj_idxs']] = target
+                obj_target[data['obj_idxs']] = target.float()
                 #obj_target[data['obj_idxs']] = target.int()
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
