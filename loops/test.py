@@ -172,6 +172,8 @@ def test(cfg):
                 print('val min class pred ', obj_pred_choice.min().item())
                 print('val max class target ', obj_target.max().item())
                 print('val min class target ', obj_target.min().item())
+                targ = obj_target.cpu().numpy()
+                np.save('/home/pa/targ.npy',targ)
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
