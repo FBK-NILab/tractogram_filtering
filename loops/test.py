@@ -145,6 +145,7 @@ def test(cfg):
 
             pred = classifier(points)
             print(pred)
+            print(pred.data)
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
             
@@ -152,7 +153,7 @@ def test(cfg):
             #pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
-                obj_pred_choice[data['obj_idxs']] = pred.view(-1,num_classes)
+                obj_pred_choice[data['obj_idxs']] = pred.data
                 #obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target
                 #obj_target[data['obj_idxs']] = target.int()
