@@ -116,8 +116,8 @@ def test(cfg):
                 if new_obj_read:
                     #obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
                     #obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
-                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.float).cuda()
-                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.float).cuda()
+                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.float64).cuda()
+                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.float64).cuda()
                     new_obj_read = False
 
                 if len(dataset.remaining[j]) == 0:
@@ -175,14 +175,9 @@ def test(cfg):
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                obj_targ = obj_target.cpu().numpy()
-                targ = np.around(obj_targ,4)
-                print(targ)
-                print(obj_pred_choice)
-                obj_targ = torch.tensor(targ)
-                print(obj_targ)
-                mae = torch.mean(abs(obj_targ.data - obj_pred_choice.data.cpu())).item()
-                mse = torch.mean((obj_targ.data - obj_pred_choice.data.cpu())**2).item()
+               
+                mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu())).item()
+                mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu())**2).item()
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
                 #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
