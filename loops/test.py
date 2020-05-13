@@ -170,10 +170,12 @@ def test(cfg):
             if cfg['with_gt'] and consumed:
                 print('val max class pred ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
+                print('val max class target ', obj_target.max().item())
+                print('val min class target ', obj_target.min().item())
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                obj_targ = obj_targ.cpu().numpy()
+                obj_targ = obj_target.cpu().numpy()
                 obj_targ = np.around(obj_targ,4)
                 print(obj_targ)
                 print(obj_pred_choice)
