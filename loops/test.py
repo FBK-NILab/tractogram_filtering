@@ -114,8 +114,10 @@ def test(cfg):
 
             if split_obj:
                 if new_obj_read:
-                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
-                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
+                    #obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
+                    #obj_target = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
+                    obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.float).cuda()
+                    obj_target = torch.zeros(data['obj_full_size'], dtype=torch.float).cuda()
                     new_obj_read = False
 
                 if len(dataset.remaining[j]) == 0:
@@ -135,7 +137,6 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
-                print(target)
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
@@ -143,7 +144,7 @@ def test(cfg):
             points = points.to('cuda')
 
             pred = classifier(points)
-            print(pred)
+            
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
             
