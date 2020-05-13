@@ -172,7 +172,7 @@ def test(cfg):
                 print('val min class pred ', obj_pred_choice.min().item())
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu()))
-                mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu()**2)
+                mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu()**2))
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
 
