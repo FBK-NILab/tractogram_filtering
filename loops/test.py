@@ -87,10 +87,12 @@ def test(cfg):
         gf_buffer = {}
         emb_buffer = {}
         print('\n\n')
-        mean_val_acc = torch.tensor([])
-        mean_val_iou = torch.tensor([])
-        mean_val_prec = torch.tensor([])
-        mean_val_recall = torch.tensor([])
+        #mean_val_acc = torch.tensor([])
+        #mean_val_iou = torch.tensor([])
+        #mean_val_prec = torch.tensor([])
+        #mean_val_recall = torch.tensor([])
+        mean_val_mse = torch.tensor([])
+        mean_val_mae = torch.tensor([])
 
         if 'split_obj' in dir(dataset) and dataset.split_obj:
             split_obj = True
@@ -133,7 +135,9 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
+                print(target)
                 target = target.view(-1, 1)[:, 0]
+                print(target)
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
@@ -141,15 +145,18 @@ def test(cfg):
             print(points)
             points = points.to('cuda')
 
-            logits = classifier(points)
-            logits = logits.view(-1, num_classes)
+            pred = classifier(points)
+            #logits = classifier(points)
+            #logits = logits.view(-1, num_classes)
             
-            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
-            pred_choice = pred.data.max(1)[1].int()
+            #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+            #pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
-                obj_pred_choice[data['obj_idxs']] = pred_choice
-                obj_target[data['obj_idxs']] = target.int()
+                obj_pred_choice[data['obj_idxs']] = pred
+                #obj_pred_choice[data['obj_idxs']] = pred_choice
+                obj_target[data['obj_idxs']] = target
+                #obj_target[data['obj_idxs']] = target.int()
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
             else:
@@ -160,26 +167,30 @@ def test(cfg):
                     obj_embedding = classifier.embedding.squeeze()
 
             if cfg['with_gt'] and consumed:
-                print('val max class red ', obj_pred_choice.max().item())
+                print('val max class pred ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
-                acc = correct.item()/float(obj_target.size(0))
+                mae = torch.mean(abs(obj_target.data - obj_pred_choice.data)).cpu()
+                mse = torch.mean((obj_target.data - obj_pred_choice.data)**2).cpu()
+                #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
+                #acc = correct.item()/float(obj_target.size(0))
 
-                tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
-                fp = obj_pred_choice.gt(obj_target.data.int()).cpu().sum().item()
-                fn = obj_pred_choice.lt(obj_target.data.int()).cpu().sum().item()
-                tn = correct.item() - tp
-                iou = torch.tensor([float(tp)/(tp+fp+fn)])
-                prec = torch.tensor([float(tp)/(tp+fp)])
-                recall = torch.tensor([float(tp)/(tp+fn)])
+                #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
+                #fp = obj_pred_choice.gt(obj_target.data.int()).cpu().sum().item()
+                #fn = obj_pred_choice.lt(obj_target.data.int()).cpu().sum().item()
+                #tn = correct.item() - tp
+                #iou = torch.tensor([float(tp)/(tp+fp+fn)])
+                #prec = torch.tensor([float(tp)/(tp+fp)])
+                #recall = torch.tensor([float(tp)/(tp+fn)])
 
-                mean_val_prec = torch.cat((mean_val_prec, prec), 0)
-                mean_val_recall = torch.cat((mean_val_recall, recall), 0)
-                mean_val_iou = torch.cat((mean_val_iou, iou), 0)
-                mean_val_acc = torch.cat((mean_val_acc, torch.tensor([acc])), 0)
-                print('VALIDATION [%d: %d/%d] val accuracy: %f' \
-                        % (epoch, j, len(dataset), acc))
+                mean_val_mae = torch.cat((mean_val_mae, torch.tensor([mae])), 0)
+                mean_val_mse = torch.cat((mean_val_mse, torch.tensor([mse])), 0)
+                #mean_val_prec = torch.cat((mean_val_prec, prec), 0)
+                #mean_val_recall = torch.cat((mean_val_recall, recall), 0)
+                #mean_val_iou = torch.cat((mean_val_iou, iou), 0)
+                #mean_val_acc = torch.cat((mean_val_acc, torch.tensor([acc])), 0)
+                print('VALIDATION [%d: %d/%d] val mse: %f val mae: %f' \
+                        % (epoch, j, len(dataset), mse, mae))
 
             if cfg['save_pred'] and consumed:
                 print('buffering prediction %s' % sample_name)
@@ -193,11 +204,11 @@ def test(cfg):
                     consumed = False
                     new_obj_read = True
 
-        macro_iou = torch.mean(mean_val_iou)
-        macro_prec = torch.mean(mean_val_prec)
-        macro_recall = torch.mean(mean_val_recall)
+        #macro_iou = torch.mean(mean_val_iou)
+        #macro_prec = torch.mean(mean_val_prec)
+        #macro_recall = torch.mean(mean_val_recall)
 
-        epoch_iou = macro_iou.item()
+        #epoch_iou = macro_iou.item()
 
     if cfg['save_pred']:
         #os.system('rm -r %s/predictions_test*' % writer.logdir)
@@ -211,40 +222,52 @@ def test(cfg):
                     value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     if cfg['with_gt']:
-        print('TEST ACCURACY: %f' % torch.mean(mean_val_acc).item())
-        print('TEST PRECISION: %f' % macro_prec.item())
-        print('TEST RECALL: %f' % macro_recall.item())
-        print('TEST IOU: %f' % macro_iou.item())
-        mean_val_dsc = mean_val_prec * mean_val_recall * 2 / (mean_val_prec + mean_val_recall)
+        print('TEST MSE: %f' % torch.mean(mean_val_mse).item())
+        print('TEST MAE: %f' % torch.mean(mean_val_mae).item())
+        #print('TEST ACCURACY: %f' % torch.mean(mean_val_acc).item())
+        #print('TEST PRECISION: %f' % macro_prec.item())
+        #print('TEST RECALL: %f' % macro_recall.item())
+        #print('TEST IOU: %f' % macro_iou.item())
+        #mean_val_dsc = mean_val_prec * mean_val_recall * 2 / (mean_val_prec + mean_val_recall)
         final_scores_file = writer.logdir + '/final_scores_test_%d.txt' % epoch
         scores_file = writer.logdir + '/scores_test_%d.txt' % epoch
         print('saving scores')
         with open(scores_file, 'w') as f: 
-          f.write('acc\n')
-          f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
-          f.write('prec\n')
-          f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
-          f.write('recall\n')
-          f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
-          f.write('dsc\n')
-          f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
-          f.write('iou\n')
-          f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
+          f.write('mse\n')
+          f.writelines('%f\n' % v for v in mean_val_mse.tolist())
+          f.write('mae\n')
+          f.writelines('%f\n' % v for v in mean_val_mae.tolist())
+          #f.write('acc\n')
+          #f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
+          #f.write('prec\n')
+          #f.writelines('%f\n' % v for v in  mean_val_prec.tolist())
+          #f.write('recall\n')
+          #f.writelines('%f\n' % v for v in  mean_val_recall.tolist())
+          #f.write('dsc\n')
+          #f.writelines('%f\n' % v for v in  mean_val_dsc.tolist())
+          #f.write('iou\n')
+          #f.writelines('%f\n' % v for v in  mean_val_iou.tolist())
         with open(final_scores_file, 'w') as f:
-          f.write('acc\n')
-          f.write('%f\n' % mean_val_acc.mean())
-          f.write('%f\n' % mean_val_acc.std())
-          f.write('prec\n')
-          f.write('%f\n' % mean_val_prec.mean())
-          f.write('%f\n' % mean_val_prec.std())
-          f.write('recall\n')
-          f.write('%f\n' % mean_val_recall.mean())
-          f.write('%f\n' % mean_val_recall.std())
-          f.write('dsc\n')
-          f.write('%f\n' % mean_val_dsc.mean())
-          f.write('%f\n' % mean_val_dsc.std())
-          f.write('iou\n')
-          f.write('%f\n' % mean_val_iou.mean())
-          f.write('%f\n' % mean_val_iou.std())
+          f.write('mse\n')
+          f.write('%f\n' % mean_val_mse.mean())
+          f.write('%f\n' % mean_val_mse.std())
+          f.write('mae\n')
+          f.write('%f\n' % mean_val_mae.mean())
+          f.write('%f\n' % mean_val_mae.std())
+          #f.write('acc\n')
+          #f.write('%f\n' % mean_val_acc.mean())
+          #f.write('%f\n' % mean_val_acc.std())
+          #f.write('prec\n')
+          #f.write('%f\n' % mean_val_prec.mean())
+          #f.write('%f\n' % mean_val_prec.std())
+          #f.write('recall\n')
+          #f.write('%f\n' % mean_val_recall.mean())
+          #f.write('%f\n' % mean_val_recall.std())
+          #f.write('dsc\n')
+          #f.write('%f\n' % mean_val_dsc.mean())
+          #f.write('%f\n' % mean_val_dsc.std())
+          #f.write('iou\n')
+          #f.write('%f\n' % mean_val_iou.mean())
+          #f.write('%f\n' % mean_val_iou.std())
 
     print('\n\n')
