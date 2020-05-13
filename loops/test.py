@@ -135,7 +135,7 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
-                target = target.view(-1, 1)[:, 0]
+                print(target)
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
@@ -143,6 +143,7 @@ def test(cfg):
             points = points.to('cuda')
 
             pred = classifier(points)
+            print(pred)
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
             
