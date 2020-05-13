@@ -197,7 +197,8 @@ def train(cfg):
     cfg['num_batch'] = num_batch
 
     n_iter = 0
-    best_pred = 0
+    #best_pred = 0
+    best_pred = 10
     best_epoch = 0
     current_lr = float(cfg['learning_rate'])
     for epoch in range(n_epochs + 1):

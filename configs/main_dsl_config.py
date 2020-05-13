@@ -9,7 +9,7 @@ k = 5
 pool_op = max
 
 ########## training ###########
-n_epochs = 1000
+n_epochs = 50
 
 optimizer = adam
 accumulation_interval = n
