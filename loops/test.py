@@ -153,7 +153,7 @@ def test(cfg):
             #pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
-                obj_pred_choice[data['obj_idxs']] = pred.data
+                obj_pred_choice[data['obj_idxs']] = pred.view(-1)
                 #obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target
                 #obj_target[data['obj_idxs']] = target.int()
