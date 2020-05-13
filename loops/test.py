@@ -135,17 +135,16 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
-                print(target)
-                target = target.view(-1, 1)[:, 0]
+                #target = target.view(-1, 1)[:, 0]
                 print(target)
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
                 #points = points.view(len(data['obj_idxs']), -1, input_size)
-            print(points)
             points = points.to('cuda')
 
             pred = classifier(points)
+            print(pred)
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
             
@@ -153,7 +152,7 @@ def test(cfg):
             #pred_choice = pred.data.max(1)[1].int()
 
             if split_obj:
-                obj_pred_choice[data['obj_idxs']] = pred
+                obj_pred_choice[data['obj_idxs']] = pred.view(-1,num_classes)
                 #obj_pred_choice[data['obj_idxs']] = pred_choice
                 obj_target[data['obj_idxs']] = target
                 #obj_target[data['obj_idxs']] = target.int()
