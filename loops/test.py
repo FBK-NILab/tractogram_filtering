@@ -145,7 +145,7 @@ def test(cfg):
 
             pred = classifier(points)
             print(pred)
-            print(pred.data)
+            print(pred.view(-1))
             #logits = classifier(points)
             #logits = logits.view(-1, num_classes)
             
