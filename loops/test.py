@@ -170,6 +170,8 @@ def test(cfg):
             if cfg['with_gt'] and consumed:
                 print('val max class pred ', obj_pred_choice.max().item())
                 print('val min class pred ', obj_pred_choice.min().item())
+                obj_pred_choice = obj_pred_choice.view(-1,1)
+                obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
                 mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu()))
                 mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu()**2))
