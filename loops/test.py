@@ -173,8 +173,11 @@ def test(cfg):
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
-                mae = torch.mean(abs(obj_target.data.float64().cpu() - obj_pred_choice.data.float64().cpu())).float64().item()
-                mse = torch.mean((obj_target.data.float64().cpu() - obj_pred_choice.data.float64().cpu())**2).float64().item()
+                obj_pred_choice.type(torch.cuda.DoubleTensor)
+                obj_target.type(torch.cuda.DoubleTensor)
+                print(obj_pred_choice)
+                mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu())).float64().item()
+                mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu())**2).float64().item()
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
                 #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
