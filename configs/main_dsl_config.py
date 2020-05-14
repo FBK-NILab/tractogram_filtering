@@ -83,7 +83,7 @@ same_size = y
 
 #experiment_name = gcn2_bn_loss-nll_data-hcp20_coords_fs8000
 #experiment_name = blstm_no_dropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling
-experiment_name = sift_sdec_loss-mse_data-multilap_16pts_fs8000
+experiment_name = sift_sdec_loss-mae_data-multilap_16pts_fs8000
 
 ####### ************************************************************************
 ####### ************************************************************************
