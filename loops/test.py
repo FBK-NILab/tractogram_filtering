@@ -137,6 +137,7 @@ def test(cfg):
             if cfg['with_gt']:
                 target = points['y']
                 target = target.to('cuda')
+                print(target.max(),target.min())
             if cfg['same_size']:
                 points['lengths'] = points['lengths'][0].item()
             #if cfg['model'] == 'pointnet_cls':
@@ -154,9 +155,9 @@ def test(cfg):
             if split_obj:
                 obj_pred_choice[data['obj_idxs']] = pred.view(-1)
                 #obj_pred_choice[data['obj_idxs']] = pred_choice
-                obj_target[data['obj_idxs']] = target
-                print(obj_pred_choice)
-                print(obj_target)
+                obj_target[data['obj_idxs']] = target.float()
+                #print(obj_pred_choice)
+                #print(obj_target)
                 #obj_target[data['obj_idxs']] = target.int()
                 #if cfg['save_embedding']:
                 #    obj_embedding[data['obj_idxs']] = classifier.embedding.squeeze()
@@ -172,8 +173,8 @@ def test(cfg):
                 print('val min class pred ', obj_pred_choice.min().item())
                 print('val max class target ', obj_target.max().item())
                 print('val min class target ', obj_target.min().item())
-                targ = obj_target.cpu().numpy()
-                np.save('/home/pa/targ.npy',targ)
+                #targ = obj_target.cpu().numpy()
+                #np.save('/home/pa/targ.npy',targ)
                 #obj_pred_choice = obj_pred_choice.view(-1,1)
                 #obj_target = obj_target.view(-1,1)
                 #np.save(data['dir']+'/streamlines_lstm_GIN',streamlines)
