@@ -85,7 +85,7 @@ class HCP20Dataset(gDataset):
             self.labels = []
             for sub in subjects:
                 label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir ,'sub-%s' % sub)
-                label_file = os.path.join(label_sub_dir, 'sub-%s_CSD5TT8_weight.txt' % (sub))
+                label_file = os.path.join(label_sub_dir, 'sub-%s_CSD5TT8_weight.npy' % (sub))
                 if label_file[-4:] == '.txt':
                     self.labels.append(np.loadtxt(label_file))
                 else:
