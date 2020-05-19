@@ -100,11 +100,11 @@ def compute_loss(cfg, logits, target, classifier, loss_dict=None):
         tot_loss += loss
 
     elif cfg['loss'] == 'mse':
-        loss = F.mse_loss(pred, target.float())
+        loss = F.mse_loss(logits, target.float())
         tot_loss += loss
     
     elif cfg['loss'] == 'mae':
-        loss = F.l1_loss(pred,target.float())
+        loss = F.l1_loss(logits,target.float())
         tot_loss += loss        
 
     if loss_dict is not None:
