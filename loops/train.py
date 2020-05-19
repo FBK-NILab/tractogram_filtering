@@ -133,7 +133,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
         #epoch_score = torch.tensor(metrics_val['acc']).mean().item()
-        epoch_score = torch.tensor(metrics_val['abse']).float().mean().item()
+        epoch_score = torch.tensor(metrics_val['mse']).float().mean().item()
         print('VALIDATION LOSS: %f' % epoch_score)
         #print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
