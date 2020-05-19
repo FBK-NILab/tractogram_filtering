@@ -43,10 +43,10 @@ class HCP20Dataset(gDataset):
                  return_edges=False,
                  split_obj=False,
                  train=True,
-                 load_one_full_subj=True,
+                 load_one_full_subj=False,
                  standardize=False,
                  centering=False,
-                 labels_dir='sift2_CSD8',
+                 labels_dir=None,
                  permute=False):
         """
         Args:
@@ -85,8 +85,11 @@ class HCP20Dataset(gDataset):
             self.labels = []
             for sub in subjects:
                 label_sub_dir = os.path.join(self.root_dir.rsplit('/',1)[0], labels_dir ,'sub-%s' % sub)
-                label_file = os.path.join(label_sub_dir, 'sub-%s_CSD8_weights.npy' % (sub))
-                self.labels.append(np.load(label_file))
+                label_file = os.path.join(label_sub_dir, 'sub-%s_CSD5TT8_weight.txt' % (sub))
+                if label_file[-4:] == '.txt':
+                    self.labels.append(np.loadtxt(label_file))
+                else:
+                    self.labels.append(np.load(label_file))
         if self.load_one_full_subj:
             print('loading one full subject')
             #sub = subjects[0]

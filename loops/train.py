@@ -37,6 +37,7 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
         points = get_gbatch_sample(sample_batched, int(cfg['fixed_size']),
                                    cfg['same_size'])
         target = points['y']
+        target = target.view(-1, num_classes)
 
         points, target = points.to('cuda'), target.to('cuda')
 
@@ -45,17 +46,14 @@ def train_ep(cfg, dataloader, classifier, optimizer, writer, epoch, n_iter):
             optimizer.zero_grad()
 
         ### forward
-        #logits = classifier(points)
-        pred = classifier(points)
-        #print(pred,preds.shape)
+        logits = classifier(points)
+
+        if cfg['task'] == 'classification':
+            pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
+            pred_choice = pred.data.max(1)[1].int()
+
         ### minimize the loss
-
-        #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
-        #pred_choice = pred.data.max(1)[1].int()
-
-        #loss = F.mse_loss(pred, target.long())
-        target = target.view(-1, num_classes)
-        loss = F.l1_loss(pred,target.float())
+        loss = compute_loss(cfg, logits, target, classifier, ep_loss_dict)
         
         ep_loss += loss.item()
         running_ep_loss = ep_loss / (i_batch + 1)
@@ -162,7 +160,6 @@ def train(cfg):
     batch_size = int(cfg['batch_size'])
     n_epochs = int(cfg['n_epochs'])
     sample_size = int(cfg['fixed_size'])
-    cfg['loss'] = cfg['loss'].split(' ')
 
     #### DATA LOADING
     trans_train = []

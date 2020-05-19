@@ -22,7 +22,8 @@ def get_dataset(cfg, trans, train=True):
                               same_size=cfg['same_size'],
                               transform=transforms.Compose(trans),
                               return_edges=cfg['return_edges'],
-                              load_one_full_subj=False)
+                              load_one_full_subj=False,
+                              labels_dir=cfg['labels_dir'])
 
     dataloader = gDataLoader(dataset,
                              batch_size=batch_size,

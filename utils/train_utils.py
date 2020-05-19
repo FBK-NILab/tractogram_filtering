@@ -88,25 +88,27 @@ def update_bn_decay(cfg, classifier, epoch):
 
 def initialize_loss_dict(cfg):
     loss_dict = {}
-    #loss_dict['nll'] = 0. 
-    loss_dict['mse'] = 0.
-    #if not cfg['multi_loss']:
-    #    return loss_dict
+    loss_dict[cfg['loss']] = 0.
     
     return loss_dict
 
 def compute_loss(cfg, logits, target, classifier, loss_dict=None):
-    tot_loss = 0. 
+    tot_loss = 0.
     if cfg['loss'] == 'nll':
         pred = F.log_softmax(logits, dim=-1).view(-1, cfg['n_classes'])
         loss = F.nll_loss(pred, target.long())
         tot_loss += loss
 
-        if loss_dict is not None:
-            loss_dict['nll'] += loss.item()
+    elif cfg['loss'] == 'mse':
+        loss = F.mse_loss(pred, target.float())
+        tot_loss += loss
+    
+    elif cfg['loss'] == 'mae':
+        loss = F.l1_loss(pred,target.float())
+        tot_loss += loss        
 
-        if not cfg['multi_loss']:
-            return tot_loss
+    if loss_dict is not None:
+        loss_dict[cfg['loss']] += loss.item()
 
     return tot_loss
 
