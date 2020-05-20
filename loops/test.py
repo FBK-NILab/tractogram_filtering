@@ -198,7 +198,7 @@ def test(cfg):
                 #mean_val_recall = torch.cat((mean_val_recall, recall), 0)
                 #mean_val_iou = torch.cat((mean_val_iou, iou), 0)
                 #mean_val_acc = torch.cat((mean_val_acc, torch.tensor([acc])), 0)
-                print('VALIDATION [%d: %d/%d] val mse: %f val mae: %f val rho:' \
+                print('VALIDATION [%d: %d/%d] val mse: %f val mae: %f val rho: %f' \
                         % (epoch, j, len(dataset), mse, mae, rho))
 
             if cfg['save_pred'] and consumed:
