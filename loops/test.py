@@ -49,7 +49,8 @@ def test(cfg):
                                   return_edges=True,
                                   split_obj=True,
                                   train=False,
-                                  load_one_full_subj=False)
+                                  load_one_full_subj=False,
+                                  labels_dir=cfg['labels_dir'])
 
     dataloader = DataLoader(dataset, batch_size=batch_size,
                             shuffle=False, num_workers=0)
