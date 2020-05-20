@@ -30,7 +30,7 @@ bn_decay_step = 90
 bn_decay_gamma = 0.5
 
 ########## loss ###########
-loss = mae
+loss = mse
 nll_w = n
 
 ########### general ###########
@@ -114,4 +114,4 @@ n_classes = 1
 ignore_class = 0
 same_size = y
 
-experiment_name = sift_pn_loss-mae_data-multilap5tt_16pts_fs8000
+experiment_name = sift_pn_loss-mse_data-multilap5tt_16pts_fs8000
