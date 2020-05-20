@@ -114,7 +114,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             #pred_choice = pred.data.max(1)[1].int()
             target = target.view(-1, num_classes)
-            loss = F.mse_loss(pred,target.float())
+            loss = F.l1_loss(pred,target.float())
            
             ep_loss += loss.item()
 
@@ -133,7 +133,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
         writer.add_scalar('val/loss', ep_loss / i, epoch)
         log_avg_metrics(writer, metrics_val, 'val', epoch)
         #epoch_score = torch.tensor(metrics_val['acc']).mean().item()
-        epoch_score = torch.tensor(metrics_val['mse']).float().mean().item()
+        epoch_score = torch.tensor(metrics_val['abse']).float().mean().item()
         print('VALIDATION LOSS: %f' % epoch_score)
         #print('VALIDATION ACCURACY: %f' % epoch_score)
         print('\n\n')
