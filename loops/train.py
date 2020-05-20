@@ -114,7 +114,7 @@ def val_ep(cfg, val_dataloader, classifier, writer, epoch, best_epoch,
             #pred = F.log_softmax(logits, dim=-1).view(-1, num_classes)
             #pred_choice = pred.data.max(1)[1].int()
             target = target.view(-1, num_classes)
-            loss = F.l1_loss(pred,target.float())
+            loss = F.mse_loss(pred,target.float())
            
             ep_loss += loss.item()
 
