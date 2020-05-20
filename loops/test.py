@@ -8,6 +8,7 @@ import torch
 import torch.nn.functional as F
 from torch_geometric.data import Batch as gBatch
 from torch.utils.data import DataLoader
+from scipy.stats import spearmanr
 
 from tensorboardX import SummaryWriter
 from torchvision import transforms
@@ -94,6 +95,7 @@ def test(cfg):
         #mean_val_recall = torch.tensor([])
         mean_val_mse = torch.tensor([])
         mean_val_mae = torch.tensor([])
+        mean_val_rho = torch.tensor([])
 
         if 'split_obj' in dir(dataset) and dataset.split_obj:
             split_obj = True
@@ -178,6 +180,7 @@ def test(cfg):
                
                 mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu())).item()
                 mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu())**2).item()
+                rho, pval = spearmanr(obj_target.data.cpu().numpy(),obj_pred_choice.data.cpu().numpy())
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
                 #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
@@ -190,12 +193,13 @@ def test(cfg):
 
                 mean_val_mae = torch.cat((mean_val_mae, torch.tensor([mae])), 0)
                 mean_val_mse = torch.cat((mean_val_mse, torch.tensor([mse])), 0)
+                mean_val_rho = torch.cat((mean_val_rho, torch.tensor([rho])), 0)
                 #mean_val_prec = torch.cat((mean_val_prec, prec), 0)
                 #mean_val_recall = torch.cat((mean_val_recall, recall), 0)
                 #mean_val_iou = torch.cat((mean_val_iou, iou), 0)
                 #mean_val_acc = torch.cat((mean_val_acc, torch.tensor([acc])), 0)
-                print('VALIDATION [%d: %d/%d] val mse: %f val mae: %f' \
-                        % (epoch, j, len(dataset), mse, mae))
+                print('VALIDATION [%d: %d/%d] val mse: %f val mae: %f val rho:' \
+                        % (epoch, j, len(dataset), mse, mae, rho))
 
             if cfg['save_pred'] and consumed:
                 print('buffering prediction %s' % sample_name)
@@ -229,6 +233,7 @@ def test(cfg):
     if cfg['with_gt']:
         print('TEST MSE: %f' % torch.mean(mean_val_mse).item())
         print('TEST MAE: %f' % torch.mean(mean_val_mae).item())
+        print('TEST RHO: %f' % torch.mean(mean_val_rho).item())
         #print('TEST ACCURACY: %f' % torch.mean(mean_val_acc).item())
         #print('TEST PRECISION: %f' % macro_prec.item())
         #print('TEST RECALL: %f' % macro_recall.item())
@@ -242,6 +247,8 @@ def test(cfg):
           f.writelines('%f\n' % v for v in mean_val_mse.tolist())
           f.write('mae\n')
           f.writelines('%f\n' % v for v in mean_val_mae.tolist())
+          f.write('rho\n')
+          f.writelines('%f\n' % v for v in mean_val_rho.tolist())
           #f.write('acc\n')
           #f.writelines('%f\n' % v for v in  mean_val_acc.tolist())
           #f.write('prec\n')
