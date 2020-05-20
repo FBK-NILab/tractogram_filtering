@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = sdec
+model = pn_geom
 batch_norm = y
 dropout = n
 spatial_tn = n
@@ -114,4 +114,4 @@ n_classes = 1
 ignore_class = 0
 same_size = y
 
-experiment_name = sift_sdec_loss-mae_data-multilap5tt_16pts_fs8000
+experiment_name = sift_pn_loss-mae_data-multilap5tt_16pts_fs8000
