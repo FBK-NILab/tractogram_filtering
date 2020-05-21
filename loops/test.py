@@ -203,8 +203,9 @@ def test(cfg):
 
             if cfg['save_pred'] and consumed:
                 print('buffering prediction %s' % sample_name)
-                sl_idx = np.where(obj_pred.data.cpu().view(-1).numpy() == 1)[0]
-                pred_buffer[sample_name] = sl_idx.tolist()
+                #sl_idx = np.where(obj_pred.data.cpu().view(-1).numpy() == 1)[0]
+                #pred_buffer[sample_name] = sl_idx.tolist()
+                np.save(writer.logdir+'predictions_%d.npy',obj_pred_choice.data.cpu().numpy()) % sample_name
 
             if consumed:
                 print(j)
@@ -219,16 +220,16 @@ def test(cfg):
 
         #epoch_iou = macro_iou.item()
 
-    if cfg['save_pred']:
+    #if cfg['save_pred']:
         #os.system('rm -r %s/predictions_test*' % writer.logdir)
-        pred_dir = writer.logdir + '/predictions_test_%d' % epoch
-        if not os.path.exists(pred_dir):
-            os.makedirs(pred_dir)
-        print('saving files')
-        for filename, value in pred_buffer.items():
-            with open(os.path.join(pred_dir, filename) + '.pkl', 'wb') as f:
-                pickle.dump(
-                    value, f, protocol=pickle.HIGHEST_PROTOCOL)
+     #   pred_dir = writer.logdir + '/predictions_test_%d' % epoch
+      #  if not os.path.exists(pred_dir):
+       #     os.makedirs(pred_dir)
+        #print('saving files')
+        #for filename, value in pred_buffer.items():
+        #    with open(os.path.join(pred_dir, filename) + '.pkl', 'wb') as f:
+        #        pickle.dump(
+        #            value, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     if cfg['with_gt']:
         print('TEST MSE: %f' % torch.mean(mean_val_mse).item())
