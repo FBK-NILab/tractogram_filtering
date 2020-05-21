@@ -127,6 +127,7 @@ def test(cfg):
                     consumed = True
 
             sample_name = data['name'] if type(data['name']) == str else data['name'][0]
+            print(sample_name)
 
             #print(points)
             #if len(points.shape()) == 2:
@@ -181,7 +182,7 @@ def test(cfg):
                 mae = torch.mean(abs(obj_target.data.cpu() - obj_pred_choice.data.cpu())).item()
                 mse = torch.mean((obj_target.data.cpu() - obj_pred_choice.data.cpu())**2).item()
                 rho, pval = spearmanr(obj_target.data.cpu().numpy(),obj_pred_choice.data.cpu().numpy())
-                np.save(writer.logdir + '/predictions_%d.npy',obj_pred_choice.data.cpu().numpy()) % data['name']
+                np.save(writer.logdir + '/predictions_'+sample_name+'.npy',obj_pred_choice.data.cpu().numpy()) 
                 #correct = obj_pred_choice.eq(obj_target.data.int()).cpu().sum()
                 #acc = correct.item()/float(obj_target.size(0))
                 #tp = torch.mul(obj_pred_choice.data, obj_target.data.int()).cpu().sum().item()+0.00001
