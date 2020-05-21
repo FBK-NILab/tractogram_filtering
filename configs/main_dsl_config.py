@@ -41,7 +41,7 @@ n_workers = 6
 
 model_dir = models
 save_model = y
-save_pred = y
+save_pred = n
 
 seed = 10
 
