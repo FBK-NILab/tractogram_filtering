@@ -17,7 +17,7 @@ RUN conda install python=3.7
 RUN conda install dipy=1.1 -c conda-forge
 RUN conda install pytorch=1.5 torchvision=0.6 cpuonly -c pytorch
 RUN conda install mrtrix3=3.0 -c mrtrix3
-RUN pip install antspyx=0.2.5
+RUN pip install antspyx==0.2.5
 
 # install pytorch geometric https://github.com/rusty1s/pytorch_geometric
 ENV CUDA=cpu
