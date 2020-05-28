@@ -9,9 +9,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ## setup conda environment
 # the next three lines are maybe not necessary
-RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-echo "conda activate base" >> ~/.bashrc
+# RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+# echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+# echo "conda activate base" >> ~/.bashrc
 
 RUN conda install python=3.7
 RUN conda install dipy=1.1 -c conda-forge
