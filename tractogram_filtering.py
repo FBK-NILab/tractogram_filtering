@@ -1,261 +1,223 @@
 from __future__ import print_function
+
+import configparser
+import glob
+import json
 import os
-import numpy as np
+from time import time
+
 import ants
 import nibabel as nib
+import numpy as np
 import torch
 import torch.nn.functional as F
-from nibabel.streamlines import Field
-from nibabel.orientations import aff2axcodes
-from nibabel.streamlines.trk import get_affine_trackvis_to_rasmm
-from nibabel.affines import apply_affine
-from torch_geometric.data import Data as gData, Batch as gBatch
-from torch_geometric.data import Dataset as gDataset
-from torch.utils.data import DataLoader
-from torchvision import transforms
-from torch.nn import Sequential as Seq
-from torch.nn import ReLU
-from torch.nn import BatchNorm1d as BN
-from torch.nn import Linear as Lin
-from torch_geometric.nn import EdgeConv, DynamicEdgeConv, global_max_pool
-from dipy.io.streamline import load_tractogram
-from dipy.io.stateful_tractogram import Space, StatefulTractogram 
-from dipy.io.streamline import save_tractogram
-from dipy.tracking.streamline import set_number_of_points
 
-class TractData(gDataset):
-    def __init__(self, transform=None,return_edges=True,split_obj=True):
-        self.transform = transform
-        self.return_edges = return_edges
-        if split_obj:
-            self.remaining = [[]]
-        self.split_obj = split_obj
+from torch_geometric.data import Batch as gBatch
+from torch_geometric.data import DataListLoader as gDataLoader
 
-    def __len__(self):
-        return 1
-    
-    def __getitem__(self, idx):
-        item = self.getitem(idx)
-        return item
+from datasets.basic_tract import TractDataset
+# from nilab import load_trk as ltrk
+from utils.data import selective_loader as sload
+from utils.data.data_utils import resample_streamlines, tck2trk, trk2tck
+from utils.general_utils import get_cfg_value
+from utils.model_utils import get_model
 
-    def getitem(self,idx):
-        #T_file = $new_resampled_name.trk
-        T_file = 'sub-105115_var-HCP_full_tract_SUB2mni_resampled.trk'
-        T = nib.streamlines.load(T_file, lazy_load=True)
-        if self.split_obj:
-            if len(self.remaining[idx])==0:
-                self.remaining[idx] = set(np.arange(T.header['nb_streamlines']))
-            sample = {'points': np.array(list(self.remaining[idx]))}
-        if self.transform:
-            sample = self.transform(sample)
-        if self.split_obj:
-            self.remaining[idx] -= set(sample['points'])
-            sample['obj_idxs'] = sample['points'].copy()
-            sample['obj_full_size'] = T.header['nb_streamlines']
-        n = len(sample['points'])
-        streams, lengths = load_selected_streamlines_uniform_size(T_file, sample['points'].tolist())
-        sample['points'] = build_graph_sample(streams,lengths,gt=None)
-        return sample
+# os.environ["DEVICE"] = torch.device(
+#     'cuda' if torch.cuda.is_available() else 'cpu')
 
-def build_graph_sample(streams, lengths, gt=None):
-    lengths = torch.from_numpy(lengths).long()
-    batch_vec = torch.arange(len(lengths)).repeat_interleave(lengths)
-    batch_slices = torch.cat([torch.tensor([0]), lengths.cumsum(dim=0)])
-    slices = batch_slices[1:-1]
-    streams = torch.from_numpy(streams)
-    l = streams.shape[0]
-    graph_sample = gData(x=streams,lengths=lengths,bvec=batch_vec,pos=streams)
-    e1 = set(np.arange(0,l-1))- set(slices.numpy()-1)
-    e2 = set(np.arange(1,l)) - set(slices.numpy())
-    edges = torch.tensor([list(e1)+list(e2),list(e2)+list(e1)],dtype=torch.long)
-    graph_sample['edge_index'] = edges
-    num_edges = graph_sample.num_edges
-    edge_attr = torch.ones(num_edges,1)
-    graph_sample['edge_attr'] = edge_attr
-    return graph_sample
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def load_selected_streamlines_uniform_size(trk_fn, idxs=None):
-    lazy_trk = nib.streamlines.load(trk_fn,lazy_load=True)
-    header = lazy_trk.header
-    header_size = header['hdr_size']
-    nb_streamlines = header['nb_streamlines']
-    n_scalars = header['nb_scalars_per_point']
-    n_properties = header['nb_properties_per_streamline']
-    if idxs is None:
-        idxs = np.arange(nb_streamlines)
-    length_bytes = 4
-    point_size = 3+n_scalars
-    point_size = 3+n_scalars
-    point_bytes = 4*point_size
-    properties_bytes = n_properties*4
-    with open(trk_fn,'rb') as f:
-        f.seek(header_size)
-        l = np.fromfile(f, np.int32, 1)[0]
-    lengths = np.array([l] * nb_streamlines).astype(np.int)
-    index_bytes = lengths * point_bytes + properties_bytes + length_bytes
-    index_bytes = np.concatenate([[length_bytes], index_bytes[:-1]]).cumsum() + header_size
-    n_floats = lengths * point_size
-    streams = np.empty((lengths[idxs].sum(),3), dtype=np.float32)
-    scalars = np.empty((lengths[idxs].sum(), n_scalars), dtype=np.float32) if n_scalars > 0 else None
-    j=0
-    with open(trk_fn,'rb') as f:
-        for idx in idxs:
-            f.seek(index_bytes[idx])
-            s = np.fromfile(f, np.float32, n_floats[idx])
-            s.resize(lengths[idx], point_size)
-            if n_scalars > 0:
-                scalars[j:j+lengths[idx],:] = s[:,3:]
-                s=s[:,:3]
-            streams[j:j+lengths[idx],:]=s
-            j+= lengths[idx]
-        aff = get_affine_trackvis_to_rasmm(lazy_trk.header)
-        streams = apply_affine(aff, streams)
-    return streams, lengths[idxs]
 
-class TestSampling(object):
-    def __init__(self, output_size):
-        assert isinstance(output_size, (int))
-        self.output_size = output_size
+def tract2standard(t_fn, t1_fn, fixed_fn):
+    print('registration using ANTs SyN...')
+    fixed = ants.image_read(fixed_fn)
+    moving = ants.image_read(t1_fn)
+    mytx = ants.registration(fixed=fixed,
+                             moving=moving,
+                             type_of_transform='SyN')
 
-    def __call__(self, sample):
-        sl = sample['points']
-        n = sl.shape[0]
-        if self.output_size > len(range(n)):
-            chosen_idx = range(n)
-        else:
-            chosen_idx = np.random.choice(range(n),self.output_size,replace=False).tolist()
-        out_sample = {'points': sl[chosen_idx]}
-        return out_sample
+    print('correcting warp to mrtrix convention...')
+    os.system(f'warpinit {fixed} temp/ID_warp[].nii.gz -force')
 
-def MLP(channels, batch_norm=True):
-    if batch_norm:
-        return Seq(*[Seq(Lin(channels[i - 1], channels[i]), ReLU(), BN(channels[i])) for i in range(1, len(channels))])
+    for i in range(3):
+        temp_warp = ants.image_read(f'temp/ID_warp{i}.nii.gz')
+        temp_warp = ants.apply_transforms(fixed=fixed,
+                                          moving=temp_warp,
+                                          transformlist=mytx['invtransforms'],
+                                          whichtoinvert=[True, False])
+        ants.image_write(temp_warp, f'temp/mrtrix_warp{i}.nii.gz')
 
-class DECSeq(torch.nn.Module):
-    def __init__(self, input_size, embedding_size, n_classes, dropout=True, k=5, aggr='max',pool_op='max'):
-        super(DECSeq, self).__init__()
-        self.conv1 = EdgeConv(MLP([2*input_size, 64,64,64], batch_norm=True), aggr)
-        self.conv2 = DynamicEdgeConv(MLP([2*64,128], batch_norm=True), k, aggr)
-        self.lin1 = MLP([128+64, 1024])
-        self.pool = global_max_pool
-        self.mlp = Seq(MLP([1024, 512]), MLP([512, 256]), Lin(256, n_classes))
+    os.system('warpcorrect temp/mrtrix_warp[].nii.gz ' +
+              'temp/mrtrix_warp_cor.nii.gz -force')
 
-    def forward(self, data):
-        pos, batch, eidx = data.pos, data.batch, data.edge_index
-        x1 = self.conv1(pos,eidx)
-        x2 = self.conv2(x1,batch)
-        out = self.lin1(torch.cat([x1,x2],dim=1))
-        out = global_max_pool(out, batch)
-        out = self.mlp(out)
-        return out
+    print('applaying warp to tractogram...')
+    t_mni_fn = t_fn[:-4] + '_mni.tck'
+    os.system(f'tcktransform {t_fn} temp/mrtrix_warp_cor.nii.gz {t_mni_fn} ' +
+              '-force -nthreads 0')
 
-t1_static= 'MNI_T1_1mm.nii.gz'
-#t1_static = $T1_static_padded (MNI_T1_1mm.nii.gz)
-#t1_moving= $t1_moving
-t1_moving = 't1w_105115.nii.gz'
-fixed = ants.image_read(t1_static)
-moving = ants.image_read(t1_moving)
-mytx = ants.registration(fixed=fixed, moving=moving, type_of_transform='SyN')
-genericAffine = mytx['invtransforms'][0]
-invWarp = mytx['invtransforms'][1]
-#os.system('warpinit %s $ID_warp[].nii.gz -force' % (t1_static))
-os.system('warpinit %s ID_warp[].nii.gz -force' %(t1_static))
+    return t_mni_fn
 
-#for i in range(3):
-#    os.system('WarpImageMultiTransform 3 %s %s -R %s -i %s %s' %
-#    ('$ID_warp[].nii.gz'.replace('[]',str(i)), '$mrtrix_warp[].nii.gz'.replace('[]',str(i)),
-#    t1_static, genericAffine, invWarp))
 
-for i in range(3):
-    os.system('WarpImageMultiTransform 3 %s %s -R %s -i %s %s' %
-    ('ID_warp[].nii.gz'.replace('[]',str(i)), 'mrtrix_warp[].nii.gz'.replace('[]',str(i)),
-    t1_static, genericAffine, invWarp))
+if __name__ == '__main__':
 
-#os.system('warpcorrect $mrtrix_warp[].nii.gz $mrtrix_warp_cor.nii.gz -force')
-#trk = nib.streamlines.load($input_trk)
-#nib.streamlines.save(trk.tractogram, $output_name.tck)
-#os.system('tcktransform $output_name.tck $mrtrix_warp_cor.nii.gz $new_output_name.tck -force -nthreads 0')
+    ## load json run config
+    t0_global = time()
+    print('reading arguments')
+    cfg = json.load(open('run_config.json'))
 
-os.system('warpcorrect mrtrix_warp[].nii.gz mrtrix_warp_cor.nii.gz -force')
-trk = nib.streamlines.load('/home/ruben/Thesis/data/sub-105115_var-HCP_full_tract_SUB.trk')
-nib.streamlines.save(trk.tractogram, 'sub-105115_var-HCP_full_tract_SUB.tck')
-os.system('tcktransform sub-105115_var-HCP_full_tract_SUB.tck mrtrix_warp_cor.nii.gz sub-105115_var-HCP_full_tract_SUB2mni.tck -force -nthreads 0')
+    move_tract = cfg['t1'] != ''
+    tck_fn = cfg['trk'][:-4] + '.tck'
+    trk_fn = 'temp/input/tract_mni_resampled.trk'
 
-#nii = nib.load($T1_original_MNI)
-#header = {}
-#header[Field.VOXEL_TO_RASMM] = nii.affine.copy()
-#header[Field.VOXEL_SIZES] = nii.header.get_zooms()[:3]
-#header[Field.DIMENSIONS] = nii.shape[:3]
-#header[Field.VOXEL_ORDER] = "".join(aff2axcodes(nii.affine))
-#tck = nib.streamlines.load($new_output_name.tck)
-#nib.streamlines.save(tck.tractogram, $new_output_name.trk, header=header)
+    ## resample trk to 16points if needed
+    if cfg['resample_points']:
+        t0 = time()
+        print('loading tractogram...')
+        streams, lengths = sload.load_selected_streamlines(cfg['trk'])
+        streamlines = np.split(streams, np.cumsum(lengths[:-1]))
+        print(f'done in {time()-t0} sec')
+        t0 = time()
+        print('streamlines resampling...')
+        streamlines = resample_streamlines(streamlines)
+        print(f'done in {time()-t0} sec')
+        t0 = time()
+        print('saving resampled tractogram...')
+        resampled_t = nib.streamlines.Tractogram(streamlines,
+                                                 affine_to_rasmm=np.eye(4))
+        resampled_fn = tck_fn if move_tract else trk_fn
+        nib.streamlines.save(resampled_t, resampled_fn)
+        print(f'done in {time()-t0} sec')
 
-nii = nib.load('/usr/local/fsl/data/standard/MNI152_T1_1mm_brain.nii.gz')
-header = {}
-header[Field.VOXEL_TO_RASMM] = nii.affine.copy()
-header[Field.VOXEL_SIZES] = nii.header.get_zooms()[:3]
-header[Field.DIMENSIONS] = nii.shape[:3]
-header[Field.VOXEL_ORDER] = "".join(aff2axcodes(nii.affine))
-tck = nib.streamlines.load('sub-105115_var-HCP_full_tract_SUB2mni.tck')
-nib.streamlines.save(tck.tractogram, 'sub-105115_var-HCP_full_tract_SUB2mni.trk', header=header)
+    ## compute warp to mni and move tract if needed
+    if move_tract:
+        if not os.path.exists(tck_fn):
+            t0 = time()
+            print('convert trk to tck...')
+            trk2tck(cfg['trk'])
+            print(f'done in {time()-t0} sec')
 
-sft = load_tractogram('sub-105115_var-HCP_full_tract_SUB2mni.trk','same',bbox_valid_check=False)
-resampled = []
-for sl in sft.streamlines:
-    resampled.append(set_number_of_points(sl, 15))
-sft_resampled = StatefulTractogram(resampled,'/usr/local/fsl/data/standard/MNI152_T1_1mm_brain.nii.gz',Space.RASMM)
-save_tractogram(sft_resampled,'sub-105115_var-HCP_full_tract_SUB2mni_resampled.trk',bbox_valid_check=False)
+        t0 = time()
+        trk_mni_fn = tck_mni_fn[:-4] + '.tck'
+        mni_fn = 'data/standard/MNI152_T1_1mm_brain.nii.gz'
+        tck_mni_fn = tract2standard(tck_fn, cfg['t1'], mni_fn)
+        print(f'done in {time()-t0} sec')
 
-trans_val = []
-trans_val.append(TestSampling(8000))
-dataset = TractData(transform=transforms.Compose(trans_val), return_edges=True, split_obj=True)
-dataloader = DataLoader(dataset,batch_size=1,shuffle=False,num_workers=0)
-classifier = DECSeq(input_size=3,embedding_size=40,n_classes=2,dropout=True,k=5,aggr='max',pool_op='max')
-#classifier.cuda()
-#classifier.load_state_dict(torch.load($weights.pth))
-classifier.load_state_dict(torch.load('/home/ruben/best_model_ep-920_score-0.954500.pth',map_location=torch.device('cpu')))
-classifier.eval()
-split_obj=True
-consumed=False
-j=0
-visualized=0
-new_obj_read=True
-while j<len(dataset):
-    data=dataset[j]
-    if split_obj:
-        if new_obj_read:
-            obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int)
-            #obj_pred_choice = torch.zeros(data['obj_full_size'], dtype=torch.int).cuda()
-            new_obj_read=False
-        if len(dataset.remaining[j]) == 0:
-            consumed=True
-    points = gBatch().from_data_list([data['points']])
-    if 'bvec' in points.keys:
-        points.batch = points.bvec.clone()
-        del points.bvec
-    points['lengths'] = points['lengths'][0].item()
-    #points = points.to('cuda')
-    logits = classifier(points)
-    logits = logits.view(-1,2)
-    pred = F.log_softmax(logits, dim=-1).view(-1,2)
-    pred_choice = pred.data.max(1)[1].int()
-    obj_pred_choice[data['obj_idxs']] = pred_choice
-    if consumed:
-        j+=1
-        if split_obj:
-            consumed=False
-            new_obj_read=True   
-#preds = list(obj_pred_choice.cpu().numpy())
-preds = list(obj_pred_choice.numpy())
-sft = load_tractogram('sub-105115_var-HCP_full_tract_SUB2mni_resampled.trk','same',bbox_valid_check=False)
-pl_sls = []
-np_sls = []
-for i,p in enumerate(preds):
-    if p==1:
-        pl_sls.append(sft.streamlines[i])
-    if p==0:
-        np_sls.append(sft.streamlines[i])
-sft_pl = StatefulTractogram(pl_sls, '/usr/local/fsl/data/standard/MNI152_T1_1mm_brain.nii.gz', Space.RASMM)
-sft_np = StatefulTractogram(np_sls, '/usr/local/fsl/data/standard/MNI152_T1_1mm_brain.nii.gz', Space.RASMM)
-save_tractogram(sft_pl, 'sub-105115_var-HCP_full_tract_SUB2mni_resampled_PL.trk', bbox_valid_check=False)
-save_tractogram(sft_np, 'sub-105115_var-HCP_full_tract_SUB2mni_resampled_NP.trk', bbox_valid_check=False)
+        t0 = time()
+        print('convert warped tck to trk...')
+        tck2trk(tck_mni_fn, mni_fn, out_fn=trk_fn)
+        print(f'done in {time()-t0} sec')
+
+    if not os.path.exists(trk_fn):
+        print('The tractogram loaded is already compatible with the model')
+        os.system(f'''ln -sf {cfg['trk']} {trk_fn}''')
+
+    ## run inference
+    print('launching inference...')
+    exp = 'paper_runs/sdec_nodropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling_1'
+    var = 'HCP20'
+
+    cfg_parser = configparser.ConfigParser()
+    cfg_parser.read(exp + '/config.txt')
+
+    for name, value in cfg_parser.items('DEFAULT'):
+        cfg[name] = get_cfg_value(value)
+    for name, value in cfg_parser.items(var):
+        cfg[name] = get_cfg_value(value)
+
+    cfg['with_gt'] = False
+    cfg['weights_path'] = ''
+    cfg['exp_path'] = exp
+    cfg['fixed_size'] = 10000
+
+    dataset = TractDataset(trk_fn,
+                           transform=None,
+                           return_edges=True,
+                           split_obj=True)
+
+    dataloader = gDataLoader(dataset,
+                             batch_size=1,
+                             shuffle=False,
+                             num_workers=0,
+                             pin_memory=True)
+
+    print("Dataset %s loaded, found %d samples" %
+          (cfg['dataset'], len(dataset)))
+
+    classifier = get_model(cfg)
+
+    if DEVICE == 'cuda':
+        torch.cuda.set_device(DEVICE)
+        torch.cuda.current_device()
+
+    if cfg['weights_path'] == '':
+        cfg['weights_path'] = glob.glob(cfg['exp_path'] + '/models/best*')[0]
+    state = torch.load(cfg['weights_path'], map_location=DEVICE)
+
+    classifier.load_state_dict(state)
+    classifier.to(DEVICE)
+    classifier.eval()
+
+    preds = []
+    probas = []
+    with torch.no_grad():
+        j = 0
+        i = 0
+        t0 = time()
+        while j < len(dataset):
+            print(f'processing subject {j}...')
+            consumed = False
+            data = dataset[j]
+            obj_pred = np.zeros(data['obj_full_size'])
+            obj_proba = np.zeros(data['obj_full_size'])
+            obj_cls_embedding = np.zeros((data['obj_full_size'], 256))
+            while not consumed:
+                points = get_sample(cfg, data)
+                batch = points.batch
+
+                logits = classifier(points)
+
+                pred = F.log_softmax(logits, dim=-1)
+                pred_choice = pred.data.max(1)[1].int()
+
+                obj_pred[data['obj_idxs']] = pred_choice.cpu().numpy()
+                obj_proba[data['obj_idxs']] = F.softmax(
+                    logits, dim=-1)[:, 0].cpu().numpy()
+
+                if len(dataset.remaining[j]) == 0:
+                    consumed = True
+                    break
+                data = dataset[j]
+                i += 1
+
+            preds.append(obj_pred)
+            probas.append(obj_proba)
+
+        ## save predictions
+        out_dir = 'temp/output'
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+
+        for pred in preds:
+            idxs_P = np.where(pred == 1)[0]
+            np.savetxt(f'{out_dir}/idxs_plausible.npy', idxs_P)
+            idxs_nonP = np.where(pred == 0)[0]
+            np.savetxt(f'{out_dir}/idxs_non-plausible.npy', idxs_nonP)
+            if cfg['return_trk']:
+                hdr = nib.streamlines.load(cfg['trk'], lazy_load=True).header
+                streams, lengths = sload.load_selected_streamlines(cfg['trk'])
+                streamlines = np.split(streams, np.cumsum(lengths[:-1]))
+                streamlines = np.array(streamlines, dtype=np.object)[idxs_P]
+                out_t = nib.streamlines.Tractogram(streamlines,
+                                                   affine_to_rasmm=np.eye(4))
+                out_t_fn = f'''{out_dir}/{cfg['trk'][:-4]}_filtered.trk)'''
+                nib.streamlines.save(out_t, out_t_fn, header=hdr)
+
+
+def get_sample(data):
+    gdata = gBatch().from_data_list([data['points']])
+    gdata = gdata.to(DEVICE)
+    gdata.batch = gdata.bvec.clone()
+    del gdata.bvec
+    gdata['lengths'] = gdata['lengths'][0].item()
+
+    return gdata

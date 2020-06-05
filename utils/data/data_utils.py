@@ -1,11 +1,13 @@
 import torch
 from torchvision import transforms
-from torch.utils.data.dataloader import DataLoader 
+from torch.utils.data.dataloader import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
 
 import datasets as ds
 from .transforms import *
+from nibabel.orientations import aff2axcodes
+from dipy.tracking.streamlinespeed import set_number_of_points
 
 def get_dataset(cfg, trans, train=True):
     if not train:
@@ -76,3 +78,29 @@ def get_gbatch_sample(sample, sample_size, same_size, return_name=False):
     if return_name:
         return points, name_list
     return points
+
+
+def resample_streamlines(streamlines, n_pts=16):
+    resampled = []
+    for sl in streamlines:
+        resampled.append(set_number_of_points(sl, n_pts))
+
+    return resampled
+
+
+def tck2trk(tck_fn, nii_fn, out_fn=None):
+    nii = nib.load(nii_fn)
+    header = {}
+    header[Field.VOXEL_TO_RASMM] = nii.affine.copy()
+    header[Field.VOXEL_SIZES] = nii.header.get_zooms()[:3]
+    header[Field.DIMENSIONS] = nii.shape[:3]
+    header[Field.VOXEL_ORDER] = "".join(aff2axcodes(nii.affine))
+
+    tck = nib.streamlines.load(tck_fn)
+    out_fn = tck_fn[:-4] + '.trk' if out_fn is None else out_fn
+    nib.streamlines.save(tck.tractogram, out_fn, header=header)
+
+
+def trk2tck(trk_fn):
+    trk = nib.streamlines.load(trk_fn)
+    nib.streamlines.save(trk.tractogram, trk_fn[:-4] + '.tck')
