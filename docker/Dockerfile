@@ -32,6 +32,7 @@ RUN pip install torch-geometric==1.5
 RUN git config --global url."https://d9da97d6c50c116ed374179abd2e7717962971f5:@github.com/".insteadOf "https://github.com/"
 RUN git clone https://github.com/FBK-NILab/tractogram-cleaning.git \
     && cd tractogram-cleaning \
+    && git checkout pietro
     # && git checkout 34980972009516a27e2b99837a4f483ce280cf9a \
     # && pip install . \
     # && cd ..     
