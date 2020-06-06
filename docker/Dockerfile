@@ -4,8 +4,9 @@ MAINTAINER Pietro, Ruben and Paolo
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# basic system stuff [maybe useless]
-#RUN apt-get update && apt-get install -y apt-utils git g++ libeigen3-dev zlib1g-dev libqt4-opengl-dev libgl1-mesa-dev libfftw3-dev libtiff5-dev jq strace curl vim wget
+# basic system stuff
+RUN apt-get update && apt-get install -y apt-utils git g++ curl vim wget 
+# libeigen3-dev zlib1g-dev libqt4-opengl-dev libgl1-mesa-dev libfftw3-dev libtiff5-dev jq strace curl vim wget
 
 ## setup conda environment
 # the next three lines are maybe not necessary
