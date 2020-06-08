@@ -37,7 +37,7 @@ def tract2standard(t_fn, t1_fn, fixed_fn):
                              type_of_transform='SyN')
 
     print('correcting warp to mrtrix convention...')
-    os.system(f'warpinit {fixed} temp/ID_warp[].nii.gz -force')
+    os.system(f'warpinit {fixed_fn} temp/ID_warp[].nii.gz -force')
 
     for i in range(3):
         temp_warp = ants.image_read(f'temp/ID_warp{i}.nii.gz')
@@ -58,16 +58,31 @@ def tract2standard(t_fn, t1_fn, fixed_fn):
     return t_mni_fn
 
 
+def get_sample(data):
+    gdata = gBatch().from_data_list([data['points']])
+    gdata = gdata.to(DEVICE)
+    gdata.batch = gdata.bvec.clone()
+    del gdata.bvec
+    gdata['lengths'] = gdata['lengths'][0].item()
+
+    return gdata
+
+
 if __name__ == '__main__':
 
     ## load json run config
     t0_global = time()
     print('reading arguments')
     cfg = json.load(open('run_config.json'))
+    print(cfg)
 
     move_tract = cfg['t1'] != ''
     tck_fn = cfg['trk'][:-4] + '.tck'
     trk_fn = 'temp/input/tract_mni_resampled.trk'
+
+    in_dir = 'temp/input'
+    if not os.path.exists(in_dir):
+        os.makedirs(in_dir)
 
     ## resample trk to 16points if needed
     if cfg['resample_points']:
@@ -97,7 +112,6 @@ if __name__ == '__main__':
             print(f'done in {time()-t0} sec')
 
         t0 = time()
-        trk_mni_fn = tck_mni_fn[:-4] + '.tck'
         mni_fn = 'data/standard/MNI152_T1_1mm_brain.nii.gz'
         tck_mni_fn = tract2standard(tck_fn, cfg['t1'], mni_fn)
         print(f'done in {time()-t0} sec')
@@ -162,8 +176,8 @@ if __name__ == '__main__':
     with torch.no_grad():
         j = 0
         i = 0
-        t0 = time()
         while j < len(dataset):
+            t0 = time()
             print(f'processing subject {j}...')
             consumed = False
             data = dataset[j]
@@ -171,7 +185,7 @@ if __name__ == '__main__':
             obj_proba = np.zeros(data['obj_full_size'])
             obj_cls_embedding = np.zeros((data['obj_full_size'], 256))
             while not consumed:
-                points = get_sample(cfg, data)
+                points = get_sample(data)
                 batch = points.batch
 
                 logits = classifier(points)
@@ -192,16 +206,20 @@ if __name__ == '__main__':
             preds.append(obj_pred)
             probas.append(obj_proba)
 
+            j += 1
+            print(f'done in {time()-t0} sec')
+
         ## save predictions
         out_dir = 'temp/output'
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
 
+        print(f'saving predictions...')
         for pred in preds:
             idxs_P = np.where(pred == 1)[0]
-            np.savetxt(f'{out_dir}/idxs_plausible.npy', idxs_P)
+            np.savetxt(f'{out_dir}/idxs_plausible.txt', idxs_P)
             idxs_nonP = np.where(pred == 0)[0]
-            np.savetxt(f'{out_dir}/idxs_non-plausible.npy', idxs_nonP)
+            np.savetxt(f'{out_dir}/idxs_non-plausible.txt', idxs_nonP)
             if cfg['return_trk']:
                 hdr = nib.streamlines.load(cfg['trk'], lazy_load=True).header
                 streams, lengths = sload.load_selected_streamlines(cfg['trk'])
@@ -211,13 +229,7 @@ if __name__ == '__main__':
                                                    affine_to_rasmm=np.eye(4))
                 out_t_fn = f'''{out_dir}/{cfg['trk'][:-4]}_filtered.trk)'''
                 nib.streamlines.save(out_t, out_t_fn, header=hdr)
+                print(f'saved {out_t_fn}')
+        print(f'End')
+        print(f'Duration: {(time()-t0_global)/60} min')
 
-
-def get_sample(data):
-    gdata = gBatch().from_data_list([data['points']])
-    gdata = gdata.to(DEVICE)
-    gdata.batch = gdata.bvec.clone()
-    del gdata.bvec
-    gdata['lengths'] = gdata['lengths'][0].item()
-
-    return gdata

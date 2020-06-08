@@ -19,6 +19,8 @@ RUN conda install dipy=1.1 -c conda-forge
 RUN conda install pytorch=1.5 torchvision=0.6 cpuonly -c pytorch
 RUN conda install mrtrix3=3.0 -c mrtrix3
 RUN pip install antspyx==0.2.4
+RUN pip install torchviz
+RUN pip install tensorboardx
 
 # install pytorch geometric https://github.com/rusty1s/pytorch_geometric
 ENV CUDA=cpu
@@ -39,7 +41,8 @@ RUN git clone https://github.com/FBK-NILab/tractogram-cleaning.git \
     # && cd ..     
 
 #make it work under singularity 
-# RUN ldconfig && mkdir -p /N/u /N/home /N/dc2 /N/soft
+RUN ldconfig 
+# && mkdir -p /N/u /N/home /N/dc2 /N/soft
 
 #https://wiki.ubuntu.com/DashAsBinSh 
-# RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh

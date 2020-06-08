@@ -23,7 +23,7 @@ from torch_geometric.data import Data as gData, Batch as gBatch
 from torch_geometric.data import Dataset as gDataset
 from torch_geometric.nn import knn_graph
 from torch_geometric.utils import remove_self_loops
-from nilab.load_trk import load_streamlines
+# from nilab.load_trk import load_streamlines
 from dipy.tracking.streamline import length
 import functools
 

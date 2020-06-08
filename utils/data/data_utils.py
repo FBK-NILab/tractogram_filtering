@@ -1,13 +1,16 @@
 import torch
-from torchvision import transforms
+from dipy.tracking.streamlinespeed import set_number_of_points
+from nibabel.orientations import aff2axcodes
+from nibabel.streamlines.trk import Field
 from torch.utils.data.dataloader import DataLoader
 from torch_geometric.data import Batch as gBatch
 from torch_geometric.data import DataListLoader as gDataLoader
+from torchvision import transforms
 
 import datasets as ds
+
 from .transforms import *
-from nibabel.orientations import aff2axcodes
-from dipy.tracking.streamlinespeed import set_number_of_points
+
 
 def get_dataset(cfg, trans, train=True):
     if not train:
