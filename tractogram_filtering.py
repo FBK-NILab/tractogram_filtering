@@ -154,8 +154,6 @@ if __name__ == '__main__':
                              num_workers=0,
                              pin_memory=True)
 
-    print("Dataset %s loaded, found %d samples" %
-          (cfg['dataset'], len(dataset)))
 
     classifier = get_model(cfg)
 
