@@ -1,7 +1,7 @@
 {
-    "trk": "",
-    "t1": "",
+    "trk": "data/sub-510225_1k-streams.trk",
+    "t1": "data/sub-510225_T1w_spacedwi.nii.gz",
     "resample_points": true,
     "task": "classification",
-    "return_trk": false
+    "return_trk": true
 }

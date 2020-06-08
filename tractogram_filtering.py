@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import argparse
 import configparser
 import glob
 import json
@@ -70,10 +71,15 @@ def get_sample(data):
 
 if __name__ == '__main__':
 
-    ## load json run config
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-config', nargs='?', default='run_config.json',
+                        help='The tag for the configuration file.')
+    args = parser.parse_args()
+
+    ## load config
     t0_global = time()
     print('reading arguments')
-    cfg = json.load(open('run_config.json'))
+    cfg = json.load(open(args.config))
     print(cfg)
 
     move_tract = cfg['t1'] != ''
