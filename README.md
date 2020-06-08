@@ -23,3 +23,11 @@ The output are two text files containing the indexes of plausible and non-plausi
 - `resample_points`: T/F flag. If T the streamlines will be resampled to 16 points, otherwise no.
 - `return_trk`: T/F flag. If T the filtered trk tractogram will be returned along with the indexes of plausible and non-plausible streamlines.
 - `task`: classification/regression. [not used right now]
+
+## Usage
+using `singularity`:
+
+`singularity exec -e docker://pietroastolfi/tractogram-filtering-cpu python tractogram_filtering.py`
+
+using `docker`:
+`sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "python tractogram_filtering.py"`
