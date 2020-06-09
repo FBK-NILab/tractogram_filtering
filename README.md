@@ -10,7 +10,7 @@ In my tests I adopted the latest stable version of both Docker (19.03.8) and Sin
 
 The executable script (still under development) is `tractogram_filtering.py`. It reads the configuration file, `run_config.json` to get arguments from "outside", and based on it performs different steps.
 
-The script generates a temporary folder `temp`, where it stores in the subdirectories `temp/input/` and `temp/output/` the actual input and output files. Some intermediate files generated during the pre-processing steps are stored directly in the `temp/` folder 
+The script generates a temporary folder `TEMP=tmp_tractogram_filtering/`, where it stores in the subdirectories `TEMP/input/` and `TEMP/output/` the actual input and output files. Some intermediate files generated during the pre-processing steps are stored directly in the `TEMP` folder 
 
 The input file is always a tractogram .trk, projected into MNI space with fixed number of points per streamline. 
 
@@ -25,9 +25,9 @@ The output are two text files containing the indexes of plausible and non-plausi
 - `task`: classification/regression. [not used right now]
 
 ## Usage
-using `singularity`:
+1. Create a json config file, using the one in the repo as example. In the repo inside `data/` I included a t1 and a small tractogram(.trk) that can be used for tests.
+2. From a writable directory launch one of the following command:
+    - `singularity exec -e docker://pietroastolfi/tractogram-filtering-cpu tractogram_filtering.py -config <path-to-json>`
+    - `sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "tractogram_filtering.py -config <path-to-json>"`
 
-`singularity exec -e docker://pietroastolfi/tractogram-filtering-cpu python tractogram_filtering.py`
-
-using `docker`:
-`sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "python tractogram_filtering.py"`
+To launch a shell inside the docker the command is `singularity shell -e docker://pietroastolfi/tractogram-filtering-cpu` (equivalent also using `docker`)
