@@ -37,6 +37,7 @@ RUN git config --global url."https://d9da97d6c50c116ed374179abd2e7717962971f5:@g
     && cd tractogram-cleaning \
     && git checkout docker
   
+ENV PATH=/tractogram-cleaning:$PATH
 
 #make it work under singularity 
 RUN ldconfig 

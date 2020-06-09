@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 
 import argparse
@@ -5,6 +7,8 @@ import configparser
 import glob
 import json
 import os
+from os import path as osp
+from os.path import basename as osbn
 from time import time
 
 import ants
@@ -38,23 +42,24 @@ def tract2standard(t_fn, t1_fn, fixed_fn):
                              type_of_transform='SyN')
 
     print('correcting warp to mrtrix convention...')
-    os.system(f'warpinit {fixed_fn} temp/ID_warp[].nii.gz -force')
+    os.system(f'warpinit {fixed_fn} {tmp_dir}/ID_warp[].nii.gz -force')
 
     for i in range(3):
-        temp_warp = ants.image_read(f'temp/ID_warp{i}.nii.gz')
+        temp_warp = ants.image_read(f'{tmp_dir}/ID_warp{i}.nii.gz')
         temp_warp = ants.apply_transforms(fixed=fixed,
                                           moving=temp_warp,
                                           transformlist=mytx['invtransforms'],
                                           whichtoinvert=[True, False])
-        ants.image_write(temp_warp, f'temp/mrtrix_warp{i}.nii.gz')
+        ants.image_write(temp_warp, f'{tmp_dir}/mrtrix_warp{i}.nii.gz')
 
-    os.system('warpcorrect temp/mrtrix_warp[].nii.gz ' +
-              'temp/mrtrix_warp_cor.nii.gz -force')
+    os.system(f'warpcorrect {tmp_dir}/mrtrix_warp[].nii.gz ' +
+              f'{tmp_dir}/mrtrix_warp_cor.nii.gz -force')
 
     print('applaying warp to tractogram...')
     t_mni_fn = t_fn[:-4] + '_mni.tck'
-    os.system(f'tcktransform {t_fn} temp/mrtrix_warp_cor.nii.gz {t_mni_fn} ' +
-              '-force -nthreads 0')
+    os.system(
+        f'tcktransform {t_fn} {tmp_dir}/mrtrix_warp_cor.nii.gz {t_mni_fn} ' +
+        '-force -nthreads 0')
 
     return t_mni_fn
 
@@ -71,8 +76,13 @@ def get_sample(data):
 
 if __name__ == '__main__':
 
+    script_dir = osp.dirname(osp.realpath(__file__))
+    tmp_dir = 'tmp_tractogram_filtering'
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('-config', nargs='?', default='run_config.json',
+    parser.add_argument('-config',
+                        nargs='?',
+                        default=f'{script_dir}/run_config.json',
                         help='The tag for the configuration file.')
     args = parser.parse_args()
 
@@ -84,10 +94,10 @@ if __name__ == '__main__':
 
     move_tract = cfg['t1'] != ''
     tck_fn = cfg['trk'][:-4] + '.tck'
-    trk_fn = 'temp/input/tract_mni_resampled.trk'
+    trk_fn = f'{tmp_dir}/input/tract_mni_resampled.trk'
 
-    in_dir = 'temp/input'
-    if not os.path.exists(in_dir):
+    in_dir = f'{tmp_dir}/input'
+    if not osp.exists(in_dir):
         os.makedirs(in_dir)
 
     ## resample trk to 16points if needed
@@ -111,14 +121,14 @@ if __name__ == '__main__':
 
     ## compute warp to mni and move tract if needed
     if move_tract:
-        if not os.path.exists(tck_fn):
+        if not osp.exists(tck_fn):
             t0 = time()
             print('convert trk to tck...')
             trk2tck(cfg['trk'])
             print(f'done in {time()-t0} sec')
 
         t0 = time()
-        mni_fn = 'data/standard/MNI152_T1_1mm_brain.nii.gz'
+        mni_fn = f'{script_dir}/data/standard/MNI152_T1_1mm_brain.nii.gz'
         tck_mni_fn = tract2standard(tck_fn, cfg['t1'], mni_fn)
         print(f'done in {time()-t0} sec')
 
@@ -127,13 +137,13 @@ if __name__ == '__main__':
         tck2trk(tck_mni_fn, mni_fn, out_fn=trk_fn)
         print(f'done in {time()-t0} sec')
 
-    if not os.path.exists(trk_fn):
+    if not osp.exists(trk_fn):
         print('The tractogram loaded is already compatible with the model')
         os.system(f'''ln -sf {cfg['trk']} {trk_fn}''')
 
     ## run inference
     print('launching inference...')
-    exp = 'paper_runs/sdec_nodropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling_1'
+    exp = f'{script_dir}/paper_runs/sdec_nodropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling_1'
     var = 'HCP20'
 
     cfg_parser = configparser.ConfigParser()
@@ -159,7 +169,6 @@ if __name__ == '__main__':
                              shuffle=False,
                              num_workers=0,
                              pin_memory=True)
-
 
     classifier = get_model(cfg)
 
@@ -214,8 +223,8 @@ if __name__ == '__main__':
             print(f'done in {time()-t0} sec')
 
         ## save predictions
-        out_dir = 'temp/output'
-        if not os.path.exists(out_dir):
+        out_dir = f'{tmp_dir}/output'
+        if not osp.exists(out_dir):
             os.makedirs(out_dir)
 
         print(f'saving predictions...')
@@ -231,9 +240,9 @@ if __name__ == '__main__':
                 streamlines = np.array(streamlines, dtype=np.object)[idxs_P]
                 out_t = nib.streamlines.Tractogram(streamlines,
                                                    affine_to_rasmm=np.eye(4))
-                out_t_fn = f'''{out_dir}/{cfg['trk'][:-4]}_filtered.trk)'''
+                out_t_name = osbn(cfg['trk'])[:-4] + '_filtered.trk'
+                out_t_fn = f'''{out_dir}/{out_t_name}'''
                 nib.streamlines.save(out_t, out_t_fn, header=hdr)
                 print(f'saved {out_t_fn}')
         print(f'End')
         print(f'Duration: {(time()-t0_global)/60} min')
-
