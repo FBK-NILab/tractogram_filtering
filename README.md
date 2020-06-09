@@ -18,7 +18,7 @@ The output are two text files containing the indexes of plausible and non-plausi
 
 ## Configuration file
 `run_config.json` is composed as follows:
-- `trk`: path to the tractogram uploaded by the user>
+- `trk`: path to the tractogram uploaded by the user
 - `t1`: path to the t1 image in subject space. The image is preferred if it is a brain extracted image. In case no t1 image is provided, the tractogram is assumed to be already in MNI space.
 - `resample_points`: T/F flag. If T the streamlines will be resampled to 16 points, otherwise no.
 - `return_trk`: T/F flag. If T the filtered trk tractogram will be returned along with the indexes of plausible and non-plausible streamlines.
