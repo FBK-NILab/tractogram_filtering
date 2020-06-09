@@ -2,7 +2,7 @@
 Computational methods for filtering out non-plausible streamlines from a tractogram
 
 ## Container details
-The [built Docker image](https://hub.docker.com/repository/docker/pietroastolfi/tractogram-filtering-cpu) contains all the required packages to run the filtering in inference mode using only CPU. The container can be launched either using Docker, which requires the administrator privileges, or using Singularity (suggested), which instead runs without privileges and automatically mounts the home directory of the localhost (important for data retreival). 
+The [built Docker image](https://hub.docker.com/repository/docker/pietroastolfi/tractogram-filtering-cpu) contains all the required packages to run the filtering in inference mode using only CPU. The container can be launched either using Docker, which requires the administrator privileges and some commands to mount external directories, or using Singularity (suggested), which instead runs without privileges and automatically mounts the home directory of the localhost (important for data retreival). 
 
 In my tests I adopted the latest stable version of both Docker (19.03.8) and Singularity (3.5.3).
 
@@ -26,8 +26,9 @@ The output are two text files containing the indexes of plausible and non-plausi
 
 ## Usage
 1. Create a json config file, using the one in the repo as example. In the repo inside `data/` I included a t1 and a small tractogram(.trk) that can be used for tests.
-2. From a writable directory launch one of the following command:
-    - `singularity exec -e docker://pietroastolfi/tractogram-filtering-cpu tractogram_filtering.py -config <path-to-json>`
-    - `sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "tractogram_filtering.py -config <path-to-json>"`
+2. From a writable directory launch the following command:\
+  `singularity exec -e docker://pietroastolfi/tractogram-filtering-cpu tractogram_filtering.py -config <path-to-json>`
+    <!-- - `$ sudo docker run --name tract_filtering -it pietroastolfi/tractogram-filtering-cpu bash`\
+    `$ sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "tractogram_filtering.py -config <path-to-json>"` -->
 
-To launch a shell inside the docker the command is `singularity shell -e docker://pietroastolfi/tractogram-filtering-cpu` (equivalent also using `docker`)
+To launch a shell inside the docker the command is `singularity shell -e docker://pietroastolfi/tractogram-filtering-cpu`
