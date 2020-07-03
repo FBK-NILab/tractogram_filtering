@@ -26,7 +26,7 @@ The output are two text files containing the indexes of plausible and non-plausi
 
 ## Usage
 1. Create a json config file, using the one in the repo as example. In the repo inside `data/` I included a t1 and a small tractogram(.trk) that can be used for tests.
-2. launch the container using the desired `tag=cpu | gpu`:
+2. launch the container using the desired `<tag>=cpu | gpu`:
     * using Singularity: from a writable directory launch the following command:\
   `singularity exec -e docker://pietroastolfi/tractogram-filtering:<tag> tractogram_filtering.py -config <path-to-json>`
     <!-- - `$ sudo docker run --name tract_filtering -it pietroastolfi/tractogram-filtering:<tag> bash`\
