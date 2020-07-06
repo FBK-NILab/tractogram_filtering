@@ -23,7 +23,9 @@ cat <<EOF > config.json
 EOF
 
 singularity exec -e --nv docker://pietroastolfi/tractogram-filtering:gpu tractogram_filtering.py -config config.json
-                    
+
+echo "PREPARING OUTPUTS..."
+
 mkdir output
 mv tmp_tractogram_filtering/output/track.trk output/.
 mkdir output/plausible_idxs
