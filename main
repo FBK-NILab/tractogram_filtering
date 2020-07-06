@@ -14,7 +14,8 @@ if [ -d 'tmp_tractogram_filtering/' ]; then
 fi
 
 # fix json config
-cat config.json | jq --arg resample_points true '. + {resample_points: $resample_points}' | sponge config.json
+CFG=`cat config.json | jq --arg resample_points true '. + {resample_points: $resample_points}'`
+echo $CFG > config.json
 jq --arg return_trk true '. + {return_trk: $return_trk}'
 jq --arg task classification '. + {task: $task}'
 
