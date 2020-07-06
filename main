@@ -36,7 +36,7 @@ singularity exec -e --nv docker://pietroastolfi/tractogram-filtering:gpu tractog
 echo "PREPARING OUTPUTS..."
 
 mkdir output
-mv tmp_tractogram_filtering/output/track.trk output/.
+mv tmp_tractogram_filtering/output/track_filtered.trk output/track.trk
 mkdir output/plausible_idxs
 mv tmp_tractogram_filtering/output/idxs_plausible.txt output/plausible_idxs/.
 mkdir output/non_plausible_idxs
