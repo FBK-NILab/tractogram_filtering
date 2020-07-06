@@ -100,10 +100,13 @@ def tck2trk(tck_fn, nii_fn, out_fn=None):
     header[Field.VOXEL_ORDER] = "".join(aff2axcodes(nii.affine))
 
     tck = nib.streamlines.load(tck_fn)
-    out_fn = tck_fn[:-4] + '.trk' if out_fn is None else out_fn
+    if out_fn is None:
+        out_fn = tck_fn[:-4] + '.trk'
     nib.streamlines.save(tck.tractogram, out_fn, header=header)
 
 
-def trk2tck(trk_fn):
+def trk2tck(trk_fn, out_fn=None):
     trk = nib.streamlines.load(trk_fn)
-    nib.streamlines.save(trk.tractogram, trk_fn[:-4] + '.tck')
+    if out_fn is None:
+        out_fn = trk_fn[:-4] + '.tck'
+    nib.streamlines.save(trk.tractogram, out_fn)

@@ -32,12 +32,11 @@ RUN pip install torch-scatter==2.0.4+${CUDA} -f https://pytorch-geometric.com/wh
 
 # tractogram filtering
 # needed token for private repo
-RUN git config --global url."https://d9da97d6c50c116ed374179abd2e7717962971f5:@github.com/".insteadOf "https://github.com/" \
-    && git clone https://github.com/FBK-NILab/tractogram-cleaning.git \
-    && cd tractogram-cleaning \
-    && git checkout docker
+RUN git clone https://github.com/FBK-NILab/tractogram_filtering.git \
+    && cd tractogram_filtering \
+    && git checkout miccai2020
   
-ENV PATH=/tractogram-cleaning:$PATH
+ENV PATH=/tractogram_filtering:$PATH
 
 #make it work under singularity 
 RUN ldconfig 

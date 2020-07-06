@@ -93,7 +93,7 @@ if __name__ == '__main__':
     print(cfg)
 
     move_tract = cfg['t1'] != ''
-    tck_fn = cfg['trk'][:-4] + '.tck'
+    tck_fn = f'{tmp_dir}/input/tract.tck'
     trk_fn = f'{tmp_dir}/input/tract_mni_resampled.trk'
 
     in_dir = f'{tmp_dir}/input'
