@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -e
+set -x
+
+echo "STARTING TRACTOGRAM FILTERING PIPELINE..."
+	
+if [ -d 'output/' ]; then 
+  rm -r output
+fi
+
+# fix json config
+#jq --arg resample_points true '. + {resample_points: $resample_points}
+#jq --arg return_trk true '. + {return_trk: $return_trk}
+#jq --arg task classification '. + {task: $task}
+
+cat <<EOF > config.json 
+{
+    "resample_points": true,
+    "task": "classification",
+    "return_trk": true
+}
+EOF
+
+singularity exec -e --nv docker://pietroastolfi/tractogram-filtering:gpu tractogram_filtering.py -config config.json
+                    
+mkdir output
+mv tmp_tractogram_filtering/output/track.trk output/.
+mkdir output/plausible_idxs
+mv tmp_tractogram_filtering/output/idxs_plausible.txt output/plausible_idxs/.
+mkdir output/non_plausible_idxs
+mv tmp_tractogram_filtering/output/idxs_non-plausible.txt output/non_plausible_idxs/.
