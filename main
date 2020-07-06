@@ -9,20 +9,24 @@ if [ -d 'output/' ]; then
   rm -r output
 fi
 
-# fix json config
-#jq --arg resample_points true '. + {resample_points: $resample_points}
-#jq --arg return_trk true '. + {return_trk: $return_trk}
-#jq --arg task classification '. + {task: $task}
+if [ -d 'tmp_tractogram_filtering/' ]; then 
+  rm -r tmp_tractogram_filtering
+fi
 
-cat <<EOF > config.json 
-{
-    "trk": "track.trk",
-    "t1": "t1.nii.gz",
-    "resample_points": true,
-    "task": "classification",
-    "return_trk": true
-}
-EOF
+# fix json config
+jq --arg resample_points true '. + {resample_points: $resample_points}
+jq --arg return_trk true '. + {return_trk: $return_trk}
+jq --arg task classification '. + {task: $task}
+
+#cat <<EOF > config.json 
+#{
+#    "trk": "track.trk",
+#    "t1": "t1.nii.gz",
+#    "resample_points": true,
+#    "task": "classification",
+#    "return_trk": true
+#}
+#EOF
 
 singularity exec -e --nv docker://pietroastolfi/tractogram-filtering:gpu tractogram_filtering.py -config config.json
 
