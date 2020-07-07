@@ -124,7 +124,7 @@ if __name__ == '__main__':
         if not osp.exists(tck_fn):
             t0 = time()
             print('convert trk to tck...')
-            trk2tck(cfg['trk'])
+            trk2tck(cfg['trk'], out_fn=tck_fn)
             print(f'done in {time()-t0} sec')
 
         t0 = time()
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         os.system(f'''ln -sf {cfg['trk']} {trk_fn}''')
 
     ## run inference
-    print('launching inference...')
+    print(f'launching inference using {DEVICE}...')
     exp = f'{script_dir}/paper_runs/sdec_nodropout_loss_nll-data_hcp20_gt20mm_resampled16_fs8000_balanced_sampling_1'
     var = 'HCP20'
 
