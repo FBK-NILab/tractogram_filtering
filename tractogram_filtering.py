@@ -230,9 +230,9 @@ if __name__ == '__main__':
         print(f'saving predictions...')
         for pred in preds:
             idxs_P = np.where(pred == 1)[0]
-            np.savetxt(f'{out_dir}/idxs_plausible.txt', idxs_P)
+            np.savetxt(f'{out_dir}/idxs_plausible.txt', idxs_P, fmt='%d')
             idxs_nonP = np.where(pred == 0)[0]
-            np.savetxt(f'{out_dir}/idxs_non-plausible.txt', idxs_nonP)
+            np.savetxt(f'{out_dir}/idxs_non-plausible.txt', idxs_nonP, fmt='%d')
             if cfg['return_trk']:
                 hdr = nib.streamlines.load(cfg['trk'], lazy_load=True).header
                 streams, lengths = sload.load_selected_streamlines(cfg['trk'])
