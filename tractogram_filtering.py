@@ -24,6 +24,7 @@ from datasets.basic_tract import TractDataset
 # from nilab import load_trk as ltrk
 from utils.data import selective_loader as sload
 from utils.data.data_utils import resample_streamlines, tck2trk, trk2tck
+from utils.data.transforms import TestSampling
 from utils.general_utils import get_cfg_value
 from utils.model_utils import get_model
 
@@ -32,6 +33,7 @@ from utils.model_utils import get_model
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+np.random.seed(10)
 
 def tract2standard(t_fn, t1_fn, fixed_fn):
     print('registration using ANTs SyN...')
@@ -160,7 +162,7 @@ if __name__ == '__main__':
     cfg['fixed_size'] = 10000
 
     dataset = TractDataset(trk_fn,
-                           transform=None,
+                           transform=TestSampling(cfg['fixed_size']),
                            return_edges=True,
                            split_obj=True)
 
