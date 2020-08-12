@@ -24,9 +24,11 @@ from datasets.basic_tract import TractDataset
 # from nilab import load_trk as ltrk
 from utils.data import selective_loader as sload
 from utils.data.data_utils import resample_streamlines, tck2trk, trk2tck
-from utils.data.transforms import TestSampling
+from utils.data.transforms import TestSampling, SeqSampling
 from utils.general_utils import get_cfg_value
 from utils.model_utils import get_model
+
+import subprocess
 
 # os.environ["DEVICE"] = torch.device(
 #     'cuda' if torch.cuda.is_available() else 'cpu')
@@ -34,6 +36,33 @@ from utils.model_utils import get_model
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 np.random.seed(10)
+
+def get_gpu_free_memory_map():
+    """Get the current gpu usage.
+
+    Returns
+    -------
+    usage: dict
+        Keys are device ids as integers.
+        Values are free memory as integers in MB.
+    """
+    result = subprocess.check_output(
+        [
+            'nvidia-smi', '--query-gpu=memory.used',
+            '--format=csv,nounits,noheader'
+        ], encoding='utf-8')
+    # Convert lines into a dictionary
+    gpu_used_memory = [int(x) for x in result.strip().split('\n')]
+    n_gpus = len(gpu_used_memory)
+    gpu_free_memory = []
+    for i in range(n_gpus):
+        tot_mem = torch.cuda.get_device_properties(i).total_memory
+        tot_mem = int(tot_mem / 1024**2)
+        gpu_free_memory.append(tot_mem-gpu_used_memory[i])
+
+    gpu_free_memory_map = dict(zip(range(n_gpus), free_gpu_memory))
+    return gpu_free_memory_map
+
 
 def tract2standard(t_fn, t1_fn, fixed_fn):
     print('registration using ANTs SyN...')
@@ -159,12 +188,26 @@ if __name__ == '__main__':
     cfg['with_gt'] = False
     cfg['weights_path'] = ''
     cfg['exp_path'] = exp
-    cfg['fixed_size'] = 10000
+
+    # check available memory to decide how many streams sample
+    curr_device = torch.cuda.current_device()
+    free_mem = int(get_gpu_free_memory_map()[curr_device] / 1024) # in GB
+    if free_mem <= 4:
+        cfg['fixed_size'] = 10000
+    elif free_mem <= 8:
+        cfg['fixed_size'] = 20000
+    elif free_mem <= 10:
+        cfg['fixed_size'] = 30000
+    elif free_mem <= 11:
+        cfg['fixed_size'] = 35000
+    elif free_mem <= 12:
+        cfg['fixed_size'] = 40000
 
     dataset = TractDataset(trk_fn,
-                           transform=TestSampling(cfg['fixed_size']),
+                           transform=SeqSampling(cfg['fixed_size']),
                            return_edges=True,
-                           split_obj=True)
+                           split_obj=True,
+                           seq_load=True)
 
     dataloader = gDataLoader(dataset,
                              batch_size=1,

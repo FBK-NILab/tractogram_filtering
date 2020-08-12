@@ -75,7 +75,7 @@ def load_selected_streamlines(trk_fn, idxs=None, return_scalars=False):
         
     return streams, lengths[idxs]
 
-def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=False):
+def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=False, sequential=False):
 
     lazy_trk = nib.streamlines.load(trk_fn, lazy_load=True)
     header = lazy_trk.header
@@ -107,20 +107,32 @@ def load_selected_streamlines_uniform_size(trk_fn, idxs=None, return_scalars=Fal
     scalars = np.empty((lengths[idxs].sum(), n_scalars), dtype=np.float32) if n_scalars > 0 else None
     j = 0
     with open(trk_fn, 'rb') as f:
-        for idx in idxs:
-            # move to the position initial position of the coordinates
-            # of the streamline:
-            f.seek(index_bytes[idx])
-            # Parse the floats:
-            s = np.fromfile(f, np.float32, n_floats[idx])
-            s.resize(lengths[idx], point_size)
+        if sequential:
+            f.seek(index_bytes[idxs[0]])
+            s = np.fromfile(f, np.float32, n_floats[idxs].sum())
+            s.resize(lengths[idxs].sum(), point_size)
 
             if n_scalars > 0:
-                scalars[j:j+lengths[idx], :] = s[:, 3:]
+                scalars = s[:, 3:]
                 s = s[:, :3]
-            
-            streams[j:j+lengths[idx], :] = s
-            j += lengths[idx]
+                
+            streams = s
+
+        else:
+            for idx in idxs:
+                # move to the position initial position of the coordinates
+                # of the streamline:
+                f.seek(index_bytes[idx])
+                # Parse the floats:
+                s = np.fromfile(f, np.float32, n_floats[idx])
+                s.resize(lengths[idx], point_size)
+
+                if n_scalars > 0:
+                    scalars[j:j+lengths[idx], :] = s[:, 3:]
+                    s = s[:, :3]
+                
+                streams[j:j+lengths[idx], :] = s
+                j += lengths[idx]
     # apply affine
     aff = get_affine_trackvis_to_rasmm(lazy_trk.header)
     streams = apply_affine(aff, streams)

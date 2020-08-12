@@ -12,13 +12,15 @@ class TractDataset(gDataset):
                  T_file,
                  transform=None,
                  return_edges=True,
-                 split_obj=True):
+                 split_obj=True,
+                 seq_load=False):
         self.T_file = T_file
         self.transform = transform
         self.return_edges = return_edges
         if split_obj:
             self.remaining = [[]]
         self.split_obj = split_obj
+        self.seq_load = seq_load
 
     def __len__(self):
         return 1
@@ -42,7 +44,7 @@ class TractDataset(gDataset):
             sample['obj_full_size'] = T.header['nb_streamlines']
         n = len(sample['points'])
         streams, lengths = load_selected_streamlines_uniform_size(
-            self.T_file, sample['points'].tolist())
+            self.T_file, sample['points'].tolist(), sequential=self.seq_load)
         sample['points'] = self.build_graph_sample(streams, lengths, gt=None)
         return sample
 

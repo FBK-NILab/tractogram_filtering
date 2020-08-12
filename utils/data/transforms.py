@@ -151,6 +151,31 @@ class TestSampling(object):
             out_sample['gt'] = sample['gt'][chosen_idx]
         return out_sample
 
+class SeqSampling(object):
+    """Random sampling from input object until the object is all sampled
+    Args:
+        output_size (int): Desired output size.
+    """
+
+    def __init__(self, output_size):
+        assert isinstance(output_size, (int))
+        self.output_size = output_size
+
+    def __call__(self, sample):
+        sl = sample['points']
+
+        n = sl.shape[0]
+        if self.output_size > len(range(n)):
+            chosen_idx = range(n)
+        else:
+            chosen_idx = range(self.output_size)
+
+        out_sample = {'points': sl[chosen_idx]}
+
+        if 'gt' in sample.keys():
+            out_sample['gt'] = sample['gt'][chosen_idx]
+        return out_sample
+
 class SampleStandardization(object):
     """Standardize the sample by substracting the mean and dividing by the stddev
     """
