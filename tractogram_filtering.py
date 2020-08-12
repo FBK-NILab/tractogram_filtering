@@ -60,7 +60,7 @@ def get_gpu_free_memory_map():
         tot_mem = int(tot_mem / 1024**2)
         gpu_free_memory.append(tot_mem-gpu_used_memory[i])
 
-    gpu_free_memory_map = dict(zip(range(n_gpus), free_gpu_memory))
+    gpu_free_memory_map = dict(zip(range(n_gpus), gpu_free_memory))
     return gpu_free_memory_map
 
 
@@ -200,7 +200,7 @@ if __name__ == '__main__':
         cfg['fixed_size'] = 30000
     elif free_mem <= 11:
         cfg['fixed_size'] = 35000
-    elif free_mem <= 12:
+    elif free_mem >= 12:
         cfg['fixed_size'] = 40000
 
     dataset = TractDataset(trk_fn,
