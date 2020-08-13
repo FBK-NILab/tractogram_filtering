@@ -1,6 +1,6 @@
 [DEFAULT]
 ########### model ###########
-model = dec
+model = sdec
 batch_norm = y
 dropout = n
 spatial_tn = n
