@@ -44,7 +44,7 @@ class TractDataset(gDataset):
             sample['obj_full_size'] = T.header['nb_streamlines']
         n = len(sample['points'])
         streams, lengths = load_selected_streamlines_uniform_size(
-            self.T_file, sample['points'].tolist(), sequential=self.seq_load)
+            self.T_file, sample['points'].tolist())
         sample['points'] = self.build_graph_sample(streams, lengths, gt=None)
         return sample
 

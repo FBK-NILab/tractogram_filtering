@@ -130,7 +130,7 @@ if __name__ == '__main__':
     in_dir = f'{tmp_dir}/input'
     if not osp.exists(in_dir):
         os.makedirs(in_dir)
-
+    
     ## resample trk to 16points if needed
     if cfg['resample_points']:
         t0 = time()
@@ -202,12 +202,11 @@ if __name__ == '__main__':
         cfg['fixed_size'] = 35000
     elif free_mem >= 12:
         cfg['fixed_size'] = 40000
-
+    
     dataset = TractDataset(trk_fn,
-                           transform=SeqSampling(cfg['fixed_size']),
+                           transform=TestSampling(cfg['fixed_size']),
                            return_edges=True,
-                           split_obj=True,
-                           seq_load=True)
+                           split_obj=True)
 
     dataloader = gDataLoader(dataset,
                              batch_size=1,
@@ -220,6 +219,7 @@ if __name__ == '__main__':
     if DEVICE == 'cuda':
         torch.cuda.set_device(DEVICE)
         torch.cuda.current_device()
+    import ipdb; ipdb.set_trace()
 
     if cfg['weights_path'] == '':
         cfg['weights_path'] = glob.glob(cfg['exp_path'] + '/models/best*')[0]
@@ -266,6 +266,8 @@ if __name__ == '__main__':
 
             j += 1
             print(f'done in {time()-t0} sec')
+
+        import ipdb; ipdb.set_trace()
 
         ## save predictions
         out_dir = f'{tmp_dir}/output'
