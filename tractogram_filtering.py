@@ -219,7 +219,6 @@ if __name__ == '__main__':
     if DEVICE == 'cuda':
         torch.cuda.set_device(DEVICE)
         torch.cuda.current_device()
-    import ipdb; ipdb.set_trace()
 
     if cfg['weights_path'] == '':
         cfg['weights_path'] = glob.glob(cfg['exp_path'] + '/models/best*')[0]
@@ -266,8 +265,6 @@ if __name__ == '__main__':
 
             j += 1
             print(f'done in {time()-t0} sec')
-
-        import ipdb; ipdb.set_trace()
 
         ## save predictions
         out_dir = f'{tmp_dir}/output'
