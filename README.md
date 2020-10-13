@@ -4,9 +4,10 @@ Filtering out of artifactual streamlines from a tractogram with a geometric deep
 ### Description
 This tool implements a method able to distinguish between anatomically plausible and anatomically non-plausible streamlines, based on the definitions given by Petit et al, 2019. The method is a geometric deep learning neural network presented at MICCAI2020 [1], which has been trained and tested on a dataset of 20 HCP subjects [https://doi.org/10.25663/brainlife.pub.13](https://doi.org/10.25663/brainlife.pub.13). 
 
-##### input output
-- The input file is always a tractogram .trk, projected into MNI space with fixed number of points per streamline.
-- The output
+##### input and output
+- The input file is always a tractogram .trk, projected into MNI space with fixed number of points, 16, per streamline.
+- The output file is again a tractogram .trk containing only the anatomically plausible streamlines.
+
 ### Authors
 * Pietro Astolfi
 * Paolo Avesani
@@ -35,8 +36,8 @@ You can submit this App online at [https://doi.org/10.25663/brainlife.app.390](h
 ### Running Locally (on your machine)
 
 1. git clone this repo.
-2. `git checkout miccai2020`
-3. Inside the cloned directory, create `config.json` with something like this:
+2. Inside the cloned directory, `git checkout miccai2020`
+3. Create `config.json` with something like this:
 
 ```json
 {
