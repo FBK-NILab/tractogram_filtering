@@ -94,6 +94,7 @@ via `conda install`:
 - pytorch 1.5
 - dipy 1.1
 - mrtrix3 3.0
+
 via `pip install`:
 - antspyx 0.2.4
 - torchviz
