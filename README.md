@@ -1,3 +1,6 @@
+[![Abcdspec-compliant](https://img.shields.io/badge/ABCD_Spec-v1.1-green.svg)](https://github.com/brain-life/abcd-spec)
+[![Run on Brainlife.io](https://img.shields.io/badge/Brainlife-bl.app.390-blue.svg)](https://doi.org/10.25663/bl.app.390)
+
 # Tractogram Filtering
 Filtering out of artifactual streamlines from a tractogram with a geometric deep learning model
 
@@ -25,7 +28,8 @@ brainlife.io is publicly funded and for the sustainability of the project it is 
 
 ### Citations
 
-[1] Astolfi P. et al. (2020) Tractogram Filtering of Anatomically Non-plausible Fibers with Geometric Deep Learning. In: Martel A.L. et al. (eds) Medical Image Computing and Computer Assisted Intervention – MICCAI 2020. MICCAI 2020. Lecture Notes in Computer Science, vol 12267. Springer, Cham. https://doi.org/10.1007/978-3-030-59728-3_29
+1. Astolfi P. et al. (2020) Tractogram Filtering of Anatomically Non-plausible Fibers with Geometric Deep Learning. In: Martel A.L. et al. (eds) Medical Image Computing and Computer Assisted Intervention – MICCAI 2020. MICCAI 2020. Lecture Notes in Computer Science, vol 12267. Springer, Cham. https://doi.org/10.1007/978-3-030-59728-3_29
+2. Avesani, P., McPherson, B., Hayashi, S. et al. The open diffusion data derivatives, brain data upcycling via integrated publishing of derivatives and reproducible open cloud services. Sci Data 6, 69 (2019). [https://doi.org/10.1038/s41597-019-0073-y](https://doi.org/10.1038/s41597-019-0073-y)
 
 #### Distributed under MIT license. Copyright (c) 2020 Pietro Astolfi, Paolo Avesani
 
