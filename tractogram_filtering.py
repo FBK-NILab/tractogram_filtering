@@ -37,6 +37,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 np.random.seed(10)
 
+
 def get_gpu_free_memory_map():
     """Get the current gpu usage.
 
@@ -46,11 +47,11 @@ def get_gpu_free_memory_map():
         Keys are device ids as integers.
         Values are free memory as integers in MB.
     """
-    result = subprocess.check_output(
-        [
-            'nvidia-smi', '--query-gpu=memory.used',
-            '--format=csv,nounits,noheader'
-        ], encoding='utf-8')
+    result = subprocess.check_output([
+        'nvidia-smi', '--query-gpu=memory.used',
+        '--format=csv,nounits,noheader'
+    ],
+                                     encoding='utf-8')
     # Convert lines into a dictionary
     gpu_used_memory = [int(x) for x in result.strip().split('\n')]
     n_gpus = len(gpu_used_memory)
@@ -58,19 +59,36 @@ def get_gpu_free_memory_map():
     for i in range(n_gpus):
         tot_mem = torch.cuda.get_device_properties(i).total_memory
         tot_mem = int(tot_mem / 1024**2)
-        gpu_free_memory.append(tot_mem-gpu_used_memory[i])
+        gpu_free_memory.append(tot_mem - gpu_used_memory[i])
 
     gpu_free_memory_map = dict(zip(range(n_gpus), gpu_free_memory))
     return gpu_free_memory_map
 
 
-def tract2standard(t_fn, t1_fn, fixed_fn):
+def get_max_batchsize(curr_device):
+    free_mem = int(get_gpu_free_memory_map()[curr_device] / 1024)  # in GB
+    if free_mem <= 4:
+        return 10000
+    elif free_mem <= 8:
+        return 20000
+    elif free_mem <= 10:
+        return 30000
+    elif free_mem <= 11:
+        return 35000
+    elif free_mem >= 12:
+        return 40000
+
+
+def tract2standard(t_fn,
+                   t1_fn,
+                   fixed_fn,
+                   trans_type='antsRegistrationSyNQuick[s]'):
     print('registration using ANTs SyN...')
     fixed = ants.image_read(fixed_fn)
     moving = ants.image_read(t1_fn)
     mytx = ants.registration(fixed=fixed,
                              moving=moving,
-                             type_of_transform='SyN')
+                             type_of_transform=trans_type)
 
     print('correcting warp to mrtrix convention...')
     os.system(f'warpinit {fixed_fn} {tmp_dir}/ID_warp[].nii.gz -force')
@@ -123,14 +141,14 @@ if __name__ == '__main__':
     cfg = json.load(open(args.config))
     print(cfg)
 
-    move_tract = cfg['t1'] != ''
+    move_tract = cfg['t1'] or cfg['fa'] != ''
     tck_fn = f'{tmp_dir}/input/tract.tck'
     trk_fn = f'{tmp_dir}/input/tract_mni_resampled.trk'
 
     in_dir = f'{tmp_dir}/input'
     if not osp.exists(in_dir):
         os.makedirs(in_dir)
-    
+
     ## resample trk to 16points if needed
     if cfg['resample_points']:
         t0 = time()
@@ -159,8 +177,22 @@ if __name__ == '__main__':
             print(f'done in {time()-t0} sec')
 
         t0 = time()
-        mni_fn = f'{script_dir}/data/standard/MNI152_T1_1mm_brain.nii.gz'
-        tck_mni_fn = tract2standard(tck_fn, cfg['t1'], mni_fn)
+        if cfg['fa'] != '':
+            struct_fn = cfg['fa']
+            mni_fn = f'{script_dir}/data/standard/FSL_HCP1065_FA_1mm.nii.gz'
+        else:
+            struct_fn = cfg['t1']
+            mni_fn = f'{script_dir}/data/standard/MNI152_T1_1mm_brain.nii.gz'
+
+        if cfg['fast_warp']:
+            warp_type = 'antsRegistrationSyNQuick[s]'
+        else:
+            warp_type = 'SyNCC'
+
+        tck_mni_fn = tract2standard(tck_fn,
+                                    struct_fn,
+                                    mni_fn,
+                                    trans_type=warp_type)
         print(f'done in {time()-t0} sec')
 
         t0 = time()
@@ -191,18 +223,8 @@ if __name__ == '__main__':
 
     # check available memory to decide how many streams sample
     curr_device = torch.cuda.current_device()
-    free_mem = int(get_gpu_free_memory_map()[curr_device] / 1024) # in GB
-    if free_mem <= 4:
-        cfg['fixed_size'] = 10000
-    elif free_mem <= 8:
-        cfg['fixed_size'] = 20000
-    elif free_mem <= 10:
-        cfg['fixed_size'] = 30000
-    elif free_mem <= 11:
-        cfg['fixed_size'] = 35000
-    elif free_mem >= 12:
-        cfg['fixed_size'] = 40000
-    
+    cfg['fixed_size'] = get_max_batchsize(curr_device)
+
     dataset = TractDataset(trk_fn,
                            transform=TestSampling(cfg['fixed_size']),
                            return_edges=True,
@@ -276,7 +298,9 @@ if __name__ == '__main__':
             idxs_P = np.where(pred == 1)[0]
             np.savetxt(f'{out_dir}/idxs_plausible.txt', idxs_P, fmt='%d')
             idxs_nonP = np.where(pred == 0)[0]
-            np.savetxt(f'{out_dir}/idxs_non-plausible.txt', idxs_nonP, fmt='%d')
+            np.savetxt(f'{out_dir}/idxs_non-plausible.txt',
+                       idxs_nonP,
+                       fmt='%d')
             if cfg['return_trk']:
                 hdr = nib.streamlines.load(cfg['trk'], lazy_load=True).header
                 streams, lengths = sload.load_selected_streamlines(cfg['trk'])
