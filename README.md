@@ -49,7 +49,9 @@ You can submit this App online at [https://doi.org/10.25663/brainlife.app.390](h
 {
     "trk": "track.trk",
     "t1": "t1.nii.gz",
+    "fa": "fa.nii.gz",
     "resample_points": true,
+    "fast_warp": true,
     "task": "classification",
     "return_trk": true
 }
@@ -57,8 +59,10 @@ You can submit this App online at [https://doi.org/10.25663/brainlife.app.390](h
 
 Here's the fields decription:
 - `trk`: path to the tractogram uploaded by the user
-- `t1`: path to the t1 image in subject space. The image is preferred if it is a brain extracted image. In case no t1 image is provided, the tractogram is assumed to be already in MNI space.
+- `t1`: path to the t1 image in subject space. The image is preferred if it is a brain extracted image. In case no t1 and no fa image is provided, the tractogram is assumed to be already in MNI space.
+- `fa`: path to the fa image in subject space. This filed is exclusive with respect to t1. In case both are provided the fa is used for warp computation. In case no t1 and no fa image is provided, the tractogram is assumed to be already in MNI space.
 - `resample_points`: T/F flag. If T the streamlines will be resampled to 16 points, otherwise no.
+- `fast_warp`: T/F flag. If T the script run a coregistration using parameter similar to antsRegistrationSynQuick (metric optimized during SyN is MutualInformation), which provide fast (~1min) but decent registration. If F the script uses a slower (~30mins) coregistration but more reliable (metric optimized during SyN is CrossCorrelation).
 - `return_trk`: T/F flag. If T the filtered trk tractogram will be returned along with the indexes of plausible and non-plausible streamlines.
 - `task`: classification/regression. [not used right now]
 
