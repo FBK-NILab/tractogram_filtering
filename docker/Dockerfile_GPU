@@ -14,14 +14,15 @@ RUN apt-get update && apt-get install -y apt-utils git g++ curl vim wget cmake
 # echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
 # echo "conda activate base" >> ~/.bashrc
 
-ENV MAKEFLAGS="-j4"
 RUN conda install python=3.7 \
     && conda install dipy=1.1 -c conda-forge \
     && conda install pytorch=1.5 torchvision=0.6 cudatoolkit=10.2 -c pytorch \
-    && conda install mrtrix3=3.0 -c mrtrix3 \
-    && pip install git+https://github.com/ANTsX/ANTsPy.git@v0.2.6 
+    && conda install mrtrix3=3.0 -c mrtrix3
 RUN pip install torchviz
 RUN pip install tensorboardx
+
+ENV MAKEFLAGS="-j4"
+RUN pip install git+https://github.com/ANTsX/ANTsPy.git@v0.2.6 
 
 # install pytorch geometric https://github.com/rusty1s/pytorch_geometric
 ENV CUDA=cu102
