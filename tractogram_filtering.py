@@ -82,13 +82,37 @@ def get_max_batchsize(curr_device):
 def tract2standard(t_fn,
                    t1_fn,
                    fixed_fn,
-                   trans_type='antsRegistrationSyNQuick[s]'):
+                   trans_type='SyNRA'):
     print('registration using ANTs SyN...')
     fixed = ants.image_read(fixed_fn)
     moving = ants.image_read(t1_fn)
-    mytx = ants.registration(fixed=fixed,
-                             moving=moving,
-                             type_of_transform=trans_type)
+
+    # this is a workaround to emulate antsRegistrationSyNQuick.sh.
+    # Unfortunately it is not possible to equally emulate the script.
+    # There are differences in terms of parameters (shrink factor and num of
+    # iterations) in the rigid and in the affine registration 
+    if trans_type == 'SyNRA':
+        # values taken from https://github.com/ANTsX/ANTs/blob/952e7918b47385ebfb730f9c844977762b8437f8/Scripts/antsRegistrationSyNQuick.sh#L455
+        # Notes:
+        # 1. syn_metric and num_of_bins (syn_sampling) are the same as default:
+        # "mattes" and 32 respectively
+        # 2. the three values that configure the SyN[x,x,x] optimization are
+        # respectively grad_step, flow_sigma, and total_sigma
+        # 3. syn_iterations correspond to reg_iterations
+        # 4. smoothing sigmas and shrink factor are automatically set inside the
+        # function. As desired they are set to be: "3x2x1x0vox" and "8x4x2x1"
+        # respectively
+        mytx = ants.registration(fixed=fixed,
+                                moving=moving,
+                                type_of_transform=trans_type,
+                                reg_iterations=(100,70,50,0),
+                                grad_step=0.1,
+                                flow_sigma=3,
+                                total_sigma=0)
+    else:
+        mytx = ants.registration(fixed=fixed,
+                                moving=moving,
+                                type_of_transform=trans_type)
 
     print('correcting warp to mrtrix convention...')
     os.system(f'warpinit {fixed_fn} {tmp_dir}/ID_warp[].nii.gz -force')
@@ -185,7 +209,9 @@ if __name__ == '__main__':
             mni_fn = f'{script_dir}/data/standard/MNI152_T1_1mm_brain.nii.gz'
 
         if cfg['fast_warp']:
-            warp_type = 'antsRegistrationSyNQuick[s]'
+            # TODO: uncomment following line when antspy will release precompiled > 0.2.6
+            # warp_type = 'antsRegistrationSyNQuick[s]'                       
+            warp_type = 'SyNRA'
         else:
             warp_type = 'SyNCC'
 
