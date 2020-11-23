@@ -1,0 +1,40 @@
+FROM continuumio/miniconda3
+
+MAINTAINER Pietro, Ruben and Paolo
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# basic system stuff
+RUN apt-get update && apt-get install -y apt-utils git g++ curl vim wget cmake 
+# libeigen3-dev zlib1g-dev libqt4-opengl-dev libgl1-mesa-dev libfftw3-dev libtiff5-dev jq strace curl vim wget
+
+## setup conda environment
+# the next three lines are maybe not necessary
+# RUN ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+# echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+# echo "conda activate base" >> ~/.bashrc
+
+RUN conda install python=3.7 \
+    && conda install dipy=1.1  -c conda-forge \
+    && conda install pytorch=1.5.0 torchvision=0.6 cudatoolkit=10.2 -c pytorch \
+    && conda install mrtrix3=3.0 -c mrtrix3 \
+    && pip install antspyx==0.2.4
+RUN pip install torchviz
+RUN pip install tensorboardx
+
+# TODO: RUN pip install git+https://github.com/ANTsX/ANTsPy.git@v0.2.6 --no-vtk
+
+# install pytorch geometric https://github.com/rusty1s/pytorch_geometric
+ENV CUDA=cu102
+RUN pip install torch-scatter==2.0.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
+    && pip install torch-sparse==0.6.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
+    && pip install torch-cluster==1.5.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
+    && pip install torch-spline-conv==1.2.0+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
+    && pip install torch-geometric==1.5
+
+#make it work under singularity 
+RUN ldconfig 
+# && mkdir -p /N/u /N/home /N/dc2 /N/soft
+
+#https://wiki.ubuntu.com/DashAsBinSh 
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
