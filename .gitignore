@@ -1,3 +1,6 @@
 *.pyc
 .ipynb_checkpoints/
 .vscode/
+runs/
+tb_logs/
+tmp_tractogram_filtering/
