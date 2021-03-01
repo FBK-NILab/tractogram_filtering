@@ -26,10 +26,11 @@ RUN pip install tensorboardx
 
 # install pytorch geometric https://github.com/rusty1s/pytorch_geometric
 ENV CUDA=cu102
-RUN pip install torch-scatter==2.0.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
-    && pip install torch-sparse==0.6.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
-    && pip install torch-cluster==1.5.4+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
-    && pip install torch-spline-conv==1.2.0+${CUDA} -f https://pytorch-geometric.com/whl/torch-1.5.0.html \
+ENV PYG_URL=https://pytorch-geometric.com/whl/torch-1.5.0+${CUDA}.html
+RUN pip install torch-scatter==2.0.4 -f  ${PYG_URL} \
+    && pip install torch-sparse==0.6.4 -f ${PYG_URL} \
+    && pip install torch-cluster==1.5.4 -f ${PYG_URL} \
+    && pip install torch-spline-conv==1.2.0 -f ${PYG_URL} \
     && pip install torch-geometric==1.5
 
 #make it work under singularity 
