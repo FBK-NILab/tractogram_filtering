@@ -26,11 +26,11 @@ The output are two text files containing the indexes of plausible and non-plausi
 
 ## Usage
 1. Create a json config file, using the one in the repo as example. In the repo inside `data/` I included a t1 and a small tractogram(.trk) that can be used for tests.
-2. launch the container using the desired `<tag>=cpu | gpu`:
+2. launch the container using the desired `<tag>=cpu | gpu`. In case you use `gpu` also use the `--nv` option with `singularity exec` or `--gpus all` with `docker run`:
     * using Singularity: from a writable directory launch the following command:\
-  `singularity exec -e docker://pietroastolfi/tractogram-filtering:<tag> tractogram_filtering.py -config <path-to-json>`
+  `singularity exec -e [--nv] docker://pietroastolfi/tractogram-filtering:<tag> tractogram_filtering.py -config <path-to-json>`
     <!-- - `$ sudo docker run --name tract_filtering -it pietroastolfi/tractogram-filtering:<tag> bash`\
     `$ sudo docker exec docker://pietroastolfi/tractogram-filtering-cpu "tractogram_filtering.py -config <path-to-json>"` -->
-    * using Docker: `[sudo] docker run -v /home/<user>:/home/<user> --name tract_filtering -it pietroastolfi/tractogram-filtering:<tag> bash`
+    * using Docker: `[sudo] docker run -v /home/<user>:/home/<user> --name tract_filtering [--gpus all] -it pietroastolfi/tractogram-filtering:<tag> bash`
 
 To launch a shell inside the docker the command is `singularity shell -e docker://pietroastolfi/tractogram-filtering-cpu`

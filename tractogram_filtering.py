@@ -260,8 +260,11 @@ if __name__ == '__main__':
     cfg['same_size'] = False
 
     # check available memory to decide how many streams sample
-    curr_device = torch.cuda.current_device()
-    cfg['fixed_size'] = get_max_batchsize(curr_device)
+    if DEVICE == 'cuda':
+        torch.cuda.set_device(DEVICE)
+        curr_device = torch.cuda.current_device()
+        cfg['fixed_size'] = get_max_batchsize(curr_device)
+    print(f'''Using mini-batches of size {cfg['fixed_size']}''')
 
     dataset = TractDataset(trk_fn,
                            transform=TestSampling(cfg['fixed_size']),
@@ -276,10 +279,6 @@ if __name__ == '__main__':
                              pin_memory=True)
 
     classifier = get_model(cfg)
-
-    if DEVICE == 'cuda':
-        torch.cuda.set_device(DEVICE)
-        torch.cuda.current_device()
 
     if cfg['weights_path'] == '':
         cfg['weights_path'] = glob.glob(cfg['exp_path'] + '/models/best*')[0]
